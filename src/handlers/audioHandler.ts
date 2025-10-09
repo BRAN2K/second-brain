@@ -3,12 +3,22 @@ import axios from 'axios';
 import { ISpeechToText } from '../services/speechToText/ISpeechToText';
 import { ILogger } from '../services/logging/ILogger';
 import { TranscriptionMetadata, TranscriptionLog } from '../types';
+import { FinanceExtractionService } from '../services/finance/financeExtractionService';
+import { PostgresService } from '../services/database/postgresService';
+import { FinanceExtractionMetadata } from '../types/finance';
 
 export class AudioHandler {
+  private financeExtractionService: FinanceExtractionService;
+  private postgresService: PostgresService;
+
   constructor(
     private speechToTextService: ISpeechToText,
-    private logger: ILogger
-  ) {}
+    private logger: ILogger,
+    geminiApiKey: string
+  ) {
+    this.financeExtractionService = new FinanceExtractionService(geminiApiKey);
+    this.postgresService = new PostgresService();
+  }
 
   async handleAudio(ctx: Context): Promise<void> {
     try {
@@ -68,11 +78,96 @@ export class AudioHandler {
         })
       };
 
+      // Salvar log de transcrição no PostgreSQL
+      await this.postgresService.insertTranscriptionLog(transcriptionLog);
+      
+      // Também salvar no sistema de logs antigo (para compatibilidade)
       await this.logger.logTranscription(transcriptionLog);
 
-      await ctx.reply(`📝 **Transcrição:**\n\n${transcribedText}`, {
-        parse_mode: 'Markdown'
-      });
+      // Extrair dados financeiros do texto transcrito
+      const financeMetadata: FinanceExtractionMetadata = {
+        userId: metadata.userId,
+        username: metadata.username,
+        audioDuration: metadata.audioDuration,
+        transcriptionText: transcribedText,
+        timestamp: metadata.timestamp
+      };
+
+      const extractedFinancialData = await this.financeExtractionService.extractFinancialData(
+        transcribedText, 
+        financeMetadata
+      );
+
+      // Salvar dados financeiros extraídos
+      if (extractedFinancialData.confidence > 0.3) { // Só salvar se confiança > 30%
+        try {
+          const savedData = await this.postgresService.insertExtractedFinancialData(
+            metadata.userId,
+            extractedFinancialData
+          );
+
+          // Salvar log da extração
+          await this.postgresService.insertFinanceExtractionLog(
+            metadata.userId,
+            transcribedText,
+            extractedFinancialData
+          );
+
+          // Preparar resposta com dados financeiros
+          let responseText = `📝 **Transcrição:**\n\n${transcribedText}\n\n`;
+          
+          if (extractedFinancialData.transactions.length > 0) {
+            responseText += `💰 **Transações identificadas:**\n`;
+            extractedFinancialData.transactions.forEach((transaction, index) => {
+              const typeEmoji = transaction.type === 'income' ? '📈' : 
+                               transaction.type === 'expense' ? '📉' : '🔄';
+              responseText += `${typeEmoji} ${transaction.description} - R$ ${transaction.amount}\n`;
+            });
+            responseText += `\n`;
+          }
+
+          if (extractedFinancialData.accounts.length > 0) {
+            responseText += `🏦 **Contas mencionadas:**\n`;
+            extractedFinancialData.accounts.forEach(account => {
+              responseText += `• ${account.name} (${account.type})\n`;
+            });
+            responseText += `\n`;
+          }
+
+          if (extractedFinancialData.goals.length > 0) {
+            responseText += `🎯 **Metas identificadas:**\n`;
+            extractedFinancialData.goals.forEach(goal => {
+              responseText += `• ${goal.title} - R$ ${goal.targetAmount}\n`;
+            });
+            responseText += `\n`;
+          }
+
+          if (extractedFinancialData.notes.length > 0) {
+            responseText += `📋 **Observações:**\n`;
+            extractedFinancialData.notes.forEach(note => {
+              responseText += `• ${note}\n`;
+            });
+            responseText += `\n`;
+          }
+
+          responseText += `🔍 **Confiança na extração:** ${Math.round(extractedFinancialData.confidence * 100)}%`;
+
+          await ctx.reply(responseText, { parse_mode: 'Markdown' });
+
+        } catch (error) {
+          this.logger.error('Erro ao salvar dados financeiros', error as Error);
+          
+          // Se der erro, pelo menos mostrar a transcrição
+          await ctx.reply(`📝 **Transcrição:**\n\n${transcribedText}`, {
+            parse_mode: 'Markdown'
+          });
+        }
+      } else {
+        // Se confiança baixa, mostrar apenas transcrição
+        await ctx.reply(`📝 **Transcrição:**\n\n${transcribedText}`, {
+          parse_mode: 'Markdown'
+        });
+      }
 
     } catch (error) {
       this.logger.error('Erro ao processar áudio', error as Error);

@@ -23,7 +23,7 @@ class TelegramSpeechBot {
     this.logger = new PinoLogger(this.sqliteService, process.env.LOG_LEVEL || 'info');
     this.speechToTextService = new GeminiSpeechService(process.env.GEMINI_API_KEY!);
 
-    this.audioHandler = new AudioHandler(this.speechToTextService, this.logger);
+    this.audioHandler = new AudioHandler(this.speechToTextService, this.logger, process.env.GEMINI_API_KEY!);
 
     this.bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
     this.setupHandlers();
@@ -41,8 +41,11 @@ class TelegramSpeechBot {
   private setupHandlers(): void {
     this.bot.start((ctx) => {
       ctx.reply(
-        '🎤 **Bot de Transcrição de Áudio**\n\n' +
-        'Envie um arquivo de áudio ou uma mensagem de voz que eu vou transcrever para texto!\n\n' +
+        '🎤 **Bot de Transcrição e Análise Financeira**\n\n' +
+        'Envie um arquivo de áudio ou uma mensagem de voz que eu vou:\n' +
+        '• Transcrever para texto\n' +
+        '• Extrair informações financeiras\n' +
+        '• Organizar seus dados financeiros\n\n' +
         'Comandos disponíveis:\n' +
         '/start - Iniciar o bot\n' +
         '/help - Mostrar esta ajuda',
@@ -56,7 +59,12 @@ class TelegramSpeechBot {
         '1. Envie um arquivo de áudio (MP3, WAV, OGG, etc.)\n' +
         '2. Ou envie uma mensagem de voz\n' +
         '3. Aguarde o processamento\n' +
-        '4. Receba o texto transcrito\n\n' +
+        '4. Receba a transcrição + dados financeiros extraídos\n\n' +
+        '💰 **O que o bot extrai:**\n' +
+        '• Transações (receitas, despesas, transferências)\n' +
+        '• Contas bancárias mencionadas\n' +
+        '• Metas financeiras\n' +
+        '• Observações sobre finanças\n\n' +
         '⚠️ **Limitações:**\n' +
         '• Arquivos até 20MB\n' +
         '• Idioma: Português\n' +
@@ -76,8 +84,8 @@ class TelegramSpeechBot {
       const message = ctx.message.text;
       if (message && !message.startsWith('/')) {
         ctx.reply(
-          '📝 Envie um arquivo de áudio ou uma mensagem de voz para transcrever!\n\n' +
-          'Use /help para ver as instruções.',
+        '📝 Envie um arquivo de áudio ou uma mensagem de voz para transcrever e extrair dados financeiros!\n\n' +
+        'Use /help para ver as instruções.',
           { parse_mode: 'Markdown' }
         );
       }
