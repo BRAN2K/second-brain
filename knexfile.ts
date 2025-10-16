@@ -15,12 +15,12 @@ const config: { [key: string]: Knex.Config } = {
       password: process.env.POSTGRES_PASSWORD || 'second_brain_password',
     },
     migrations: {
-      directory: './src/migrations',
+      directory: './migrations',
       extension: 'ts',
       tableName: 'knex_migrations'
     },
     seeds: {
-      directory: './src/seeds',
+      directory: './seeds',
       extension: 'ts'
     },
     pool: {

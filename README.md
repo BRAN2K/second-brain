@@ -18,6 +18,9 @@ Um bot do Telegram que transcreve áudios e extrai informações financeiras usa
 - **Node.js + TypeScript**
 - **Telegraf** (Bot do Telegram)
 - **Gemini AI** (Transcrição e análise)
+- **PostgreSQL** (Banco de dados principal)
+- **SQLite** (Logs locais)
+- **Knex** (Query builder e migrações)
 - **PostgreSQL** (Banco de dados)
 - **Docker** (Containerização)
 
@@ -31,38 +34,45 @@ Um bot do Telegram que transcreve áudios e extrai informações financeiras usa
 ## 🔧 Instalação
 
 1. **Clone o repositório**
+
 ```bash
 git clone <repository-url>
 cd second-brain
 ```
 
 2. **Instale as dependências**
+
 ```bash
 npm install
 ```
 
 3. **Configure as variáveis de ambiente**
+
 ```bash
 cp env.example .env
 # Edite o arquivo .env com suas chaves
 ```
 
 4. **Inicie o PostgreSQL com Docker**
+
 ```bash
 npm run docker:up
 ```
 
 5. **Migre dados existentes (se houver)**
+
 ```bash
 npm run migrate:data
 ```
 
 6. **Compile o projeto**
+
 ```bash
 npm run build
 ```
 
 7. **Inicie o bot**
+
 ```bash
 npm start
 ```
@@ -70,6 +80,7 @@ npm start
 ## 🐳 Docker
 
 ### Comandos úteis:
+
 ```bash
 # Iniciar containers
 npm run docker:up
@@ -82,6 +93,7 @@ npm run docker:logs
 ```
 
 ### Acessar pgAdmin:
+
 - URL: http://localhost:8080
 - Email: admin@secondbrain.com
 - Senha: admin123
@@ -89,6 +101,7 @@ npm run docker:logs
 ## 📊 Estrutura do Banco de Dados
 
 ### Tabelas principais:
+
 - `transcription_logs`: Logs de transcrições
 - `financial_transactions`: Transações extraídas
 - `financial_accounts`: Contas mencionadas
@@ -103,9 +116,10 @@ npm run docker:logs
 4. **Receba os resultados** organizados por categoria
 
 ### Exemplo de uso:
+
 ```
 Usuário: [Envia áudio falando: "Gastei 50 reais no almoço hoje e recebi 2000 de salário"]
-Bot: 
+Bot:
 📝 Transcrição:
 Gastei 50 reais no almoço hoje e recebi 2000 de salário
 
@@ -119,6 +133,7 @@ Gastei 50 reais no almoço hoje e recebi 2000 de salário
 ## 🔧 Desenvolvimento
 
 ### Scripts disponíveis:
+
 ```bash
 npm run dev          # Desenvolvimento com ts-node
 npm run dev:watch    # Desenvolvimento com watch mode
@@ -128,6 +143,7 @@ npm run migrate:data # Migrar dados do SQLite
 ```
 
 ### Estrutura do projeto:
+
 ```
 src/
 ├── bot.ts                    # Bot principal
@@ -194,6 +210,7 @@ Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes
 ## 🆘 Suporte
 
 Se encontrar problemas:
+
 1. Verifique os logs do Docker: `npm run docker:logs`
 2. Verifique as variáveis de ambiente
 3. Teste a conexão com PostgreSQL
