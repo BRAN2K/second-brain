@@ -3,7 +3,9 @@
  * 
  * Data transfer object for extracted financial data
  */
-import { FinancialTransaction, FinancialAccount, FinancialGoal } from '../entities';
+import { FinancialAccount } from '../entities/financial-account.entity';
+import { FinancialGoal } from '../entities/financial-goal.entity';
+import { FinancialTransaction } from '../entities/financial-transaction.entity';
 
 export interface ExtractedFinancialDataDTO {
   /** List of extracted financial transactions */

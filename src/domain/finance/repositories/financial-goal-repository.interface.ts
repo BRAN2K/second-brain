@@ -3,7 +3,7 @@
  * 
  * Repository interface for FinancialGoal entity operations
  */
-import { FinancialGoal } from '../entities';
+import { FinancialGoal } from '../entities/financial-goal.entity';
 
 export interface IFinancialGoalRepository {
   /**

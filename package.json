@@ -4,10 +4,10 @@
   "description": "",
   "main": "dist/bot.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "start": "node dist/bot.js",
-    "dev": "ts-node src/bot.ts",
-    "dev:watch": "ts-node --watch src/bot.ts",
+    "dev": "ts-node -r tsconfig-paths/register src/bot.ts",
+    "dev:watch": "ts-node --watch -r tsconfig-paths/register src/bot.ts",
     "test:config": "node scripts/test-bot.js",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
@@ -45,6 +45,8 @@
     "@types/pg": "^8.10.9",
     "@types/sqlite3": "^3.1.11",
     "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.2"
   }
 }

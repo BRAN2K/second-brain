@@ -4,8 +4,8 @@
  * Implements the IFinancialGoalRepository interface using PostgreSQL database.
  */
 import { Knex } from 'knex';
-import { FinancialGoal } from '../../../domain/finance/entities';
-import { IFinancialGoalRepository } from '../../../domain/finance/repositories';
+import { FinancialGoal } from '~/domain/finance/entities/financial-goal.entity';
+import { IFinancialGoalRepository } from '~/domain/finance/repositories/financial-goal-repository.interface';
 import { IDatabaseAdapter } from './database-adapter.interface';
 import { PostgresAdapter } from './postgres-adapter';
 

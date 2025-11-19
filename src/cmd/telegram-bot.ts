@@ -8,7 +8,6 @@ import * as dotenv from 'dotenv';
 import { Context } from 'telegraf';
 
 import { Container } from './container';
-import { TelegramAudioHandlerAdapter } from '../adapters/input/telegram';
 
 // Load environment variables from .env file
 dotenv.config();

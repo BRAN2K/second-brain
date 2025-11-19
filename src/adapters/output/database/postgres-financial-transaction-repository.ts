@@ -4,8 +4,8 @@
  * Implements the IFinancialTransactionRepository interface using PostgreSQL database.
  */
 import { Knex } from 'knex';
-import { FinancialTransaction } from '../../../domain/finance/entities';
-import { IFinancialTransactionRepository } from '../../../domain/finance/repositories';
+import { FinancialTransaction } from '~/domain/finance/entities/financial-transaction.entity';
+import { IFinancialTransactionRepository } from '~/domain/finance/repositories/financial-transaction-repository.interface';
 import { IDatabaseAdapter } from './database-adapter.interface';
 import { PostgresAdapter } from './postgres-adapter';
 

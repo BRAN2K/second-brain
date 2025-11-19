@@ -4,13 +4,9 @@
  * Implements the IFinanceExtractionPort using Gemini AI for financial data extraction.
  */
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { ILoggerPort } from '../../../domain/common/ports/logger.port';
-import { IFinanceExtractionPort } from '../../../domain/finance/ports';
-import { 
-  ExtractedFinancialDataDTO,
-  FinanceExtractionMetadataDTO 
-} from '../../../domain/finance/dtos';
-
+import { ILoggerPort } from '~/domain/common/ports/logger.port';
+import { IFinanceExtractionPort } from '~/domain/finance/ports/finance-extraction.port';
+import { ExtractedFinancialDataDTO, FinanceExtractionMetadataDTO } from '~/domain/finance/dtos';
 export class GeminiFinanceExtractionAdapter implements IFinanceExtractionPort {
   private model: any;
   private generativeAI: GoogleGenerativeAI;
@@ -18,7 +14,7 @@ export class GeminiFinanceExtractionAdapter implements IFinanceExtractionPort {
 
   constructor(apiKey: string, logger?: ILoggerPort) {
     this.generativeAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.generativeAI.getGenerativeModel({ model: "gemini-pro" });
+    this.model = this.generativeAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     this.logger = logger;
   }
 
@@ -67,7 +63,7 @@ export class GeminiFinanceExtractionAdapter implements IFinanceExtractionPort {
 
       // Try to parse the JSON
       try {
-        const financialData = JSON.parse(jsonText);
+        const financialData = JSON.parse(JSON.stringify(jsonText));
         this.logger?.info(`Financial data extracted successfully: ${JSON.stringify(financialData).slice(0, 100)}...`);
         
         // Map the raw extraction to our DTO format

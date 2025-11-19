@@ -4,7 +4,9 @@
  * This use case retrieves a summary of financial data for a user.
  */
 
-import { IFinancialTransactionRepository, IFinancialAccountRepository, IFinancialGoalRepository } from '../repositories';
+import { IFinancialTransactionRepository } from '../repositories/financial-transaction-repository.interface';
+import { IFinancialAccountRepository } from '../repositories/financial-account-repository.interface';
+import { IFinancialGoalRepository } from '../repositories/financial-goal-repository.interface';
 import { ILoggerPort } from '../../common/ports';
 
 export interface FinancialSummaryDTO {

@@ -4,7 +4,7 @@
  * Data transfer object for transcription results
  */
 
-import { Transcription } from '../entities';
+import { Transcription } from '../entities/transcription.entity';
 
 export interface TranscriptionResultDTO {
   /** The raw transcribed text */

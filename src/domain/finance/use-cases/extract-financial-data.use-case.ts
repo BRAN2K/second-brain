@@ -6,7 +6,10 @@
 
 import { IFinanceExtractionPort } from '../ports/finance-extraction.port';
 import { ExtractedFinancialDataDTO, FinanceExtractionRequestDTO } from '../dtos';
-import { FinancialTransaction, FinancialAccount, FinancialGoal } from '../entities';
+import { FinancialAccount } from '../entities/financial-account.entity';
+import { FinancialTransaction } from '../entities/financial-transaction.entity';
+import { FinancialGoal } from '../entities/financial-goal.entity';
+
 import { ILoggerPort } from '../../common/ports/logger.port';
 
 export class ExtractFinancialDataUseCase {

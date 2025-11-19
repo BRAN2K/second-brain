@@ -4,7 +4,7 @@
  * Data transfer object for requesting audio transcription
  */
 
-import { AudioFile } from '../entities';
+import { AudioFile } from '../entities/audio-file.entity';
 
 export interface TranscriptionRequestDTO {
   /** Audio file to transcribe */

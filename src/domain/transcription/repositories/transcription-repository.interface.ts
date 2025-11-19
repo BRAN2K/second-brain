@@ -3,7 +3,7 @@
  * 
  * Repository interface for Transcription entity operations
  */
-import { Transcription } from '../entities';
+import { Transcription } from '../entities/transcription.entity';
 
 export interface ITranscriptionRepository {
   /**

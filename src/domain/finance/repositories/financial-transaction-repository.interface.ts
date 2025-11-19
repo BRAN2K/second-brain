@@ -3,7 +3,7 @@
  * 
  * Repository interface for FinancialTransaction entity operations
  */
-import { FinancialTransaction } from '../entities';
+import { FinancialTransaction } from '../entities/financial-transaction.entity';
 
 export interface IFinancialTransactionRepository {
   /**

@@ -4,10 +4,10 @@
  * This use case is responsible for saving transcription data to a repository.
  */
 
-import { ITranscriptionRepository } from '../repositories';
+import { ITranscriptionRepository } from '../repositories/transcription-repository.interface';
 import { ILoggerPort } from '../../common/ports';
-import { TranscriptionResultDTO } from '../dtos';
-import { Transcription } from '../entities';
+import { TranscriptionResultDTO } from '../dtos/transcription-result.dto';
+import { Transcription } from '../entities/transcription.entity';
 
 export class SaveTranscriptionUseCase {
   constructor(

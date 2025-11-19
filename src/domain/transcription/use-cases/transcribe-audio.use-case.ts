@@ -4,11 +4,14 @@
  * This use case is responsible for transcribing audio to text.
  */
 
-import { ISpeechToTextPort } from '../ports';
+import { ISpeechToTextPort } from '../ports/speech-to-text.port';
 import { ILoggerPort } from '../../common/ports';
-import { AudioFile, Transcription } from '../entities';
-import { TranscriptionRequestDTO, TranscriptionResultDTO } from '../dtos';
+import { AudioFile } from '../entities/audio-file.entity';
+import { Transcription } from '../entities/transcription.entity';
+import { TranscriptionRequestDTO } from '../dtos/transcription-request.dto';
+import { TranscriptionResultDTO } from '../dtos/transcription-result.dto';
 import axios from 'axios';
+import { promises as fs } from 'fs';
 
 export class TranscribeAudioUseCase {
   constructor(
@@ -119,8 +122,9 @@ export class TranscribeAudioUseCase {
         return Buffer.from(response.data);
       }
       
-      // TODO: Implement local file reading if necessary
-      throw new Error('Local file reading not yet implemented');
+      // If the file path is a local filesystem path, read it
+      const fileBuffer = await fs.readFile(audioFile.filePath);
+      return Buffer.from(fileBuffer);
     } catch (error) {
       this.loggerPort.error('Error fetching audio buffer', { error, filePath: audioFile.filePath });
       throw new Error(`Failed to fetch audio file: ${error instanceof Error ? error.message : 'Unknown error'}`);

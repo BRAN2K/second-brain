@@ -9,29 +9,20 @@ import { Telegraf } from 'telegraf';
 
 // Domain Ports
 import { ILoggerPort } from '../domain/common/ports/logger.port';
-import { ISpeechToTextPort } from '../domain/transcription/ports';
-import { IFinanceExtractionPort } from '../domain/finance/ports';
+import { ISpeechToTextPort } from '../domain/transcription/ports/speech-to-text.port';
+import { IFinanceExtractionPort } from '../domain/finance/ports/finance-extraction.port';
 
 // Domain Repositories
-import { 
-  ITranscriptionRepository 
-} from '../domain/transcription/repositories';
-import {
-  IFinancialTransactionRepository,
-  IFinancialAccountRepository,
-  IFinancialGoalRepository
-} from '../domain/finance/repositories';
-
+import { ITranscriptionRepository } from '../domain/transcription/repositories/transcription-repository.interface';
+import { IFinancialTransactionRepository } from '../domain/finance/repositories/financial-transaction-repository.interface';
+import { IFinancialGoalRepository } from '../domain/finance/repositories/financial-goal-repository.interface';
+import { IFinancialAccountRepository } from '../domain/finance/repositories/financial-account-repository.interface';
 // Domain Use Cases
-import {
-  TranscribeAudioUseCase,
-  SaveTranscriptionUseCase
-} from '../domain/transcription/use-cases';
-import {
-  ExtractFinancialDataUseCase,
-  SaveFinancialDataUseCase,
-  GetFinancialSummaryUseCase
-} from '../domain/finance/use-cases';
+import { TranscribeAudioUseCase} from '../domain/transcription/use-cases/transcribe-audio.use-case';
+import { SaveTranscriptionUseCase } from '../domain/transcription/use-cases/save-transcription.use-case';
+import { ExtractFinancialDataUseCase } from '../domain/finance/use-cases/extract-financial-data.use-case';
+import { SaveFinancialDataUseCase } from '../domain/finance/use-cases/save-financial-data.use-case';
+import { GetFinancialSummaryUseCase } from '../domain/finance/use-cases/get-financial-summary.use-case';
 
 // Adapters - Output
 import { 

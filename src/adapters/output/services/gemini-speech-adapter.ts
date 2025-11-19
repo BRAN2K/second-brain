@@ -3,12 +3,9 @@
  * 
  * Implements the ISpeechToTextPort using Gemini AI for speech-to-text.
  */
-import fs from 'fs';
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { ILoggerPort } from '../../../domain/common/ports/logger.port';
-import { ISpeechToTextPort } from '../../../domain/transcription/ports';
-import { TranscriptionResultDTO } from '../../../domain/transcription/dtos';
-import { AudioFile } from '../../../domain/transcription/entities';
+import { GoogleGenerativeAI,  } from "@google/generative-ai";
+import { ILoggerPort } from '~/domain/common/ports/logger.port';
+import { ISpeechToTextPort } from '~/domain/transcription/ports/speech-to-text.port';
 
 export class GeminiSpeechAdapter implements ISpeechToTextPort {
   private model: any;
@@ -17,7 +14,7 @@ export class GeminiSpeechAdapter implements ISpeechToTextPort {
 
   constructor(apiKey: string, logger?: ILoggerPort) {
     this.generativeAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.generativeAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    this.model = this.generativeAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     this.logger = logger;
   }
 

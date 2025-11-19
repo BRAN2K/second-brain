@@ -4,8 +4,8 @@
  * Implements the ITranscriptionRepository interface using PostgreSQL database.
  */
 import { Knex } from 'knex';
-import { Transcription } from '../../../domain/transcription/entities';
-import { ITranscriptionRepository } from '../../../domain/transcription/repositories';
+import { Transcription } from '~/domain/transcription/entities/transcription.entity';
+import { ITranscriptionRepository } from '~/domain/transcription/repositories/transcription-repository.interface';
 import { IDatabaseAdapter } from './database-adapter.interface';
 import { PostgresAdapter } from './postgres-adapter';
 

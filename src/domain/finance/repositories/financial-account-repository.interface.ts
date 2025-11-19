@@ -3,7 +3,7 @@
  * 
  * Repository interface for FinancialAccount entity operations
  */
-import { FinancialAccount } from '../entities';
+import { FinancialAccount } from '../entities/financial-account.entity';
 
 export interface IFinancialAccountRepository {
   /**

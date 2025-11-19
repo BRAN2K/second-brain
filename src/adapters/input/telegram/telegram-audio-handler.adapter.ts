@@ -10,20 +10,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import axios from 'axios';
 
-import { ILoggerPort } from '../../../domain/common/ports/logger.port';
-import { ISpeechToTextPort } from '../../../domain/transcription/ports';
-import { IFinanceExtractionPort } from '../../../domain/finance/ports';
-import { 
-  TranscriptionRequestDTO,
-  TranscriptionResultDTO 
-} from '../../../domain/transcription/dtos';
-import { TranscribeAudioUseCase } from '../../../domain/transcription/use-cases';
-import { 
-  FinanceExtractionRequestDTO,
-  ExtractedFinancialDataDTO
-} from '../../../domain/finance/dtos';
-import { ExtractFinancialDataUseCase } from '../../../domain/finance/use-cases';
-import { AudioFile } from '../../../domain/transcription/entities';
+import { ILoggerPort } from '~/domain/common/ports/logger.port';
+import { ISpeechToTextPort } from '~/domain/transcription/ports/speech-to-text.port';
+import { IFinanceExtractionPort } from '~/domain/finance/ports/finance-extraction.port';
+import { TranscriptionRequestDTO } from '~/domain/transcription/dtos/transcription-request.dto';
+import { TranscribeAudioUseCase } from '~/domain/transcription/use-cases/transcribe-audio.use-case';
+import { FinanceExtractionRequestDTO } from '~/domain/finance/dtos';
+import { ExtractFinancialDataUseCase } from '~/domain/finance/use-cases/extract-financial-data.use-case';
+import { AudioFile } from '~/domain/transcription/entities/audio-file.entity';
 
 export class TelegramAudioHandlerAdapter {
   private logger: ILoggerPort;

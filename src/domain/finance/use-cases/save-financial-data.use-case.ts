@@ -4,7 +4,9 @@
  * This use case saves extracted financial data to repositories.
  */
 
-import { IFinancialTransactionRepository, IFinancialAccountRepository, IFinancialGoalRepository } from '../repositories';
+import { IFinancialTransactionRepository } from '../repositories/financial-transaction-repository.interface';
+import { IFinancialAccountRepository } from '../repositories/financial-account-repository.interface';
+import { IFinancialGoalRepository } from '../repositories/financial-goal-repository.interface';
 import { ExtractedFinancialDataDTO } from '../dtos';
 import { ILoggerPort } from '../../common/ports';
 

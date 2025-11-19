@@ -4,8 +4,8 @@
  * Implements the IFinancialAccountRepository interface using PostgreSQL database.
  */
 import { Knex } from 'knex';
-import { FinancialAccount } from '../../../domain/finance/entities';
-import { IFinancialAccountRepository } from '../../../domain/finance/repositories';
+import { FinancialAccount } from '~/domain/finance/entities/financial-account.entity';
+import { IFinancialAccountRepository } from '~/domain/finance/repositories/financial-account-repository.interface';
 import { IDatabaseAdapter } from './database-adapter.interface';
 import { PostgresAdapter } from './postgres-adapter';
 

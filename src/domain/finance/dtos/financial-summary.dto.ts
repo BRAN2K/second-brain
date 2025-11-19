@@ -4,7 +4,9 @@
  * Data transfer object for financial summary data.
  */
 
-import { FinancialAccount, FinancialGoal, FinancialTransaction } from '../entities';
+import { FinancialAccount } from '../entities/financial-account.entity';
+import { FinancialGoal } from '../entities/financial-goal.entity';
+import { FinancialTransaction } from '../entities/financial-transaction.entity';
 
 export interface FinancialSummaryDTO {
   /** User ID for this summary */
