@@ -1,12 +1,13 @@
 <!--
 Sync Impact Report
-- Version change: N/A (template placeholders) -> 1.0.0
+- Version change: 1.0.0 -> 1.1.0
 - Modified principles:
 	- Template Principle 1 -> I. Security First
 	- Template Principle 2 -> II. Clean Architecture with Pragmatic SOLID
 	- Template Principle 3 -> III. Testability and Coverage Discipline (NON-NEGOTIABLE)
 	- Template Principle 4 -> IV. Explicit Dependencies and Small Modules
 	- Template Principle 5 -> V. Deterministic Delivery and Operational Readiness
+	- Temaplte Principle 6 -> VI. Keep Implementations Simple (Avoid Over-Engineering)
 - Added sections:
 	- Technical Standards
 	- Development Workflow and Quality Gates
@@ -70,6 +71,18 @@ error handling, and metrics where useful) MUST be present for production-readine
 
 Rationale: Deterministic workflows and operational signals reduce deployment risk and recovery time.
 
+### VI. Keep Implementations Simple (Avoid Over-Engineering)
+
+Implementations MUST favor simplicity and clarity over speculative generality. Engineers MUST
+prefer the simplest solution that satisfies the current requirements and is well-tested. Premature
+abstraction, speculative generalization, or optimization for unknown future use-cases is PROHIBITED
+unless a clear, documented justification exists and an ADR records the trade-offs and rollback plan.
+Complexity MUST be introduced intentionally with a cost-benefit analysis and acceptance criteria.
+
+Rationale: Simple, focused implementations reduce cognitive load, speed delivery, improve
+testability, and lower long-term maintenance costs. Over-engineering creates hidden coupling and
+increases the risk of defects without proportional benefit.
+
 ## Technical Standards
 
 - Bun and TypeScript MUST be used for all application code and tooling.
@@ -105,4 +118,4 @@ Compliance review expectations:
   and test obligations.
 - Reviews MUST block merges for unresolved constitution violations unless an approved ADR exists.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-27 | **Last Amended**: 2026-04-27
+**Version**: 1.1.0 | **Ratified**: 2026-04-27 | **Last Amended**: 2026-04-28
