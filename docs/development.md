@@ -14,17 +14,33 @@ cp .env.example .env   # adjust as needed
 ## Scripts
 ```bash
 bun run dev        # watch-mode server
-bun start          # run server
-bun test           # run tests (bun:test)
-bun run typecheck  # tsc --noEmit
-bun run lint       # biome check
-bun run format     # biome check --write
+bun start              # run server
+bun test               # all tests (unit + integration; integration needs Docker)
+bun run test:unit      # unit tests only (no Docker)
+bun run test:integration  # integration tests (ephemeral Postgres via Compose)
+bun run typecheck      # tsc --noEmit
+bun run lint           # biome check
+bun run format         # biome check --write
 ```
+
+## Database
+
+```bash
+bun run db:test:up     # start ephemeral test Postgres (port 5433)
+bun run db:test:down   # stop it (wipes data)
+# CLI migrations (reads DATABASE_URL); used by the deploy pipeline:
+DATABASE_URL=... bun run migrate:latest
+DATABASE_URL=... bun run migrate:down
+```
+
+Migrations live in `migrations/` (kysely-ctl). Integration tests run them
+programmatically against the ephemeral DB via `test/helpers/test-db.ts`.
 
 ## Run with Docker
 ```bash
 docker compose up --build      # app + postgres:18
 curl localhost:3000/health     # {"status":"ok"}
+curl localhost:3000/ready      # {"status":"ready"} once Postgres is reachable
 docker compose down            # stop (add -v to wipe the DB volume)
 ```
 

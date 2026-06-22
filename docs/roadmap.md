@@ -8,14 +8,14 @@ stay independent.
 Bun + Elysia + TS scaffold, hexagonal skeleton, `config/` (TypeBox fail-fast), `/health`,
 Biome, `bun test`, multi-stage Dockerfile, `docker-compose.yml` base with `postgres:18`.
 
-## PR1 — Persistence base (DB-first) ⏳
+## PR1 — Persistence base (DB-first) ✅
 Kysely + kysely-ctl. Migrations: generic infra (`set_updated_at()` trigger, `audit` schema
 + generic audit trigger) and the `extraction` table with `id default uuidv7()`,
 `created_at`/`updated_at`/`deleted_at`, triggers attached. `ExtractionRepository` port +
 adapter (soft-delete encapsulated). `docker-compose.test.yml` + ephemeral DB test helper.
 Integration tests for defaults/triggers/audit. `/ready` checks the DB.
 
-## PR2 — Template → JSON Schema
+## PR2 — Template → JSON Schema ⏳
 `domain/services/template-to-schema` (string/number/boolean/date/enum/array-of-primitives,
 no nesting). Strict canonical schema + `required` metadata. TypeBox request validation.
 

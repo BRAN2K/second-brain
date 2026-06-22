@@ -7,12 +7,13 @@ FROM base AS deps
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
-# --- Build + quality gates (tests/typecheck run here) ---
+# --- Build + quality gates (typecheck + unit tests run here) ---
+# Integration tests need a Postgres service and run in CI, not in the image build.
 FROM base AS build
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY . .
-RUN bun run typecheck && bun test
+RUN bun run typecheck && bun run test:unit
 
 # --- Slim runtime image ---
 FROM base AS release

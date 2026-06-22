@@ -1,20 +1,20 @@
 # Project Status
 
-_Last updated: 2026-06-21_
+_Last updated: 2026-06-22_
 
 ## Summary
 
-The Second Brain Extraction API is in early v1 development. The bootstrap (PR0) is
-complete and verified end-to-end, including via Docker Compose. Persistence and the
-extraction pipeline are the next steps.
+The Second Brain Extraction API is in early v1 development. Bootstrap (PR0) and the
+DB-first persistence base (PR1) are complete and verified end-to-end, including via
+Docker Compose. The template→schema and extraction pipeline are next.
 
 ## Delivery progress
 
 | PR | Scope | Status |
 |----|-------|--------|
 | PR0 | Bootstrap (Bun+Elysia, config, health, Docker, CI scaffold) | ✅ Done |
-| PR1 | Persistence base (DB-first): Kysely, migrations, ephemeral test DB | ⏳ Next |
-| PR2 | Template → JSON Schema | ⬜ Planned |
+| PR1 | Persistence base (DB-first): Kysely, migrations, ephemeral test DB | ✅ Done |
+| PR2 | Template → JSON Schema | ⏳ Next |
 | PR3 | Output validation + `missingFields` | ⬜ Planned |
 | PR4 | Provider ports + selection/fallback (fakes) | ⬜ Planned |
 | PR5 | Real providers (Groq/OpenAI/Gemini) | ⬜ Planned |
@@ -45,11 +45,33 @@ See [roadmap.md](./roadmap.md) for details.
 - **Runtime path alias:** Bun resolves the `@/*` alias from `tsconfig.json` at runtime,
   so the file must be copied into the release image.
 
+## PR1 — verified
+
+| Check | Result |
+|---|---|
+| `bun run typecheck` | ✅ clean |
+| `bun run test:unit` | ✅ 10/10 (no Docker needed) |
+| `bun run test:integration` | ✅ 5/5 (ephemeral Postgres via Compose) |
+| `bun run lint` (Biome) | ✅ clean |
+| `kysely migrate latest` (CLI) | ✅ applies migrations |
+| Docker image build (typecheck + unit) | ✅ |
+| `docker compose up`; `/ready` checks Postgres | ✅ 200 |
+
+What landed: Kysely + kysely-ctl; migrations for the generic DB-first infra
+(`set_updated_at` trigger, `audit` schema + generic audit trigger) and the `extraction`
+table (`id default uuidv7()`, timestamps, soft delete, triggers attached);
+`ExtractionRepository` port + Kysely adapter (save/findById/softDelete);
+`docker-compose.test.yml` + ephemeral DB helper; integration tests covering
+defaults/triggers/audit/soft-delete; `/ready` DB check wired via `cmd/container`.
+
+### Note
+- The Docker build runs **unit tests only** (`test:unit`); integration tests need a
+  Postgres service and run via `test:integration` (and in CI), not in the image build.
+
 ## Environment notes
 - **Bun** installed at `~/.bun/bin/bun` (v1.3.14).
 - **Docker** runs via Docker Desktop WSL integration (engine 29.5.3, Compose v5.x).
 - Local secrets via `.env` (copy from `.env.example`); Infisical comes near deploy.
 
 ## Next step
-PR1 — Persistence base (DB-first). The critical assumption (DB-generated `uuidv7()`
-on Postgres 18) is already verified.
+PR2 — Template → JSON Schema (`domain/services/template-to-schema`).

@@ -18,6 +18,7 @@ export const ConfigSchema = Type.Object({
 		),
 		{ default: "info" },
 	),
+	DATABASE_URL: Type.String({ minLength: 1 }),
 });
 
 export type Config = Static<typeof ConfigSchema>;
