@@ -91,7 +91,7 @@ describe("KyselyExtractionRepository (integration)", () => {
 		expect(row.updated_at.getTime()).toBeGreaterThan(row.created_at.getTime());
 	});
 
-	it("audit trigger records INSERT and UPDATE with snapshots", async () => {
+	it("audit trigger records INSERT and soft-delete as DELETE", async () => {
 		const e = await repo.save({
 			sourceType: "text",
 			inputText: "audit me",
@@ -99,25 +99,28 @@ describe("KyselyExtractionRepository (integration)", () => {
 		});
 		await repo.softDelete(e.id);
 
-		const logs = await db
-			.selectFrom("audit.log")
+		const audit = await db
+			.selectFrom("extraction_audit")
 			.selectAll()
 			.where("row_id", "=", e.id)
-			.orderBy("changed_at")
 			.execute();
 
-		const ops = logs.map((l) => l.operation);
-		expect(ops).toContain("INSERT");
-		expect(ops).toContain("UPDATE");
+		// soft delete is recorded as DELETE, not UPDATE
+		expect(audit.map((a) => a.operation).sort()).toEqual(["DELETE", "INSERT"]);
 
-		const update = logs.find((l) => l.operation === "UPDATE");
-		expect(update?.table_name).toBe("extraction");
-		// snapshot captures the soft-delete transition
+		const insert = audit.find((a) => a.operation === "INSERT");
+		expect(insert?.row_id).toBe(e.id);
+		expect(insert?.requested_by).toBeNull();
+		expect((insert?.data as { input_text: string }).input_text).toBe(
+			"audit me",
+		);
 		expect(
-			(update?.old_data as { deleted_at: string | null }).deleted_at,
+			(insert?.data as { deleted_at: string | null }).deleted_at,
 		).toBeNull();
+
+		const del = audit.find((a) => a.operation === "DELETE");
 		expect(
-			(update?.new_data as { deleted_at: string | null }).deleted_at,
+			(del?.data as { deleted_at: string | null }).deleted_at,
 		).not.toBeNull();
 	});
 });

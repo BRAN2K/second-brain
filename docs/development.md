@@ -29,11 +29,12 @@ bun run format         # biome check --write
 bun run db:test:up     # start ephemeral test Postgres (port 5433)
 bun run db:test:down   # stop it (wipes data)
 # CLI migrations (reads DATABASE_URL); used by the deploy pipeline:
-DATABASE_URL=... bun run migrate:latest
-DATABASE_URL=... bun run migrate:down
+bun run migrate:latest
 ```
 
-Migrations live in `migrations/` (kysely-ctl). Integration tests run them
+Migrations live in `migrations/` (kysely-ctl). Each migration is a `.ts` file exporting
+only `up`, using `sql` template fragments. They are **roll-forward only — no `down`**
+(see ADR 0003); to undo, add a new migration. Integration tests run migrations
 programmatically against the ephemeral DB via `test/helpers/test-db.ts`.
 
 ## Run with Docker

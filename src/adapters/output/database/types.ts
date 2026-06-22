@@ -23,19 +23,24 @@ export interface ExtractionTable {
 	meta: ColumnType<Record<string, unknown>, JsonbWrite, JsonbWrite>;
 }
 
-export interface AuditLogTable {
-	id: ColumnType<string, never, never>;
-	table_name: string;
-	operation: string;
-	row_id: string | null;
-	old_data: ColumnType<unknown | null, never, never>;
-	new_data: ColumnType<unknown | null, never, never>;
-	changed_at: ColumnType<Date, never, never>;
+/**
+ * Per-entity audit log of `extraction` (uniform schema), written by an AFTER
+ * trigger and partitioned monthly. Read-only from the app (never inserted via
+ * Kysely). `data` is the row snapshot after the operation; `row_id` is the
+ * source row id (no FK).
+ */
+export interface ExtractionAuditTable {
+	id: string;
+	changed_at: Date;
+	operation: "INSERT" | "UPDATE" | "DELETE";
+	row_id: string;
+	requested_by: string | null;
+	data: unknown;
 }
 
 export interface Database {
 	extraction: ExtractionTable;
-	"audit.log": AuditLogTable;
+	extraction_audit: ExtractionAuditTable;
 }
 
 export type ExtractionRow = Selectable<ExtractionTable>;

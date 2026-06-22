@@ -57,14 +57,18 @@ See [roadmap.md](./roadmap.md) for details.
 | Docker image build (typecheck + unit) | ✅ |
 | `docker compose up`; `/ready` checks Postgres | ✅ 200 |
 
-What landed: Kysely + kysely-ctl; migrations for the generic DB-first infra
-(`set_updated_at` trigger, `audit` schema + generic audit trigger) and the `extraction`
-table (`id default uuidv7()`, timestamps, soft delete, triggers attached);
-`ExtractionRepository` port + Kysely adapter (save/findById/softDelete);
-`docker-compose.test.yml` + ephemeral DB helper; integration tests covering
-defaults/triggers/audit/soft-delete; `/ready` DB check wired via `cmd/container`.
+What landed: Kysely + kysely-ctl; **TS migrations** (`sql` fragments, `up` only —
+roll-forward) — shared `set_updated_at` + generic
+`record_audit` trigger fns, the `extraction` table (`id default uuidv7()`, timestamps,
+soft delete) and a per-entity **`extraction_audit`** table (uniform schema, `row_id`
+without FK, `requested_by` via session GUC, soft-delete recorded as `DELETE`, partitioned
+monthly by `changed_at` + DEFAULT partition); `ExtractionRepository` port + Kysely adapter
+(save/findById/softDelete); `docker-compose.test.yml` + ephemeral DB helper; integration
+tests covering defaults/triggers/audit/soft-delete; `/ready` DB check wired via
+`cmd/container`.
 
-### Note
+### Notes
+- **Roll-forward only:** migrations have no `down` (see ADR 0003).
 - The Docker build runs **unit tests only** (`test:unit`); integration tests need a
   Postgres service and run via `test:integration` (and in CI), not in the image build.
 

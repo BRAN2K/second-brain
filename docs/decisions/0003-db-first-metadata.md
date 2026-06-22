@@ -14,13 +14,33 @@ Push metadata generation to Postgres 18:
   `BEFORE UPDATE` trigger (Postgres does not auto-update `updated_at`).
 - **Soft delete:** `deleted_at`; reads filter `deleted_at IS NULL`, encapsulated in the
   repository (or an `*_active` view).
-- **Audit/history:** an `audit` schema + a generic `AFTER INSERT/UPDATE/DELETE` trigger
-  writing `OLD/NEW` JSON snapshots. Reusable infra, attached per table (incl. `extraction`).
+- **Audit:** a **per-entity audit table with a uniform schema** (e.g. `extraction_audit`):
+  `id`, `changed_at`, `operation`, `row_id`, `requested_by`, `data` (jsonb snapshot after
+  the operation). One generic, reusable trigger function (`record_audit()`) writes to
+  `<table>_audit`, derived from `TG_TABLE_NAME`. Details:
+  - **Soft delete is recorded as `DELETE`** (an UPDATE that sets `deleted_at` from NULL to
+    non-NULL), so the audit reads as a deletion.
+  - **`row_id`** is the source row id with **no foreign key** — ids are immutable and the
+    audit must outlive the row (incl. hard deletes), so it stays a valid historical id.
+  - **`requested_by`** comes from the session GUC `app.requested_by`
+    (`current_setting('app.requested_by', true)`), set by the app per request; NULL until
+    auth exists.
+  - **Partitioned monthly** by `RANGE (changed_at)` with a `DEFAULT` catch-all partition.
+    Future monthly partitions are pre-created in production (e.g. pg_partman or a scheduled
+    job); the partition key is part of the PK (`id, changed_at`).
 
-In Kysely, DB-managed columns are typed `Generated<>` and never written by the repository.
+In Kysely, DB-managed columns are typed non-insertable and never written by the repository.
+
+## Migration conventions
+- **Roll-forward only.** Migrations have **no `down`** — not even in dev. To undo, write a
+  new migration. Avoids lossy/dangerous rollbacks and matches expand/contract (PR10).
+- **Standard Kysely TS migrations.** Each migration is a `.ts` file exporting only `up`,
+  using `sql` template fragments (one statement per `.execute()`).
 
 ## Consequences
 - Less app code, single source of truth, professional DB patterns (study value).
-- Stronger Postgres lock-in; migrations now carry logic (triggers/functions).
+- Stronger Postgres lock-in; migrations carry logic (triggers/functions).
 - These behaviors are covered only by **integration tests** against real Postgres, never
   unit tests.
+- Per-entity history means a little boilerplate per audited table (acceptable; a single
+  generic `audit.log` remains a valid alternative for many low-value tables).

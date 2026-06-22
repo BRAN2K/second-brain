@@ -93,16 +93,18 @@ docker compose up --build         # app + postgres:18
 
 ## Database & migrations (kysely-ctl)
 
-Migrations live in `migrations/` and are written in TypeScript. They run **separately**
-from code deploys (expand/contract) and read `DATABASE_URL` from the environment.
+Migrations live in `migrations/` and run **separately** from code deploys
+(expand/contract); they read `DATABASE_URL` from the environment.
 
 ```bash
 bun run migrate:latest            # apply all pending migrations
-bun run migrate:down              # roll back the last migration
 ```
 
-To create a new migration, add a file to `migrations/` named like
-`0003_my_change.ts` exporting `up(db)` and `down(db)` (see existing ones for the pattern).
+To add one, create `migrations/0003_my_change.ts` exporting only `up`, using `sql`
+template fragments (see existing migrations for the pattern).
+
+Migrations are **roll-forward only — there is no `down`**. To undo a change, write a new
+migration that reverses it.
 
 ---
 
