@@ -3,7 +3,8 @@
 Backend that receives content (text **xor** audio) plus a simple field template, uses
 LLMs to return structured data, and reports which required fields are missing.
 
-> v1 in progress. See the full plan in `~/.claude/plans/` (PR0–PR11 roadmap).
+> v1 in progress. See [`docs/`](./docs/) for status, architecture, roadmap, and decisions
+> (ADRs). Current status: [`docs/status.md`](./docs/status.md).
 
 ## Stack
 
