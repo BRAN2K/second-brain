@@ -1,3 +1,4 @@
+import type { Extraction } from "@/domain/entities/extraction";
 import { InvalidProviderOutput } from "@/domain/errors/invalid-provider-output";
 import { NoProviderAvailable } from "@/domain/errors/no-provider-available";
 import { ProviderError } from "@/domain/errors/provider-error";
@@ -46,6 +47,36 @@ export function presentValidationError(
 	return problem(422, "Invalid request", instance, {
 		detail: "The request or template failed validation.",
 		errors,
+	});
+}
+
+/** Public read shape of a stored extraction (omits soft-delete bookkeeping). */
+export function presentExtraction(extraction: Extraction) {
+	return {
+		id: extraction.id,
+		createdAt: extraction.createdAt.toISOString(),
+		updatedAt: extraction.updatedAt.toISOString(),
+		sourceType: extraction.sourceType,
+		inputText: extraction.inputText,
+		template: extraction.template,
+		result: extraction.result,
+		missingFields: extraction.missingFields,
+		complete: extraction.complete,
+		provider: extraction.provider,
+		model: extraction.model,
+		meta: extraction.meta,
+	};
+}
+
+/** Paginated list envelope; `nextCursor` is the id to pass as `?cursor=` next, or null. */
+export function presentList(items: Extraction[], nextCursor: string | null) {
+	return { items: items.map(presentExtraction), nextCursor };
+}
+
+/** 404 Problem Details for a missing (or soft-deleted) extraction. */
+export function presentNotFound(instance: string): ProblemDetails {
+	return problem(404, "Not found", instance, {
+		detail: "No extraction with that id.",
 	});
 }
 

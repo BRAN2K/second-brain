@@ -52,8 +52,10 @@ flow as a pre-step in the use-case (24 MB cap → 413, text XOR audio → 422, t
 unavailable → 503). Persists the transcription text (never the audio file). `?provider=`
 still controls extraction only.
 
-## PR8 — Read endpoints
-`GET /v1/extractions/:id` and `GET /v1/extractions` (cursor-based pagination by UUIDv7).
+## PR8 — Read endpoints ✅
+`GET /v1/extractions/:id` (404 when missing/soft-deleted) and `GET /v1/extractions`
+(newest-first, cursor-based pagination by UUIDv7: `?cursor=&limit=`, `id < cursor`).
+Repository gains `list`; pagination params validated (422 on bad limit/cursor).
 
 ## PR9 — Observability
 `pino` (JSON, requestId, secret redaction), `/metrics`, `docker-compose.observability.yml`

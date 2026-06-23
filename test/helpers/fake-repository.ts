@@ -1,5 +1,8 @@
 import type { Extraction, NewExtraction } from "@/domain/entities/extraction";
-import type { ExtractionRepository } from "@/domain/ports/extraction-repository";
+import type {
+	ExtractionRepository,
+	ListExtractionsParams,
+} from "@/domain/ports/extraction-repository";
 
 /** In-memory `ExtractionRepository` for HTTP/use-case tests (no DB). */
 export interface FakeRepository extends ExtractionRepository {
@@ -32,7 +35,19 @@ export function fakeRepository(): FakeRepository {
 			return row;
 		},
 		async findById(id: string): Promise<Extraction | null> {
-			return saved.find((row) => row.id === id) ?? null;
+			return (
+				saved.find((row) => row.id === id && row.deletedAt === null) ?? null
+			);
+		},
+		async list({
+			cursor,
+			limit,
+		}: ListExtractionsParams): Promise<Extraction[]> {
+			return saved
+				.filter((row) => row.deletedAt === null)
+				.filter((row) => (cursor ? row.id < cursor : true))
+				.sort((a, b) => (a.id < b.id ? 1 : -1)) // id desc (UUIDv7 = newest first)
+				.slice(0, limit);
 		},
 		async softDelete(): Promise<void> {},
 	};

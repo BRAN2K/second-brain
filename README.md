@@ -131,10 +131,18 @@ curl -s localhost:3000/v1/extractions \
 }
 ```
 
+Read what's been extracted:
+
+```bash
+curl -s localhost:3000/v1/extractions/<id>        # one record (404 if missing)
+curl -s 'localhost:3000/v1/extractions?limit=20'  # newest first
+# → { "items": [...], "nextCursor": "<id>" }; pass it back as ?cursor= for the next page
+```
+
 Errors use [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details
-(`application/problem+json`): `422` invalid request/template (incl. text-XOR-audio),
-`413` audio over 24 MB, `502` provider/transcription failure, `503` no provider /
-transcription unavailable.
+(`application/problem+json`): `404` unknown id, `422` invalid request/template (incl.
+text-XOR-audio or bad pagination), `413` audio over 24 MB, `502` provider/transcription
+failure, `503` no provider / transcription unavailable.
 
 ---
 

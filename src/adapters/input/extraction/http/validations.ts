@@ -60,6 +60,61 @@ export interface FieldError {
 /** Synchronous audio cap (ADR 0006): larger uploads are rejected with 413. */
 export const MAX_AUDIO_BYTES = 24 * 1024 * 1024;
 
+export const DEFAULT_PAGE_LIMIT = 20;
+export const MAX_PAGE_LIMIT = 100;
+
+const UUID_RE =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export interface Pagination {
+	cursor?: string;
+	limit: number;
+}
+
+export type PaginationResult =
+	| { ok: true; value: Pagination }
+	| { ok: false; errors: FieldError[] };
+
+/**
+ * Validates list query params: `limit` (1..100, default 20) and an optional `cursor`
+ * (must be a UUID — it is the previous page's last id). Bad values are rejected (422)
+ * rather than silently coerced, so clients notice malformed cursors.
+ */
+export function parsePagination(
+	query: Record<string, unknown>,
+): PaginationResult {
+	const errors: FieldError[] = [];
+
+	let limit = DEFAULT_PAGE_LIMIT;
+	const rawLimit = query.limit;
+	if (rawLimit !== undefined && rawLimit !== "") {
+		const parsed = Number(rawLimit);
+		if (!Number.isInteger(parsed) || parsed < 1 || parsed > MAX_PAGE_LIMIT) {
+			errors.push({
+				field: "limit",
+				message: `limit must be an integer between 1 and ${MAX_PAGE_LIMIT}`,
+			});
+		} else {
+			limit = parsed;
+		}
+	}
+
+	let cursor: string | undefined;
+	const rawCursor = query.cursor;
+	if (rawCursor !== undefined && rawCursor !== "") {
+		if (typeof rawCursor === "string" && UUID_RE.test(rawCursor)) {
+			cursor = rawCursor;
+		} else {
+			errors.push({ field: "cursor", message: "cursor must be a UUID" });
+		}
+	}
+
+	if (errors.length > 0) {
+		return { ok: false, errors };
+	}
+	return { ok: true, value: { cursor, limit } };
+}
+
 /** Either raw text or an uploaded audio file — exactly one (text XOR audio). */
 export type RequestSource =
 	| { kind: "text"; text: string }
