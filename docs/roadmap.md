@@ -33,8 +33,11 @@ fallback; order skips unavailable; transient-only fallback + 1 retry; permanent 
 `ProviderError`/`NoProviderAvailable`, registry in `adapters/output/llm`, fake providers.
 Tests only (no real SDK calls).
 
-## PR5 — Real providers
-Groq/OpenAI/Gemini implementations + `toProviderSchema` per dialect. `LLM_LIVE` opt-in tests.
+## PR5 — Real providers ✅
+Groq/OpenAI/Gemini implementations via raw `fetch` (no SDKs): one OpenAI-compatible
+adapter (OpenAI + Groq) + a Gemini adapter, `toProviderSchema` per dialect, HTTP→transient
+classification, key-based `isAvailable()`, config keys/order/models, `createLlmRegistry`.
+Unit-tested with a mocked `fetch`; `LLM_LIVE=1` opt-in live smoke test.
 
 ## PR6 — Use-case + extraction endpoint (text)
 `extract-information` use-case, `adapters/input/extraction/http` (routes/validations/

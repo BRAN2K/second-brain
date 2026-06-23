@@ -6,8 +6,9 @@ _Last updated: 2026-06-22_
 
 The Second Brain Extraction API is in early v1 development. Bootstrap (PR0), the
 DB-first persistence base (PR1), the template→schema converter (PR2), output validation +
-the `missingFields` rule (PR3), and the provider port + selection/fallback policy (PR4,
-with fakes) are complete and verified. Real providers and the extraction pipeline are next.
+the `missingFields` rule (PR3), the provider port + selection/fallback policy (PR4), and
+the real providers — Groq/OpenAI/Gemini via raw `fetch` (PR5) — are complete and verified.
+The use-case + extraction endpoint that wires it all together is next.
 
 ## Delivery progress
 
@@ -18,8 +19,8 @@ with fakes) are complete and verified. Real providers and the extraction pipelin
 | PR2 | Template → JSON Schema | ✅ Done |
 | PR3 | Output validation + `missingFields` | ✅ Done |
 | PR4 | Provider ports + selection/fallback (fakes) | ✅ Done |
-| PR5 | Real providers (Groq/OpenAI/Gemini) | ⏳ Next |
-| PR6 | Use-case + extraction endpoint (text) | ⬜ Planned |
+| PR5 | Real providers (Groq/OpenAI/Gemini) | ✅ Done |
+| PR6 | Use-case + extraction endpoint (text) | ⏳ Next |
 | PR7 | Audio transcription flow | ⬜ Planned |
 | PR8 | Read endpoints (cursor pagination) | ⬜ Planned |
 | PR9 | Observability stack | ⬜ Planned |
@@ -126,11 +127,32 @@ fallback to the next; permanent failures stop immediately. `createProviderRegist
 unit tests with fake providers (call-count assertions for retry/fallback); **no real SDK
 calls** — those land in PR5.
 
+## PR5 — verified
+
+| Check | Result |
+|---|---|
+| `bun run typecheck` | ✅ clean |
+| `bun run test:unit` | ✅ 82/82 (no Docker needed) |
+| `bun run lint` (Biome) | ✅ clean |
+| `LLM_LIVE=1 ... bun run test:integration` | opt-in (skipped by default) |
+
+What landed: real providers via **raw `fetch`** (no SDKs — the dependency decision per the
+low-coupling directive). One `createOpenAiCompatibleProvider` covers **OpenAI and Groq**
+(same Chat Completions wire format, different base URL/model, `json_object` mode + schema in
+the prompt); `createGeminiProvider` uses Gemini's REST `generateContent` with a native
+`responseSchema`. `to-provider-schema` does the per-dialect translation (prompt text vs
+`toGeminiSchema`); `errors.ts` maps HTTP status → transient (408/429/5xx) vs permanent so
+the PR4 policy can retry/fall back; network failures are transient. `isAvailable()` is driven
+by each API key; config gains `*_API_KEY`, `PROVIDER_ORDER`, and `*_MODEL` (with defaults);
+`createLlmRegistry(config)` wires it all. Unit-tested with a mocked `fetch` (request shape +
+parsing + every error path); a `LLM_LIVE=1` opt-in test hits the real APIs for configured keys.
+
 ## Environment notes
 - **Bun** installed at `~/.bun/bin/bun` (v1.3.14).
 - **Docker** runs via Docker Desktop WSL integration (engine 29.5.3, Compose v5.x).
 - Local secrets via `.env` (copy from `.env.example`); Infisical comes near deploy.
 
 ## Next step
-PR5 — Real providers (Groq/OpenAI/Gemini) + `toProviderSchema` per dialect;
-`LLM_LIVE` opt-in tests.
+PR6 — `extract-information` use-case + extraction endpoint (text):
+`adapters/input/extraction/http` (routes/validations/presenters), Problem Details,
+persistence; wires the registry + selection + validation + missingFields together.

@@ -19,6 +19,17 @@ export const ConfigSchema = Type.Object({
 		{ default: "info" },
 	),
 	DATABASE_URL: Type.String({ minLength: 1 }),
+
+	// LLM providers. Keys are optional: a provider is "available" only when its key
+	// is set, so the app runs with any subset configured. Order is tried when no
+	// provider is forced (cheapest/most reliable first).
+	OPENAI_API_KEY: Type.Optional(Type.String({ minLength: 1 })),
+	GROQ_API_KEY: Type.Optional(Type.String({ minLength: 1 })),
+	GEMINI_API_KEY: Type.Optional(Type.String({ minLength: 1 })),
+	PROVIDER_ORDER: Type.String({ default: "groq,openai,gemini" }),
+	OPENAI_MODEL: Type.String({ default: "gpt-4o-mini" }),
+	GROQ_MODEL: Type.String({ default: "llama-3.3-70b-versatile" }),
+	GEMINI_MODEL: Type.String({ default: "gemini-2.0-flash" }),
 });
 
 export type Config = Static<typeof ConfigSchema>;
