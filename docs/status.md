@@ -7,8 +7,8 @@ _Last updated: 2026-06-22_
 The Second Brain Extraction API has a working extraction pipeline end to end:
 `POST /v1/extractions` takes **text or audio** + a template and returns structured data
 with a `missingFields` report, persisted to Postgres (audio is transcribed first via Groq
-Whisper). Bootstrap (PR0) through audio (PR7) are complete and verified. Read endpoints are
-next.
+Whisper), plus read endpoints (`GET /v1/extractions/:id` and a cursor-paginated list).
+Bootstrap (PR0) through read endpoints (PR8) are complete and verified. Observability is next.
 
 ## Delivery progress
 
@@ -22,8 +22,8 @@ next.
 | PR5 | Real providers (Groq/OpenAI/Gemini) | ✅ Done |
 | PR6 | Use-case + extraction endpoint (text) | ✅ Done |
 | PR7 | Audio transcription flow | ✅ Done |
-| PR8 | Read endpoints (cursor pagination) | ⏳ Next |
-| PR9 | Observability stack | ⬜ Planned |
+| PR8 | Read endpoints (cursor pagination) | ✅ Done |
+| PR9 | Observability stack | ⏳ Next |
 | PR10 | Deploy (GitHub Actions, ghcr.io, Caddy, migration pipeline) | ⬜ Planned |
 | PR11 | Secrets (Infisical) | ⬜ Planned |
 
@@ -190,11 +190,29 @@ enforces text-XOR-audio (422), the **24 MB** cap (413), and maps `TranscriptionU
 → 503 / `TranscriptionFailed` → 502. `?provider=` still controls extraction only. New errors:
 `TranscriptionUnavailable`, `TranscriptionFailed`. Config adds `GROQ_WHISPER_MODEL`.
 
+## PR8 — verified
+
+| Check | Result |
+|---|---|
+| `bun run typecheck` | ✅ clean |
+| `bun run test:unit` | ✅ 115/115 (no Docker needed) |
+| `bun run test:integration` | ✅ (real DB; list pagination + soft-delete) |
+| `bun run lint` (Biome) | ✅ clean |
+
+What landed: `ExtractionRepository.list({ cursor, limit })` (Kysely: `deleted_at is null`,
+`id < cursor`, `order by id desc`, `limit`) — UUIDv7 is time-ordered so this is newest-first.
+`GET /v1/extractions/:id` returns the public record or **404** Problem Details when missing
+or soft-deleted; `GET /v1/extractions` returns `{ items, nextCursor }` (nextCursor = last id
+when the page is full, else null). `parsePagination` validates `limit` (1..100, default 20)
+and an optional UUID `cursor`, returning **422** on bad values. Read presenters
+(`presentExtraction`/`presentList`/`presentNotFound`) omit soft-delete bookkeeping. Covered by
+HTTP unit tests (fakes) and an integration test against real Postgres.
+
 ## Environment notes
 - **Bun** installed at `~/.bun/bin/bun` (v1.3.14).
 - **Docker** runs via Docker Desktop WSL integration (engine 29.5.3, Compose v5.x).
 - Local secrets via `.env` (copy from `.env.example`); Infisical comes near deploy.
 
 ## Next step
-PR8 — Read endpoints: `GET /v1/extractions/:id` and `GET /v1/extractions`
-(cursor-based pagination by UUIDv7).
+PR9 — Observability: `pino` (JSON, requestId, secret redaction), `/metrics`,
+`docker-compose.observability.yml` (Prometheus, Grafana, Loki, GlitchTip).

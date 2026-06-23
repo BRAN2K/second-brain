@@ -1,6 +1,9 @@
 import type { Kysely } from "kysely";
 import type { Extraction, NewExtraction } from "@/domain/entities/extraction";
-import type { ExtractionRepository } from "@/domain/ports/extraction-repository";
+import type {
+	ExtractionRepository,
+	ListExtractionsParams,
+} from "@/domain/ports/extraction-repository";
 import type { Database, ExtractionRow } from "./types";
 
 /** Postgres-backed ExtractionRepository (Kysely). Soft delete is encapsulated here. */
@@ -36,6 +39,22 @@ export class KyselyExtractionRepository implements ExtractionRepository {
 			.executeTakeFirst();
 
 		return row ? toDomain(row) : null;
+	}
+
+	async list({ cursor, limit }: ListExtractionsParams): Promise<Extraction[]> {
+		let query = this.db
+			.selectFrom("extraction")
+			.selectAll()
+			.where("deleted_at", "is", null)
+			.orderBy("id", "desc")
+			.limit(limit);
+
+		if (cursor) {
+			query = query.where("id", "<", cursor);
+		}
+
+		const rows = await query.execute();
+		return rows.map(toDomain);
 	}
 
 	async softDelete(id: string): Promise<void> {

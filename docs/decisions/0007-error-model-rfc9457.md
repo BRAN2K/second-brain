@@ -16,10 +16,11 @@ with a field-level `errors[]` extension member:
 ```
 
 Status mapping:
-- `422` — invalid template/input, or text-XOR-audio violation
+- `404` — extraction id not found (or soft-deleted)
+- `422` — invalid template/input, text-XOR-audio violation, or bad `limit`/`cursor`
 - `413` — audio over 24 MB
-- `502` — provider failure (all exhausted / forced provider unavailable)
-- `503` — no provider available at readiness
+- `502` — provider/transcription failure (all exhausted / forced provider unavailable)
+- `503` — no provider available, or transcription unavailable
 
 Successful extraction (even incomplete) is **200**, never an error (see
 [0005](./0005-template-schema-and-validation.md)).
