@@ -22,9 +22,10 @@ GUC, soft-delete recorded as `DELETE`, partitioned monthly by `changed_at`).
 no nesting). Strict canonical schema + `required` metadata; `TemplateInvalid` collects every
 semantic issue (domain is the source of truth). TypeBox request validation at the HTTP edge.
 
-## PR3 — Output validation + missingFields
-`adapters/output/validation` (Ajv "lenient") + `domain/services/missing-fields`
-(missing if absent / `null` / `""`). Behavior tests.
+## PR3 — Output validation + missingFields ✅
+`adapters/output/validation` (Ajv "lenient": every field nullable, no `required`,
+unknown keys stripped — incomplete output is never rejected, wrong types are) +
+`domain/services/missing-fields` (missing if absent / `null` / `""`). Behavior tests.
 
 ## PR4 — Provider ports + selection (fakes)
 `domain/ports/extraction-provider`, `domain/services/provider-selection` (order, transient
