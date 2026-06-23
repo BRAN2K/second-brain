@@ -1,0 +1,17 @@
+services:
+  postgres-test:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: secondbrain_test
+    ports:
+      - "${TEST_DB_PORT:-5433}:5432"
+    # Ephemeral: data lives in RAM, wiped on container stop. Fast and disposable.
+    tmpfs:
+      - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test -d secondbrain_test"]
+      interval: 1s
+      timeout: 3s
+      retries: 30

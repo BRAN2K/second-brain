@@ -8,14 +8,16 @@ stay independent.
 Bun + Elysia + TS scaffold, hexagonal skeleton, `config/` (TypeBox fail-fast), `/health`,
 Biome, `bun test`, multi-stage Dockerfile, `docker-compose.yml` base with `postgres:18`.
 
-## PR1 — Persistence base (DB-first) ⏳
-Kysely + kysely-ctl. Migrations: generic infra (`set_updated_at()` trigger, `audit` schema
-+ generic audit trigger) and the `extraction` table with `id default uuidv7()`,
-`created_at`/`updated_at`/`deleted_at`, triggers attached. `ExtractionRepository` port +
-adapter (soft-delete encapsulated). `docker-compose.test.yml` + ephemeral DB test helper.
-Integration tests for defaults/triggers/audit. `/ready` checks the DB.
+## PR1 — Persistence base (DB-first) ✅
+Kysely + kysely-ctl (TS migrations, roll-forward only). Shared trigger fns
+(`set_updated_at`, generic `record_audit`) and the `extraction` table with
+`id default uuidv7()`, `created_at`/`updated_at`/`deleted_at`, plus a per-entity
+`extraction_audit` table (uniform schema, `row_id` without FK, `requested_by` via session
+GUC, soft-delete recorded as `DELETE`, partitioned monthly by `changed_at`).
+`ExtractionRepository` port + adapter (soft-delete encapsulated). `docker-compose.test.yml`
++ ephemeral DB helper. Integration tests for defaults/triggers/audit. `/ready` checks the DB.
 
-## PR2 — Template → JSON Schema
+## PR2 — Template → JSON Schema ⏳
 `domain/services/template-to-schema` (string/number/boolean/date/enum/array-of-primitives,
 no nesting). Strict canonical schema + `required` metadata. TypeBox request validation.
 
