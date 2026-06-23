@@ -5,8 +5,9 @@ _Last updated: 2026-06-22_
 ## Summary
 
 The Second Brain Extraction API is in early v1 development. Bootstrap (PR0), the
-DB-first persistence base (PR1), and the template→schema converter (PR2) are complete
-and verified. Output validation + `missingFields` and the extraction pipeline are next.
+DB-first persistence base (PR1), the template→schema converter (PR2), and output
+validation + the `missingFields` rule (PR3) are complete and verified. Provider ports
+and the extraction pipeline are next.
 
 ## Delivery progress
 
@@ -15,8 +16,8 @@ and verified. Output validation + `missingFields` and the extraction pipeline ar
 | PR0 | Bootstrap (Bun+Elysia, config, health, Docker, CI scaffold) | ✅ Done |
 | PR1 | Persistence base (DB-first): Kysely, migrations, ephemeral test DB | ✅ Done |
 | PR2 | Template → JSON Schema | ✅ Done |
-| PR3 | Output validation + `missingFields` | ⏳ Next |
-| PR4 | Provider ports + selection/fallback (fakes) | ⬜ Planned |
+| PR3 | Output validation + `missingFields` | ✅ Done |
+| PR4 | Provider ports + selection/fallback (fakes) | ⏳ Next |
 | PR5 | Real providers (Groq/OpenAI/Gemini) | ⬜ Planned |
 | PR6 | Use-case + extraction endpoint (text) | ⬜ Planned |
 | PR7 | Audio transcription flow | ⬜ Planned |
@@ -90,11 +91,28 @@ duplicate/blank names, enum without values, array without items). TypeBox `Templ
 (`adapters/input/extraction/http/validations`) validates request shape at the edge
 (`additionalProperties:false`), while the domain service stays the source of truth for semantics.
 
+## PR3 — verified
+
+| Check | Result |
+|---|---|
+| `bun run typecheck` | ✅ clean |
+| `bun run test:unit` | ✅ 49/49 (no Docker needed) |
+| `bun run lint` (Biome) | ✅ clean |
+
+What landed: `createOutputValidator` (`adapters/output/validation`) — Ajv in **"lenient"**
+mode: derives a lenient schema from the strict canonical one (every field nullable, no
+`required`, `removeAdditional:"all"`), so an **incomplete** extraction is never rejected,
+while wrong types and out-of-enum values still surface as structural errors; unknown
+(hallucinated) keys are stripped and the input is never mutated. `findMissingFields`
+(`domain/services/missing-fields`) — the completeness source of truth: a required field is
+missing when **absent**, **null**, or an **empty/whitespace string**; `0`/`false`/`[]` are
+legitimate values. (`ajv` added as the only new dependency.)
+
 ## Environment notes
 - **Bun** installed at `~/.bun/bin/bun` (v1.3.14).
 - **Docker** runs via Docker Desktop WSL integration (engine 29.5.3, Compose v5.x).
 - Local secrets via `.env` (copy from `.env.example`); Infisical comes near deploy.
 
 ## Next step
-PR3 — Output validation (Ajv "lenient") + `missingFields` rule
-(`domain/services/missing-fields`).
+PR4 — Provider ports + selection/fallback with fakes
+(`domain/ports/extraction-provider`, `domain/services/provider-selection`).
