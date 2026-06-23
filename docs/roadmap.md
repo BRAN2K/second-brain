@@ -17,9 +17,10 @@ GUC, soft-delete recorded as `DELETE`, partitioned monthly by `changed_at`).
 `ExtractionRepository` port + adapter (soft-delete encapsulated). `docker-compose.test.yml`
 + ephemeral DB helper. Integration tests for defaults/triggers/audit. `/ready` checks the DB.
 
-## PR2 — Template → JSON Schema ⏳
+## PR2 — Template → JSON Schema ✅
 `domain/services/template-to-schema` (string/number/boolean/date/enum/array-of-primitives,
-no nesting). Strict canonical schema + `required` metadata. TypeBox request validation.
+no nesting). Strict canonical schema + `required` metadata; `TemplateInvalid` collects every
+semantic issue (domain is the source of truth). TypeBox request validation at the HTTP edge.
 
 ## PR3 — Output validation + missingFields
 `adapters/output/validation` (Ajv "lenient") + `domain/services/missing-fields`

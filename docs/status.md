@@ -4,9 +4,9 @@ _Last updated: 2026-06-22_
 
 ## Summary
 
-The Second Brain Extraction API is in early v1 development. Bootstrap (PR0) and the
-DB-first persistence base (PR1) are complete and verified end-to-end, including via
-Docker Compose. The template→schema and extraction pipeline are next.
+The Second Brain Extraction API is in early v1 development. Bootstrap (PR0), the
+DB-first persistence base (PR1), and the template→schema converter (PR2) are complete
+and verified. Output validation + `missingFields` and the extraction pipeline are next.
 
 ## Delivery progress
 
@@ -14,8 +14,8 @@ Docker Compose. The template→schema and extraction pipeline are next.
 |----|-------|--------|
 | PR0 | Bootstrap (Bun+Elysia, config, health, Docker, CI scaffold) | ✅ Done |
 | PR1 | Persistence base (DB-first): Kysely, migrations, ephemeral test DB | ✅ Done |
-| PR2 | Template → JSON Schema | ⏳ Next |
-| PR3 | Output validation + `missingFields` | ⬜ Planned |
+| PR2 | Template → JSON Schema | ✅ Done |
+| PR3 | Output validation + `missingFields` | ⏳ Next |
 | PR4 | Provider ports + selection/fallback (fakes) | ⬜ Planned |
 | PR5 | Real providers (Groq/OpenAI/Gemini) | ⬜ Planned |
 | PR6 | Use-case + extraction endpoint (text) | ⬜ Planned |
@@ -72,10 +72,29 @@ tests covering defaults/triggers/audit/soft-delete; `/ready` DB check wired via
 - The Docker build runs **unit tests only** (`test:unit`); integration tests need a
   Postgres service and run via `test:integration` (and in CI), not in the image build.
 
+## PR2 — verified
+
+| Check | Result |
+|---|---|
+| `bun run typecheck` | ✅ clean |
+| `bun run test:unit` | ✅ 32/32 (no Docker needed) |
+| `bun run lint` (Biome) | ✅ clean |
+
+What landed: the public `Template` type (flat `{name,type,required,description?,values?,items?}`);
+`templateToSchema` (`domain/services`) — a pure converter producing a strict canonical JSON
+Schema (`type:object`, `additionalProperties:false`, real `required[]`) plus a separate
+`required` list for the missingFields rule (PR3). Supports string/number/boolean, `date`→
+`string`+`format:date`, `enum`→`string`+`enum`, and `array` of any leaf (incl. enum); no
+nesting. `TemplateInvalid` (`domain/errors`) collects **every** semantic issue (empty template,
+duplicate/blank names, enum without values, array without items). TypeBox `TemplateInputSchema`
+(`adapters/input/extraction/http/validations`) validates request shape at the edge
+(`additionalProperties:false`), while the domain service stays the source of truth for semantics.
+
 ## Environment notes
 - **Bun** installed at `~/.bun/bin/bun` (v1.3.14).
 - **Docker** runs via Docker Desktop WSL integration (engine 29.5.3, Compose v5.x).
 - Local secrets via `.env` (copy from `.env.example`); Infisical comes near deploy.
 
 ## Next step
-PR2 — Template → JSON Schema (`domain/services/template-to-schema`).
+PR3 — Output validation (Ajv "lenient") + `missingFields` rule
+(`domain/services/missing-fields`).
