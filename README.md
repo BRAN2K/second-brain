@@ -50,12 +50,22 @@ Copy the example file and adjust if needed:
 cp .env.example .env
 ```
 
-| Variable       | Required | Default | Description                                   |
-|----------------|----------|---------|-----------------------------------------------|
-| `DATABASE_URL` | **yes**  | —       | Postgres connection string                    |
-| `APP_ENV`      | no       | `local` | `local` or `prod`                             |
-| `PORT`         | no       | `3000`  | HTTP port                                      |
-| `LOG_LEVEL`    | no       | `info`  | `fatal`/`error`/`warn`/`info`/`debug`/`trace` |
+| Variable          | Required | Default                    | Description                                   |
+|-------------------|----------|----------------------------|-----------------------------------------------|
+| `DATABASE_URL`    | **yes**  | —                          | Postgres connection string                    |
+| `APP_ENV`         | no       | `local`                    | `local` or `prod`                             |
+| `PORT`            | no       | `3000`                     | HTTP port                                     |
+| `LOG_LEVEL`       | no       | `info`                     | `fatal`/`error`/`warn`/`info`/`debug`/`trace` |
+| `OPENAI_API_KEY`  | no       | —                          | Enables the OpenAI provider when set          |
+| `GROQ_API_KEY`    | no       | —                          | Enables the Groq provider when set            |
+| `GEMINI_API_KEY`  | no       | —                          | Enables the Gemini provider when set          |
+| `PROVIDER_ORDER`  | no       | `groq,openai,gemini`       | Fallback order when `?provider=` is not used  |
+| `OPENAI_MODEL`    | no       | `gpt-4o-mini`              | Model for the OpenAI provider                 |
+| `GROQ_MODEL`      | no       | `llama-3.3-70b-versatile`  | Model for the Groq provider                   |
+| `GEMINI_MODEL`    | no       | `gemini-2.0-flash`         | Model for the Gemini provider                 |
+
+A provider is only used when its API key is set, so any subset works (or none, until the
+extraction endpoint lands in PR6).
 
 Config is validated at startup — the app **fails fast** with a clear message if a
 required variable is missing or invalid.
@@ -122,6 +132,13 @@ migrations, and tear it down — so they exercise real triggers/defaults/audit, 
 ```bash
 bun run db:test:up        # start the ephemeral test DB manually (port 5433)
 bun run db:test:down      # stop and wipe it
+```
+
+Live LLM calls are **opt-in** (never in CI). Set a provider key and `LLM_LIVE=1` to run a
+real smoke test against the configured provider(s):
+
+```bash
+LLM_LIVE=1 GROQ_API_KEY=... bun run test:integration
 ```
 
 ---
