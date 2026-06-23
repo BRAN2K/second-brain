@@ -29,6 +29,17 @@ describe("loadConfig", () => {
 		expect(() => loadConfig({})).toThrow(ConfigError);
 	});
 
+	it("accepts empty provider keys (blank lines from .env.example)", () => {
+		const config = loadConfig({
+			...baseEnv,
+			OPENAI_API_KEY: "",
+			GROQ_API_KEY: "",
+			GEMINI_API_KEY: "",
+		});
+		expect(config.GROQ_API_KEY).toBe("");
+		expect(config.PROVIDER_ORDER).toBe("groq,openai,gemini");
+	});
+
 	it("throws ConfigError on an invalid APP_ENV", () => {
 		expect(() => loadConfig({ ...baseEnv, APP_ENV: "staging" })).toThrow(
 			ConfigError,
