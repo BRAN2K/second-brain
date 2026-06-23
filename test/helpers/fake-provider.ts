@@ -17,12 +17,9 @@ interface FakeOptions {
 	available?: boolean;
 	/** Outcome of each call in order; the last entry repeats once exhausted. */
 	outcomes?: Array<"ok" | "transient" | "permanent">;
+	/** Data returned on a successful call (defaults to `{ from: name }`). */
+	data?: unknown;
 }
-
-const okOutput = (name: string): ExtractionOutput => ({
-	data: { from: name },
-	raw: { model: `${name}-model`, latencyMs: 1 },
-});
 
 export function fakeProvider(options: FakeOptions): FakeProvider {
 	const outcomes = options.outcomes ?? ["ok"];
@@ -39,7 +36,11 @@ export function fakeProvider(options: FakeOptions): FakeProvider {
 			if (outcome === "permanent") {
 				throw new ProviderError(options.name, false);
 			}
-			return okOutput(options.name);
+			const output: ExtractionOutput = {
+				data: options.data ?? { from: options.name },
+				raw: { model: `${options.name}-model`, latencyMs: 1 },
+			};
+			return output;
 		},
 	};
 	return provider;

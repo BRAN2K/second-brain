@@ -1,6 +1,10 @@
 import { Elysia } from "elysia";
 import { sql } from "kysely";
 import {
+	type ExtractionDeps,
+	extractionRoutes,
+} from "@/adapters/input/extraction/http/routes";
+import {
 	type HealthDeps,
 	healthRoutes,
 } from "@/adapters/input/health/http/routes";
@@ -9,6 +13,7 @@ import { createContainer } from "./container";
 
 export interface AppDeps {
 	health?: HealthDeps;
+	extraction?: ExtractionDeps;
 }
 
 /**
@@ -17,7 +22,11 @@ export interface AppDeps {
  * `startServer` loads config (fail-fast), builds the container, and binds the port.
  */
 export function buildApp(deps: AppDeps = {}) {
-	return new Elysia().use(healthRoutes(deps.health ?? {}));
+	const app = new Elysia().use(healthRoutes(deps.health ?? {}));
+	if (deps.extraction) {
+		app.use(extractionRoutes(deps.extraction));
+	}
+	return app;
 }
 
 export function startServer() {
@@ -26,7 +35,11 @@ export function startServer() {
 
 	const app = buildApp({
 		health: {
+			// Ready = Postgres reachable AND at least one provider configured.
 			checkReady: async () => {
+				if (container.providerRegistry.available().length === 0) {
+					return false;
+				}
 				try {
 					await sql`select 1`.execute(container.db);
 					return true;
@@ -34,6 +47,12 @@ export function startServer() {
 					return false;
 				}
 			},
+		},
+		extraction: {
+			providers: container.providerRegistry.all(),
+			order: container.providerRegistry.order,
+			validate: container.outputValidator.validate,
+			repository: container.extractionRepository,
 		},
 	}).listen(config.PORT);
 

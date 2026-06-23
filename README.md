@@ -101,6 +101,34 @@ docker compose up --build         # app + postgres:18
 
 ---
 
+## Extracting data
+
+`POST /v1/extractions` (multipart) takes `text` and a JSON-encoded `template` (a flat
+field list). Missing required fields are **not** an error — you get `200` with
+`complete:false` and a `missingFields` list. Add `?provider=openai|groq|gemini` to force one.
+
+```bash
+curl -s localhost:3000/v1/extractions \
+  -F 'text=Buy 3 boxes of green tea by Friday' \
+  -F 'template=[{"name":"item","type":"string","required":true},
+                {"name":"quantity","type":"number","required":false}]'
+```
+
+```json
+{
+  "data": { "item": "green tea", "quantity": 3 },
+  "missingFields": [],
+  "complete": true,
+  "meta": { "id": "...", "provider": "groq", "model": "...", "fallbackUsed": false }
+}
+```
+
+Errors use [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details
+(`application/problem+json`): `422` invalid request/template, `502` provider failure,
+`503` no provider available.
+
+---
+
 ## Database & migrations (kysely-ctl)
 
 Migrations live in `migrations/` and run **separately** from code deploys

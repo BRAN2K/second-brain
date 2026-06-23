@@ -39,9 +39,12 @@ adapter (OpenAI + Groq) + a Gemini adapter, `toProviderSchema` per dialect, HTTP
 classification, key-based `isAvailable()`, config keys/order/models, `createLlmRegistry`.
 Unit-tested with a mocked `fetch`; `LLM_LIVE=1` opt-in live smoke test.
 
-## PR6 — Use-case + extraction endpoint (text)
-`extract-information` use-case, `adapters/input/extraction/http` (routes/validations/
-presenters), Problem Details, persistence. HTTP integration via `app.handle`.
+## PR6 — Use-case + extraction endpoint (text) ✅
+`extract-information` use-case (template→schema→selection→lenient validation→missingFields→
+persist), `POST /v1/extractions` multipart input adapter (routes/validations/presenters),
+RFC 9457 Problem Details (422/502/503), `?provider=`. Container wires registry + validator;
+`/ready` now also requires ≥1 available provider. HTTP integration via `app.handle` (fakes)
+plus an end-to-end test against real Postgres.
 
 ## PR7 — Audio
 `Transcriber` port + Groq Whisper adapter. Audio flow (24 MB cap → 413, text XOR audio).

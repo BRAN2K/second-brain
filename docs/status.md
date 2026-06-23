@@ -4,11 +4,10 @@ _Last updated: 2026-06-22_
 
 ## Summary
 
-The Second Brain Extraction API is in early v1 development. Bootstrap (PR0), the
-DB-first persistence base (PR1), the template→schema converter (PR2), output validation +
-the `missingFields` rule (PR3), the provider port + selection/fallback policy (PR4), and
-the real providers — Groq/OpenAI/Gemini via raw `fetch` (PR5) — are complete and verified.
-The use-case + extraction endpoint that wires it all together is next.
+The Second Brain Extraction API has a working text-extraction pipeline end to end:
+`POST /v1/extractions` takes text + a template and returns structured data with a
+`missingFields` report, persisted to Postgres. Bootstrap (PR0) through the use-case +
+extraction endpoint (PR6) are complete and verified. Audio transcription is next.
 
 ## Delivery progress
 
@@ -20,8 +19,8 @@ The use-case + extraction endpoint that wires it all together is next.
 | PR3 | Output validation + `missingFields` | ✅ Done |
 | PR4 | Provider ports + selection/fallback (fakes) | ✅ Done |
 | PR5 | Real providers (Groq/OpenAI/Gemini) | ✅ Done |
-| PR6 | Use-case + extraction endpoint (text) | ⏳ Next |
-| PR7 | Audio transcription flow | ⬜ Planned |
+| PR6 | Use-case + extraction endpoint (text) | ✅ Done |
+| PR7 | Audio transcription flow | ⏳ Next |
 | PR8 | Read endpoints (cursor pagination) | ⬜ Planned |
 | PR9 | Observability stack | ⬜ Planned |
 | PR10 | Deploy (GitHub Actions, ghcr.io, Caddy, migration pipeline) | ⬜ Planned |
@@ -147,12 +146,35 @@ by each API key; config gains `*_API_KEY`, `PROVIDER_ORDER`, and `*_MODEL` (with
 `createLlmRegistry(config)` wires it all. Unit-tested with a mocked `fetch` (request shape +
 parsing + every error path); a `LLM_LIVE=1` opt-in test hits the real APIs for configured keys.
 
+## PR6 — verified
+
+| Check | Result |
+|---|---|
+| `bun run typecheck` | ✅ clean |
+| `bun run test:unit` | ✅ 98/98 (no Docker needed) |
+| `bun run test:integration` | ✅ (real DB; includes end-to-end endpoint test) |
+| `bun run lint` (Biome) | ✅ clean |
+
+What landed: `extractInformation` (`domain/use-cases`) orchestrates template→schema →
+provider selection/fallback → lenient validation → `missingFields` → persist; the validator
+is injected as a plain function so the domain never imports the Ajv adapter. `POST
+/v1/extractions` (`adapters/input/extraction/http`) takes `multipart/form-data` (`text`,
+JSON `template`, optional `instructions`; `?provider=` forces one). Incomplete results are
+**200** with `complete:false`; failures are **RFC 9457 Problem Details**
+(`application/problem+json`): 422 (request/template invalid), 502 (provider failed / forced
+unavailable / invalid output), 503 (no provider). `InvalidProviderOutput` covers a provider
+returning structurally wrong data. The container now wires the provider registry + validator,
+and `/ready` requires Postgres **and** ≥1 available provider. Covered by HTTP tests via
+`app.handle` (fakes) and an end-to-end test against real Postgres (jsonb round-trip + DB id).
+
+> Note: Elysia auto-parses multipart fields that are valid JSON, so `template` arrives
+> already parsed; the request parser accepts both that and a raw string.
+
 ## Environment notes
 - **Bun** installed at `~/.bun/bin/bun` (v1.3.14).
 - **Docker** runs via Docker Desktop WSL integration (engine 29.5.3, Compose v5.x).
 - Local secrets via `.env` (copy from `.env.example`); Infisical comes near deploy.
 
 ## Next step
-PR6 — `extract-information` use-case + extraction endpoint (text):
-`adapters/input/extraction/http` (routes/validations/presenters), Problem Details,
-persistence; wires the registry + selection + validation + missingFields together.
+PR7 — Audio: `Transcriber` port + Groq Whisper adapter, audio flow (24 MB cap → 413,
+text XOR audio), persist the transcription (not the audio file).

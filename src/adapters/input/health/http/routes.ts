@@ -7,8 +7,8 @@ export interface HealthDeps {
 
 /**
  * Liveness/readiness endpoints (input adapter).
- * `/health` = process is up. `/ready` = able to serve traffic (Postgres reachable;
- * PR4+ will also require >= 1 available provider).
+ * `/health` = process is up. `/ready` = able to serve traffic. The readiness probe is
+ * injected by the composition root (Postgres reachable AND >= 1 available provider).
  */
 export function healthRoutes(deps: HealthDeps = {}) {
 	return new Elysia()
