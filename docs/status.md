@@ -4,10 +4,11 @@ _Last updated: 2026-06-22_
 
 ## Summary
 
-The Second Brain Extraction API has a working text-extraction pipeline end to end:
-`POST /v1/extractions` takes text + a template and returns structured data with a
-`missingFields` report, persisted to Postgres. Bootstrap (PR0) through the use-case +
-extraction endpoint (PR6) are complete and verified. Audio transcription is next.
+The Second Brain Extraction API has a working extraction pipeline end to end:
+`POST /v1/extractions` takes **text or audio** + a template and returns structured data
+with a `missingFields` report, persisted to Postgres (audio is transcribed first via Groq
+Whisper). Bootstrap (PR0) through audio (PR7) are complete and verified. Read endpoints are
+next.
 
 ## Delivery progress
 
@@ -20,8 +21,8 @@ extraction endpoint (PR6) are complete and verified. Audio transcription is next
 | PR4 | Provider ports + selection/fallback (fakes) | ✅ Done |
 | PR5 | Real providers (Groq/OpenAI/Gemini) | ✅ Done |
 | PR6 | Use-case + extraction endpoint (text) | ✅ Done |
-| PR7 | Audio transcription flow | ⏳ Next |
-| PR8 | Read endpoints (cursor pagination) | ⬜ Planned |
+| PR7 | Audio transcription flow | ✅ Done |
+| PR8 | Read endpoints (cursor pagination) | ⏳ Next |
 | PR9 | Observability stack | ⬜ Planned |
 | PR10 | Deploy (GitHub Actions, ghcr.io, Caddy, migration pipeline) | ⬜ Planned |
 | PR11 | Secrets (Infisical) | ⬜ Planned |
@@ -170,11 +171,30 @@ and `/ready` requires Postgres **and** ≥1 available provider. Covered by HTTP 
 > Note: Elysia auto-parses multipart fields that are valid JSON, so `template` arrives
 > already parsed; the request parser accepts both that and a raw string.
 
+## PR7 — verified
+
+| Check | Result |
+|---|---|
+| `bun run typecheck` | ✅ clean |
+| `bun run test:unit` | ✅ 108/108 (no Docker needed) |
+| `bun run test:integration` | ✅ (real DB) |
+| `bun run lint` (Biome) | ✅ clean |
+
+What landed: the `Transcriber` port (`domain/ports`) + `createGroqWhisper`
+(`adapters/output/transcription`) via raw `fetch` against Groq's `audio/transcriptions`
+(`whisper-large-v3-turbo`). The use-case now takes a `source` that is **text XOR audio**;
+for audio it transcribes first (one pre-step) then runs the identical pipeline, persisting
+`sourceType:"audio"` with the **transcript** as `inputText` (the audio file is never stored).
+Template validation runs **before** transcription (fail fast, no STT cost). The endpoint
+enforces text-XOR-audio (422), the **24 MB** cap (413), and maps `TranscriptionUnavailable`
+→ 503 / `TranscriptionFailed` → 502. `?provider=` still controls extraction only. New errors:
+`TranscriptionUnavailable`, `TranscriptionFailed`. Config adds `GROQ_WHISPER_MODEL`.
+
 ## Environment notes
 - **Bun** installed at `~/.bun/bin/bun` (v1.3.14).
 - **Docker** runs via Docker Desktop WSL integration (engine 29.5.3, Compose v5.x).
 - Local secrets via `.env` (copy from `.env.example`); Infisical comes near deploy.
 
 ## Next step
-PR7 — Audio: `Transcriber` port + Groq Whisper adapter, audio flow (24 MB cap → 413,
-text XOR audio), persist the transcription (not the audio file).
+PR8 — Read endpoints: `GET /v1/extractions/:id` and `GET /v1/extractions`
+(cursor-based pagination by UUIDv7).

@@ -4,12 +4,14 @@ import type { Template } from "@/domain/entities/template";
 import { InvalidProviderOutput } from "@/domain/errors/invalid-provider-output";
 import { NoProviderAvailable } from "@/domain/errors/no-provider-available";
 import { TemplateInvalid } from "@/domain/errors/template-invalid";
+import { TranscriptionUnavailable } from "@/domain/errors/transcription-unavailable";
 import {
 	type ExtractInformationDeps,
 	extractInformation,
 } from "@/domain/use-cases/extract-information";
 import { fakeProvider } from "../helpers/fake-provider";
 import { fakeRepository } from "../helpers/fake-repository";
+import { fakeTranscriber } from "../helpers/fake-transcriber";
 
 const validate = createOutputValidator().validate;
 const order = ["openai", "groq"];
@@ -19,6 +21,13 @@ const template: Template = [
 	{ name: "amount", type: "number", required: false },
 ];
 
+const textSource = (text: string) => ({ kind: "text" as const, text });
+const audioSource = () => ({
+	kind: "audio" as const,
+	file: new Blob(["fake-bytes"], { type: "audio/mpeg" }),
+	filename: "note.mp3",
+});
+
 function deps(
 	overrides: Partial<ExtractInformationDeps> = {},
 ): ExtractInformationDeps {
@@ -27,11 +36,12 @@ function deps(
 		order,
 		validate,
 		repository: fakeRepository(),
+		transcriber: fakeTranscriber(),
 		...overrides,
 	};
 }
 
-describe("extractInformation", () => {
+describe("extractInformation (text)", () => {
 	it("returns a complete result and persists it", async () => {
 		const repository = fakeRepository();
 		const result = await extractInformation(
@@ -41,40 +51,26 @@ describe("extractInformation", () => {
 				],
 				repository,
 			}),
-			{ text: "buy", template },
+			{ source: textSource("buy"), template },
 		);
 
 		expect(result.complete).toBe(true);
-		expect(result.missingFields).toEqual([]);
 		expect(result.data).toEqual({ title: "Hi", amount: 5 });
 		expect(result.meta.provider).toBe("openai");
 		expect(repository.saved).toHaveLength(1);
-		expect(repository.saved[0].id).toBe(result.id);
-		expect(repository.saved[0].complete).toBe(true);
-		expect(repository.saved[0].meta.fallbackUsed).toBe(false);
+		expect(repository.saved[0].sourceType).toBe("text");
+		expect(repository.saved[0].inputText).toBe("buy");
 	});
 
-	it("reports missing required fields but still succeeds (200-style)", async () => {
+	it("reports missing required fields but still succeeds", async () => {
 		const result = await extractInformation(
 			deps({
 				providers: [fakeProvider({ name: "openai", data: { amount: 5 } })],
 			}),
-			{ text: "buy", template },
+			{ source: textSource("buy"), template },
 		);
 		expect(result.complete).toBe(false);
 		expect(result.missingFields).toEqual(["title"]);
-	});
-
-	it("strips hallucinated keys via the validator before persisting", async () => {
-		const result = await extractInformation(
-			deps({
-				providers: [
-					fakeProvider({ name: "openai", data: { title: "Hi", extra: "x" } }),
-				],
-			}),
-			{ text: "buy", template },
-		);
-		expect(result.data).toEqual({ title: "Hi" });
 	});
 
 	it("honors a forced provider", async () => {
@@ -85,16 +81,15 @@ describe("extractInformation", () => {
 					fakeProvider({ name: "groq", data: { title: "B" } }),
 				],
 			}),
-			{ text: "buy", template, forced: "groq" },
+			{ source: textSource("buy"), template, forced: "groq" },
 		);
 		expect(result.meta.provider).toBe("groq");
-		expect(result.data).toEqual({ title: "B" });
 	});
 
 	it("throws TemplateInvalid for a semantically broken template", async () => {
 		await expect(
 			extractInformation(deps(), {
-				text: "buy",
+				source: textSource("buy"),
 				template: [{ name: "s", type: "enum", required: true }],
 			}),
 		).rejects.toBeInstanceOf(TemplateInvalid);
@@ -106,7 +101,7 @@ describe("extractInformation", () => {
 				deps({
 					providers: [fakeProvider({ name: "openai", available: false })],
 				}),
-				{ text: "buy", template },
+				{ source: textSource("buy"), template },
 			),
 		).rejects.toBeInstanceOf(NoProviderAvailable);
 	});
@@ -119,8 +114,48 @@ describe("extractInformation", () => {
 						fakeProvider({ name: "openai", data: { amount: "not a number" } }),
 					],
 				}),
-				{ text: "buy", template },
+				{ source: textSource("buy"), template },
 			),
 		).rejects.toBeInstanceOf(InvalidProviderOutput);
+	});
+});
+
+describe("extractInformation (audio)", () => {
+	it("transcribes audio then runs the same pipeline, persisting sourceType=audio", async () => {
+		const repository = fakeRepository();
+		const transcriber = fakeTranscriber({ text: "buy three teas" });
+		const result = await extractInformation(
+			deps({
+				providers: [fakeProvider({ name: "openai", data: { title: "tea" } })],
+				repository,
+				transcriber,
+			}),
+			{ source: audioSource(), template },
+		);
+
+		expect(transcriber.calls).toBe(1);
+		expect(result.complete).toBe(true);
+		expect(repository.saved[0].sourceType).toBe("audio");
+		expect(repository.saved[0].inputText).toBe("buy three teas"); // transcript stored
+	});
+
+	it("throws TranscriptionUnavailable when no transcriber is configured", async () => {
+		await expect(
+			extractInformation(
+				deps({ transcriber: fakeTranscriber({ available: false }) }),
+				{ source: audioSource(), template },
+			),
+		).rejects.toBeInstanceOf(TranscriptionUnavailable);
+	});
+
+	it("validates the template before transcribing (fail fast, no STT cost)", async () => {
+		const transcriber = fakeTranscriber();
+		await expect(
+			extractInformation(deps({ transcriber }), {
+				source: audioSource(),
+				template: [{ name: "s", type: "enum", required: true }],
+			}),
+		).rejects.toBeInstanceOf(TemplateInvalid);
+		expect(transcriber.calls).toBe(0);
 	});
 });

@@ -1,8 +1,10 @@
 import type { Extraction } from "@/domain/entities/extraction";
 import type { Template } from "@/domain/entities/template";
 import { InvalidProviderOutput } from "@/domain/errors/invalid-provider-output";
+import { TranscriptionUnavailable } from "@/domain/errors/transcription-unavailable";
 import type { ExtractionProvider } from "@/domain/ports/extraction-provider";
 import type { ExtractionRepository } from "@/domain/ports/extraction-repository";
+import type { Transcriber } from "@/domain/ports/transcriber";
 import { findMissingFields } from "@/domain/services/missing-fields";
 import { selectAndExtract } from "@/domain/services/provider-selection";
 import {
@@ -11,10 +13,11 @@ import {
 } from "@/domain/services/template-to-schema";
 
 /**
- * The text-extraction use-case: orchestrates the pure domain services and the injected
- * adapters end to end — template → schema → provider selection/fallback → lenient
- * validation → missingFields → persist. Framework-free: the validator is injected as a
- * plain function so the domain never imports the Ajv adapter.
+ * The extraction use-case: orchestrates the pure domain services and the injected
+ * adapters end to end — (transcribe audio?) → template → schema → provider
+ * selection/fallback → lenient validation → missingFields → persist. Framework-free:
+ * the validator is injected as a plain function so the domain never imports the Ajv
+ * adapter. Audio is one extra pre-step (ADR 0006); `?provider=` controls extraction only.
  */
 
 /** Lenient structural validation, injected (matches the validation adapter's shape). */
@@ -29,10 +32,17 @@ export interface ExtractInformationDeps {
 	order: string[];
 	validate: ValidateOutput;
 	repository: ExtractionRepository;
+	/** Speech-to-text, used only when the source is audio. */
+	transcriber: Transcriber;
 }
 
+/** Either raw text or an audio file — exactly one, enforced at the HTTP edge. */
+export type ExtractionSource =
+	| { kind: "text"; text: string }
+	| { kind: "audio"; file: Blob; filename: string };
+
 export interface ExtractInformationInput {
-	text: string;
+	source: ExtractionSource;
 	template: Template;
 	instructions?: string;
 	/** Forced provider from `?provider=`; disables fallback when set. */
@@ -58,13 +68,33 @@ export async function extractInformation(
 	deps: ExtractInformationDeps,
 	input: ExtractInformationInput,
 ): Promise<ExtractionResult> {
+	// Validate the template first — fail fast (422) before paying for transcription/LLM.
 	// Throws TemplateInvalid (→422) on a semantically broken template.
 	const { schema, required } = templateToSchema(input.template);
+
+	// Audio is one pre-step: transcribe to text, then run the same pipeline.
+	let sourceType: "text" | "audio";
+	let inputText: string;
+	if (input.source.kind === "audio") {
+		if (!deps.transcriber.isAvailable()) {
+			throw new TranscriptionUnavailable(); // → 503
+		}
+		// Throws TranscriptionFailed (→502).
+		const transcription = await deps.transcriber.transcribe({
+			file: input.source.file,
+			filename: input.source.filename,
+		});
+		sourceType = "audio";
+		inputText = transcription.text;
+	} else {
+		sourceType = "text";
+		inputText = input.source.text;
+	}
 
 	// Throws NoProviderAvailable (→502/503) or ProviderError (→502).
 	const selection = await selectAndExtract(
 		deps.providers,
-		{ content: input.text, schema, instructions: input.instructions },
+		{ content: inputText, schema, instructions: input.instructions },
 		{ forced: input.forced, order: deps.order },
 	);
 
@@ -77,8 +107,8 @@ export async function extractInformation(
 	const complete = missingFields.length === 0;
 
 	const saved: Extraction = await deps.repository.save({
-		sourceType: "text",
-		inputText: input.text,
+		sourceType,
+		inputText,
 		template: input.template,
 		result: validation.data,
 		missingFields,

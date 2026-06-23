@@ -1,6 +1,7 @@
 import { createDb } from "@/adapters/output/database/client";
 import { KyselyExtractionRepository } from "@/adapters/output/database/extraction-repository";
 import { createLlmRegistry } from "@/adapters/output/llm/index";
+import { createGroqWhisper } from "@/adapters/output/transcription/groq-whisper";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
 import type { Config } from "@/config";
 
@@ -13,8 +14,18 @@ export function createContainer(config: Config) {
 	const extractionRepository = new KyselyExtractionRepository(db);
 	const providerRegistry = createLlmRegistry(config);
 	const outputValidator = createOutputValidator();
+	const transcriber = createGroqWhisper({
+		apiKey: config.GROQ_API_KEY,
+		model: config.GROQ_WHISPER_MODEL,
+	});
 
-	return { db, extractionRepository, providerRegistry, outputValidator };
+	return {
+		db,
+		extractionRepository,
+		providerRegistry,
+		outputValidator,
+		transcriber,
+	};
 }
 
 export type Container = ReturnType<typeof createContainer>;

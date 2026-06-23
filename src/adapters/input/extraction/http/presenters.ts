@@ -2,6 +2,8 @@ import { InvalidProviderOutput } from "@/domain/errors/invalid-provider-output";
 import { NoProviderAvailable } from "@/domain/errors/no-provider-available";
 import { ProviderError } from "@/domain/errors/provider-error";
 import { TemplateInvalid } from "@/domain/errors/template-invalid";
+import { TranscriptionFailed } from "@/domain/errors/transcription-failed";
+import { TranscriptionUnavailable } from "@/domain/errors/transcription-unavailable";
 import type { ExtractionResult } from "@/domain/use-cases/extract-information";
 import type { FieldError } from "./validations";
 
@@ -47,11 +49,22 @@ export function presentValidationError(
 	});
 }
 
+/** Builds the 413 Problem Details when the audio upload exceeds the cap. */
+export function presentPayloadTooLarge(
+	maxBytes: number,
+	instance: string,
+): ProblemDetails {
+	return problem(413, "Audio too large", instance, {
+		detail: `Audio exceeds the ${Math.round(maxBytes / (1024 * 1024))} MB limit.`,
+	});
+}
+
 /**
  * Maps a domain error thrown by the use-case to Problem Details + status:
  * - `TemplateInvalid` → 422 (with per-issue `errors[]`)
+ * - `TranscriptionUnavailable` → 503
  * - `NoProviderAvailable` → 502 when a provider was forced, else 503
- * - `ProviderError` / `InvalidProviderOutput` → 502
+ * - `ProviderError` / `InvalidProviderOutput` / `TranscriptionFailed` → 502
  * - anything else → 500
  */
 export function presentError(error: unknown, instance: string): ProblemDetails {
@@ -59,6 +72,16 @@ export function presentError(error: unknown, instance: string): ProblemDetails {
 		return problem(422, "Invalid template", instance, {
 			detail: "The template is not valid for extraction.",
 			errors: error.issues.map((message) => ({ field: "template", message })),
+		});
+	}
+	if (error instanceof TranscriptionUnavailable) {
+		return problem(503, "Transcription unavailable", instance, {
+			detail: error.message,
+		});
+	}
+	if (error instanceof TranscriptionFailed) {
+		return problem(502, "Transcription failed", instance, {
+			detail: error.message,
 		});
 	}
 	if (error instanceof NoProviderAvailable) {

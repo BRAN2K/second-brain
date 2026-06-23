@@ -46,9 +46,11 @@ RFC 9457 Problem Details (422/502/503), `?provider=`. Container wires registry +
 `/ready` now also requires ≥1 available provider. HTTP integration via `app.handle` (fakes)
 plus an end-to-end test against real Postgres.
 
-## PR7 — Audio
-`Transcriber` port + Groq Whisper adapter. Audio flow (24 MB cap → 413, text XOR audio).
-Persist transcription (not the audio file).
+## PR7 — Audio ✅
+`Transcriber` port + Groq Whisper adapter (raw `fetch`, `whisper-large-v3-turbo`). Audio
+flow as a pre-step in the use-case (24 MB cap → 413, text XOR audio → 422, transcription
+unavailable → 503). Persists the transcription text (never the audio file). `?provider=`
+still controls extraction only.
 
 ## PR8 — Read endpoints
 `GET /v1/extractions/:id` and `GET /v1/extractions` (cursor-based pagination by UUIDv7).

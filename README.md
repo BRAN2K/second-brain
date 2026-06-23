@@ -63,6 +63,7 @@ cp .env.example .env
 | `OPENAI_MODEL`    | no       | `gpt-4o-mini`              | Model for the OpenAI provider                 |
 | `GROQ_MODEL`      | no       | `llama-3.3-70b-versatile`  | Model for the Groq provider                   |
 | `GEMINI_MODEL`    | no       | `gemini-2.0-flash`         | Model for the Gemini provider                 |
+| `GROQ_WHISPER_MODEL` | no    | `whisper-large-v3-turbo`   | STT model for audio (uses `GROQ_API_KEY`)     |
 
 A provider is only used when its API key is set, so any subset works (or none, until the
 extraction endpoint lands in PR6).
@@ -103,15 +104,22 @@ docker compose up --build         # app + postgres:18
 
 ## Extracting data
 
-`POST /v1/extractions` (multipart) takes `text` and a JSON-encoded `template` (a flat
-field list). Missing required fields are **not** an error — you get `200` with
-`complete:false` and a `missingFields` list. Add `?provider=openai|groq|gemini` to force one.
+`POST /v1/extractions` (multipart) takes **text or audio** (exactly one) and a
+JSON-encoded `template` (a flat field list). Missing required fields are **not** an error —
+you get `200` with `complete:false` and a `missingFields` list. Add
+`?provider=openai|groq|gemini` to force the extraction provider.
 
 ```bash
+# Text
 curl -s localhost:3000/v1/extractions \
   -F 'text=Buy 3 boxes of green tea by Friday' \
   -F 'template=[{"name":"item","type":"string","required":true},
                 {"name":"quantity","type":"number","required":false}]'
+
+# Audio (transcribed first via Groq Whisper, then extracted; max 24 MB)
+curl -s localhost:3000/v1/extractions \
+  -F 'audio=@note.mp3' \
+  -F 'template=[{"name":"item","type":"string","required":true}]'
 ```
 
 ```json
@@ -124,8 +132,9 @@ curl -s localhost:3000/v1/extractions \
 ```
 
 Errors use [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details
-(`application/problem+json`): `422` invalid request/template, `502` provider failure,
-`503` no provider available.
+(`application/problem+json`): `422` invalid request/template (incl. text-XOR-audio),
+`413` audio over 24 MB, `502` provider/transcription failure, `503` no provider /
+transcription unavailable.
 
 ---
 

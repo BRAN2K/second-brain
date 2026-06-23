@@ -30,6 +30,8 @@ export const ConfigSchema = Type.Object({
 	OPENAI_MODEL: Type.String({ default: "gpt-4o-mini" }),
 	GROQ_MODEL: Type.String({ default: "llama-3.3-70b-versatile" }),
 	GEMINI_MODEL: Type.String({ default: "gemini-2.0-flash" }),
+	// Speech-to-text (audio): uses GROQ_API_KEY; available only when that key is set.
+	GROQ_WHISPER_MODEL: Type.String({ default: "whisper-large-v3-turbo" }),
 });
 
 export type Config = Static<typeof ConfigSchema>;
