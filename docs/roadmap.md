@@ -27,9 +27,11 @@ semantic issue (domain is the source of truth). TypeBox request validation at th
 unknown keys stripped — incomplete output is never rejected, wrong types are) +
 `domain/services/missing-fields` (missing if absent / `null` / `""`). Behavior tests.
 
-## PR4 — Provider ports + selection (fakes)
-`domain/ports/extraction-provider`, `domain/services/provider-selection` (order, transient
-fallback, 1 retry), registry in `adapters/output/llm`, fake providers. Tests only.
+## PR4 — Provider ports + selection (fakes) ✅
+`domain/ports/extraction-provider`, `domain/services/provider-selection` (forced = no
+fallback; order skips unavailable; transient-only fallback + 1 retry; permanent stops),
+`ProviderError`/`NoProviderAvailable`, registry in `adapters/output/llm`, fake providers.
+Tests only (no real SDK calls).
 
 ## PR5 — Real providers
 Groq/OpenAI/Gemini implementations + `toProviderSchema` per dialect. `LLM_LIVE` opt-in tests.

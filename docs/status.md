@@ -5,9 +5,9 @@ _Last updated: 2026-06-22_
 ## Summary
 
 The Second Brain Extraction API is in early v1 development. Bootstrap (PR0), the
-DB-first persistence base (PR1), the template→schema converter (PR2), and output
-validation + the `missingFields` rule (PR3) are complete and verified. Provider ports
-and the extraction pipeline are next.
+DB-first persistence base (PR1), the template→schema converter (PR2), output validation +
+the `missingFields` rule (PR3), and the provider port + selection/fallback policy (PR4,
+with fakes) are complete and verified. Real providers and the extraction pipeline are next.
 
 ## Delivery progress
 
@@ -17,8 +17,8 @@ and the extraction pipeline are next.
 | PR1 | Persistence base (DB-first): Kysely, migrations, ephemeral test DB | ✅ Done |
 | PR2 | Template → JSON Schema | ✅ Done |
 | PR3 | Output validation + `missingFields` | ✅ Done |
-| PR4 | Provider ports + selection/fallback (fakes) | ⏳ Next |
-| PR5 | Real providers (Groq/OpenAI/Gemini) | ⬜ Planned |
+| PR4 | Provider ports + selection/fallback (fakes) | ✅ Done |
+| PR5 | Real providers (Groq/OpenAI/Gemini) | ⏳ Next |
 | PR6 | Use-case + extraction endpoint (text) | ⬜ Planned |
 | PR7 | Audio transcription flow | ⬜ Planned |
 | PR8 | Read endpoints (cursor pagination) | ⬜ Planned |
@@ -108,11 +108,29 @@ while wrong types and out-of-enum values still surface as structural errors; unk
 missing when **absent**, **null**, or an **empty/whitespace string**; `0`/`false`/`[]` are
 legitimate values. (`ajv` added as the only new dependency.)
 
+## PR4 — verified
+
+| Check | Result |
+|---|---|
+| `bun run typecheck` | ✅ clean |
+| `bun run test:unit` | ✅ 63/63 (no Docker needed) |
+| `bun run lint` (Biome) | ✅ clean |
+
+What landed: the `ExtractionProvider` port (`domain/ports`, `name`/`isAvailable`/`extract`,
+output never trusted) plus `ProviderError` (carries `transient`) and `NoProviderAvailable`.
+`selectAndExtract` (`domain/services/provider-selection`) implements the ADR 0004 policy:
+forced (`?provider=`) runs one provider with **no fallback**; otherwise providers are tried
+in `order`, skipping unavailable ones; **only transient** failures trigger one retry and
+fallback to the next; permanent failures stop immediately. `createProviderRegistry`
+(`adapters/output/llm`) is the composition seam (all/available/get/order). Fully covered by
+unit tests with fake providers (call-count assertions for retry/fallback); **no real SDK
+calls** — those land in PR5.
+
 ## Environment notes
 - **Bun** installed at `~/.bun/bin/bun` (v1.3.14).
 - **Docker** runs via Docker Desktop WSL integration (engine 29.5.3, Compose v5.x).
 - Local secrets via `.env` (copy from `.env.example`); Infisical comes near deploy.
 
 ## Next step
-PR4 — Provider ports + selection/fallback with fakes
-(`domain/ports/extraction-provider`, `domain/services/provider-selection`).
+PR5 — Real providers (Groq/OpenAI/Gemini) + `toProviderSchema` per dialect;
+`LLM_LIVE` opt-in tests.
