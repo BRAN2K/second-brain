@@ -6,6 +6,7 @@ import type { Database } from "@/adapters/output/database/types";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
 import { buildApp } from "@/cmd/server";
 import { fakeProvider } from "../helpers/fake-provider";
+import { fakeTranscriber } from "../helpers/fake-transcriber";
 import { setupTestDb } from "../helpers/test-db";
 
 /**
@@ -25,6 +26,7 @@ beforeAll(async () => {
 		order: ["openai"],
 		validate: createOutputValidator().validate,
 		repository: new KyselyExtractionRepository(db),
+		transcriber: fakeTranscriber(),
 	};
 }, 60_000);
 

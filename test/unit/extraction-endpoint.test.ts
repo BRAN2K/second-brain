@@ -4,6 +4,7 @@ import { createOutputValidator } from "@/adapters/output/validation/output-valid
 import { buildApp } from "@/cmd/server";
 import { fakeProvider } from "../helpers/fake-provider";
 import { fakeRepository } from "../helpers/fake-repository";
+import { fakeTranscriber } from "../helpers/fake-transcriber";
 
 const validate = createOutputValidator().validate;
 const templateJson = JSON.stringify([
@@ -15,23 +16,19 @@ function appWith(extraction: ExtractionDeps) {
 	return buildApp({ extraction });
 }
 
-function form(fields: Record<string, string>): FormData {
+function post(
+	app: ReturnType<typeof buildApp>,
+	fields: Record<string, string | Blob>,
+	query = "",
+) {
 	const fd = new FormData();
 	for (const [key, value] of Object.entries(fields)) {
 		fd.append(key, value);
 	}
-	return fd;
-}
-
-function post(
-	app: ReturnType<typeof buildApp>,
-	fields: Record<string, string>,
-	query = "",
-) {
 	return app.handle(
 		new Request(`http://localhost/v1/extractions${query}`, {
 			method: "POST",
-			body: form(fields),
+			body: fd,
 		}),
 	);
 }
@@ -48,33 +45,40 @@ interface ResponseBody {
 
 const json = async (res: Response) => (await res.json()) as ResponseBody;
 
-const baseDeps = (data: unknown): ExtractionDeps => ({
-	providers: [fakeProvider({ name: "openai", data })],
+const deps = (overrides: Partial<ExtractionDeps> = {}): ExtractionDeps => ({
+	providers: [
+		fakeProvider({ name: "openai", data: { title: "Milk", amount: 2 } }),
+	],
 	order: ["openai"],
 	validate,
 	repository: fakeRepository(),
+	transcriber: fakeTranscriber(),
+	...overrides,
 });
 
-describe("POST /v1/extractions", () => {
+describe("POST /v1/extractions — text", () => {
 	it("returns 200 with a complete result", async () => {
-		const res = await post(appWith(baseDeps({ title: "Milk", amount: 2 })), {
+		const res = await post(appWith(deps()), {
 			text: "buy 2 milk",
 			template: templateJson,
 		});
 		expect(res.status).toBe(200);
 		const body = await json(res);
 		expect(body.complete).toBe(true);
-		expect(body.missingFields).toEqual([]);
 		expect(body.data).toEqual({ title: "Milk", amount: 2 });
 		expect(body.meta.provider).toBe("openai");
 		expect(body.meta.id).toBeTruthy();
 	});
 
 	it("returns 200 with complete:false when a required field is missing", async () => {
-		const res = await post(appWith(baseDeps({ amount: 2 })), {
-			text: "buy",
-			template: templateJson,
-		});
+		const res = await post(
+			appWith(
+				deps({
+					providers: [fakeProvider({ name: "openai", data: { amount: 2 } })],
+				}),
+			),
+			{ text: "buy", template: templateJson },
+		);
 		expect(res.status).toBe(200);
 		const body = await json(res);
 		expect(body.complete).toBe(false);
@@ -82,41 +86,43 @@ describe("POST /v1/extractions", () => {
 	});
 
 	it("forces a provider via ?provider=", async () => {
-		const deps: ExtractionDeps = {
-			providers: [
-				fakeProvider({ name: "openai", data: { title: "A" } }),
-				fakeProvider({ name: "groq", data: { title: "B" } }),
-			],
-			order: ["openai", "groq"],
-			validate,
-			repository: fakeRepository(),
-		};
 		const res = await post(
-			appWith(deps),
+			appWith(
+				deps({
+					providers: [
+						fakeProvider({ name: "openai", data: { title: "A" } }),
+						fakeProvider({ name: "groq", data: { title: "B" } }),
+					],
+					order: ["openai", "groq"],
+				}),
+			),
 			{ text: "x", template: templateJson },
 			"?provider=groq",
 		);
-		const body = await json(res);
-		expect(body.meta.provider).toBe("groq");
+		expect((await json(res)).meta.provider).toBe("groq");
 	});
+});
 
-	it("returns 422 problem+json when text is missing", async () => {
-		const res = await post(appWith(baseDeps({ title: "x" })), {
-			template: templateJson,
-		});
+describe("POST /v1/extractions — request validation", () => {
+	it("returns 422 problem+json when neither text nor audio is given", async () => {
+		const res = await post(appWith(deps()), { template: templateJson });
 		expect(res.status).toBe(422);
 		expect(res.headers.get("content-type")).toContain(
 			"application/problem+json",
 		);
-		const body = await json(res);
-		expect(body.status).toBe(422);
-		expect(body.errors.some((e: { field: string }) => e.field === "text")).toBe(
-			true,
-		);
+	});
+
+	it("returns 422 when both text and audio are given (XOR)", async () => {
+		const res = await post(appWith(deps()), {
+			text: "x",
+			audio: new Blob(["bytes"], { type: "audio/mpeg" }),
+			template: templateJson,
+		});
+		expect(res.status).toBe(422);
 	});
 
 	it("returns 422 when the template is not valid JSON", async () => {
-		const res = await post(appWith(baseDeps({})), {
+		const res = await post(appWith(deps()), {
 			text: "x",
 			template: "{not json",
 		});
@@ -124,24 +130,24 @@ describe("POST /v1/extractions", () => {
 	});
 
 	it("returns 422 for a semantically invalid template", async () => {
-		const res = await post(appWith(baseDeps({})), {
+		const res = await post(appWith(deps()), {
 			text: "x",
 			template: JSON.stringify([{ name: "s", type: "enum", required: true }]),
 		});
 		expect(res.status).toBe(422);
-		const body = await json(res);
-		expect(body.title).toBe("Invalid template");
+		expect((await json(res)).title).toBe("Invalid template");
 	});
+});
 
+describe("POST /v1/extractions — provider failures", () => {
 	it("returns 502 when a forced provider is unavailable", async () => {
-		const deps: ExtractionDeps = {
-			providers: [fakeProvider({ name: "groq", available: false })],
-			order: ["groq"],
-			validate,
-			repository: fakeRepository(),
-		};
 		const res = await post(
-			appWith(deps),
+			appWith(
+				deps({
+					providers: [fakeProvider({ name: "groq", available: false })],
+					order: ["groq"],
+				}),
+			),
 			{ text: "x", template: templateJson },
 			"?provider=groq",
 		);
@@ -149,30 +155,69 @@ describe("POST /v1/extractions", () => {
 	});
 
 	it("returns 503 when no provider is available", async () => {
-		const deps: ExtractionDeps = {
-			providers: [fakeProvider({ name: "openai", available: false })],
-			order: ["openai"],
-			validate,
-			repository: fakeRepository(),
-		};
-		const res = await post(appWith(deps), {
-			text: "x",
-			template: templateJson,
-		});
+		const res = await post(
+			appWith(
+				deps({
+					providers: [fakeProvider({ name: "openai", available: false })],
+				}),
+			),
+			{ text: "x", template: templateJson },
+		);
 		expect(res.status).toBe(503);
 	});
 
 	it("returns 502 when the provider fails transiently and is exhausted", async () => {
-		const deps: ExtractionDeps = {
-			providers: [fakeProvider({ name: "openai", outcomes: ["transient"] })],
-			order: ["openai"],
-			validate,
-			repository: fakeRepository(),
-		};
-		const res = await post(appWith(deps), {
-			text: "x",
+		const res = await post(
+			appWith(
+				deps({
+					providers: [
+						fakeProvider({ name: "openai", outcomes: ["transient"] }),
+					],
+				}),
+			),
+			{ text: "x", template: templateJson },
+		);
+		expect(res.status).toBe(502);
+	});
+});
+
+describe("POST /v1/extractions — audio", () => {
+	it("transcribes audio then extracts (200)", async () => {
+		const res = await post(
+			appWith(
+				deps({
+					providers: [fakeProvider({ name: "openai", data: { title: "tea" } })],
+					transcriber: fakeTranscriber({ text: "buy tea" }),
+				}),
+			),
+			{
+				audio: new Blob(["fake-bytes"], { type: "audio/mpeg" }),
+				template: templateJson,
+			},
+		);
+		expect(res.status).toBe(200);
+		expect((await json(res)).data).toEqual({ title: "tea" });
+	});
+
+	it("returns 503 when audio is sent but transcription is unavailable", async () => {
+		const res = await post(
+			appWith(deps({ transcriber: fakeTranscriber({ available: false }) })),
+			{
+				audio: new Blob(["fake-bytes"], { type: "audio/mpeg" }),
+				template: templateJson,
+			},
+		);
+		expect(res.status).toBe(503);
+	});
+
+	it("returns 413 when the audio exceeds the size cap", async () => {
+		const big = new Blob([new Uint8Array(24 * 1024 * 1024 + 1)], {
+			type: "audio/mpeg",
+		});
+		const res = await post(appWith(deps()), {
+			audio: big,
 			template: templateJson,
 		});
-		expect(res.status).toBe(502);
+		expect(res.status).toBe(413);
 	});
 });

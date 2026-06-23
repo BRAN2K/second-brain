@@ -53,6 +53,7 @@ export function startServer() {
 			order: container.providerRegistry.order,
 			validate: container.outputValidator.validate,
 			repository: container.extractionRepository,
+			transcriber: container.transcriber,
 		},
 	}).listen(config.PORT);
 

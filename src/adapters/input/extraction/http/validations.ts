@@ -57,8 +57,16 @@ export interface FieldError {
 	message: string;
 }
 
+/** Synchronous audio cap (ADR 0006): larger uploads are rejected with 413. */
+export const MAX_AUDIO_BYTES = 24 * 1024 * 1024;
+
+/** Either raw text or an uploaded audio file — exactly one (text XOR audio). */
+export type RequestSource =
+	| { kind: "text"; text: string }
+	| { kind: "audio"; file: Blob; filename: string };
+
 export interface ParsedExtractionRequest {
-	text: string;
+	source: RequestSource;
 	template: TemplateInput;
 	instructions?: string;
 }
@@ -67,60 +75,84 @@ export type ParseResult =
 	| { ok: true; value: ParsedExtractionRequest }
 	| { ok: false; errors: FieldError[] };
 
+function parseTemplate(
+	raw: unknown,
+	errors: FieldError[],
+): TemplateInput | undefined {
+	let parsed: unknown;
+	if (raw === undefined || raw === null) {
+		errors.push({
+			field: "template",
+			message: "template is required (a JSON-encoded field list)",
+		});
+		return undefined;
+	}
+	if (typeof raw === "string") {
+		// Only reaches here when Elysia could not auto-parse it (i.e. invalid JSON).
+		try {
+			parsed = JSON.parse(raw);
+		} catch {
+			errors.push({ field: "template", message: "template is not valid JSON" });
+			return undefined;
+		}
+	} else {
+		parsed = raw; // already parsed by Elysia
+	}
+
+	if (Value.Check(TemplateInputSchema, parsed)) {
+		return parsed;
+	}
+	for (const issue of Value.Errors(TemplateInputSchema, parsed)) {
+		errors.push({ field: `template${issue.path}`, message: issue.message });
+	}
+	return undefined;
+}
+
 /**
- * Validates a multipart extraction request: `text` (non-empty), `template` (a field
- * list, sent as a JSON string), optional `instructions`. Note Elysia auto-parses
- * multipart fields that look like JSON, so `template` arrives already parsed when valid
- * and as a raw string otherwise — we handle both. Returns field-level errors instead of
- * throwing so the route can render one Problem Details response. Semantic template checks
- * (enum needs values, etc.) stay in the domain converter.
+ * Validates a multipart extraction request: **text XOR audio** (exactly one), `template`
+ * (a field list sent as JSON), optional `instructions`. Elysia auto-parses multipart
+ * fields that look like JSON, so `template` arrives already parsed when valid and as a raw
+ * string otherwise — both are handled. Returns field-level errors instead of throwing so
+ * the route can render one Problem Details response. The 24 MB audio cap (413) and
+ * semantic template checks (enum needs values, etc.) are enforced elsewhere.
  */
 export function parseExtractionRequest(body: unknown): ParseResult {
 	const errors: FieldError[] = [];
 	const record = (body ?? {}) as Record<string, unknown>;
 
-	const text = typeof record.text === "string" ? record.text : undefined;
-	if (text === undefined || text.trim() === "") {
-		errors.push({ field: "text", message: "text is required and non-empty" });
+	const text =
+		typeof record.text === "string" && record.text.trim() !== ""
+			? record.text
+			: undefined;
+	const audio = record.audio instanceof Blob ? record.audio : undefined;
+
+	if (text && audio) {
+		errors.push({
+			field: "text",
+			message: "provide either text or audio, not both",
+		});
+	} else if (!text && !audio) {
+		errors.push({
+			field: "text",
+			message: "one of text or audio is required",
+		});
 	}
 
 	const instructions =
 		typeof record.instructions === "string" ? record.instructions : undefined;
+	const template = parseTemplate(record.template, errors);
 
-	let template: TemplateInput | undefined;
-	const rawTemplate = record.template;
-	let parsed: unknown;
-	if (rawTemplate === undefined || rawTemplate === null) {
-		errors.push({
-			field: "template",
-			message: "template is required (a JSON-encoded field list)",
-		});
-	} else if (typeof rawTemplate === "string") {
-		// Only reaches here when Elysia could not auto-parse it (i.e. invalid JSON).
-		try {
-			parsed = JSON.parse(rawTemplate);
-		} catch {
-			errors.push({ field: "template", message: "template is not valid JSON" });
-		}
-	} else {
-		parsed = rawTemplate; // already parsed by Elysia
-	}
-
-	if (parsed !== undefined) {
-		if (Value.Check(TemplateInputSchema, parsed)) {
-			template = parsed;
-		} else {
-			for (const issue of Value.Errors(TemplateInputSchema, parsed)) {
-				errors.push({
-					field: `template${issue.path}`,
-					message: issue.message,
-				});
-			}
-		}
-	}
-
-	if (errors.length > 0 || !template || text === undefined) {
+	if (errors.length > 0 || !template) {
 		return { ok: false, errors };
 	}
-	return { ok: true, value: { text, template, instructions } };
+
+	const source: RequestSource = audio
+		? {
+				kind: "audio",
+				file: audio,
+				filename: audio instanceof File ? audio.name : "audio",
+			}
+		: { kind: "text", text: text as string };
+
+	return { ok: true, value: { source, template, instructions } };
 }
