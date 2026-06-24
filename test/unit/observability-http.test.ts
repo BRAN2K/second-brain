@@ -13,10 +13,13 @@ const templateJson = JSON.stringify([
 	{ name: "title", type: "string", required: true },
 ]);
 
-function appWith(metrics = createMetrics()) {
+function appWith(
+	metrics = createMetrics(),
+	providers = [fakeProvider({ name: "groq", data: { title: "Tea" } })],
+) {
 	const extraction: ExtractionDeps = {
-		providers: [fakeProvider({ name: "groq", data: { title: "Tea" } })],
-		order: ["groq"],
+		providers,
+		order: providers.map((p) => p.name),
 		validate: createOutputValidator().validate,
 		repository: fakeRepository(),
 		transcriber: fakeTranscriber(),
@@ -54,6 +57,46 @@ describe("observability HTTP", () => {
 		expect(res.headers.get("content-type")).toContain("text/plain");
 		const text = await res.text();
 		expect(text).toContain("http_request_duration_seconds");
+	});
+
+	it("increments the HTTP duration histogram for the matched route", async () => {
+		// Guards the telemetry wiring end-to-end. The HTTP metric is recorded in
+		// Elysia's onAfterResponse hook, which only fires for a real network response
+		// (not app.handle), so we bind an ephemeral port and issue a real fetch.
+		const { app, metrics } = appWith();
+		const server = app.listen(0);
+		try {
+			const port = server.server?.port;
+			await fetch(`http://localhost:${port}/health`);
+			// onAfterResponse runs just after the body is flushed; let it settle.
+			await new Promise((resolve) => setTimeout(resolve, 50));
+
+			const text = await metrics.registry.metrics();
+			expect(text).toContain(
+				'http_request_duration_seconds_count{method="GET",route="/health",status="200"} 1',
+			);
+		} finally {
+			server.stop();
+		}
+	});
+
+	it("records an error metric when an extraction fails with 5xx", async () => {
+		const { app, metrics } = appWith(createMetrics(), [
+			fakeProvider({ name: "groq", outcomes: ["permanent"] }),
+		]);
+		const fd = new FormData();
+		fd.append("text", "buy tea");
+		fd.append("template", templateJson);
+		const res = await app.handle(
+			new Request("http://localhost/v1/extractions", {
+				method: "POST",
+				body: fd,
+			}),
+		);
+
+		expect(res.status).toBeGreaterThanOrEqual(500);
+		const text = await metrics.registry.metrics();
+		expect(text).toContain('extraction_errors_total{reason="ProviderError"} 1');
 	});
 
 	it("records an extraction outcome metric after a successful request", async () => {

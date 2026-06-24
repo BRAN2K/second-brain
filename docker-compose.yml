@@ -7,7 +7,19 @@ services:
       APP_ENV: ${APP_ENV:-local}
       PORT: ${PORT:-3000}
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      DATABASE_URL: ${DATABASE_URL:-postgres://app:app@postgres:5432/secondbrain}
+      # Inside the container, Postgres is reached via the compose service name. We build
+      # the URL here instead of inheriting ${DATABASE_URL} so the host .env's value
+      # (localhost, for running the app outside Docker) doesn't leak in and break it.
+      DATABASE_URL: postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@postgres:5432/${POSTGRES_DB:-secondbrain}
+      # LLM providers — passed through from the host env/.env (empty when unset).
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      PROVIDER_ORDER: ${PROVIDER_ORDER:-groq,openai,gemini}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
+      GROQ_WHISPER_MODEL: ${GROQ_WHISPER_MODEL:-whisper-large-v3-turbo}
     ports:
       - "${PORT:-3000}:3000"
     depends_on:
