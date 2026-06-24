@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import type { Metrics } from "@/adapters/output/observability/metrics";
 import {
 	type ExtractInformationDeps,
 	extractInformation,
@@ -19,7 +20,10 @@ import {
 	parsePagination,
 } from "./validations";
 
-export type ExtractionDeps = ExtractInformationDeps;
+export interface ExtractionDeps extends ExtractInformationDeps {
+	/** Optional Prometheus recorder; when set, extraction outcomes are counted. */
+	metrics?: Metrics;
+}
 
 const INSTANCE = "/v1/extractions";
 
@@ -61,9 +65,22 @@ export function extractionRoutes(deps: ExtractionDeps) {
 					forced:
 						typeof query.provider === "string" ? query.provider : undefined,
 				});
+				deps.metrics?.recordExtraction({
+					provider: result.meta.provider,
+					complete: result.complete,
+					fallbackUsed: result.meta.fallbackUsed,
+					inputTokens: result.meta.inputTokens,
+					outputTokens: result.meta.outputTokens,
+				});
 				return presentSuccess(result);
 			} catch (error) {
-				return problemResponse(presentError(error, INSTANCE));
+				const problem = presentError(error, INSTANCE);
+				if (problem.status >= 500) {
+					deps.metrics?.recordError(
+						error instanceof Error ? error.name : "Unknown",
+					);
+				}
+				return problemResponse(problem);
 			}
 		})
 		.get(`${INSTANCE}/:id`, async ({ params, set }) => {

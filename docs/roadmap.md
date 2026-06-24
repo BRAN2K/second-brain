@@ -57,9 +57,12 @@ still controls extraction only.
 (newest-first, cursor-based pagination by UUIDv7: `?cursor=&limit=`, `id < cursor`).
 Repository gains `list`; pagination params validated (422 on bad limit/cursor).
 
-## PR9 — Observability
-`pino` (JSON, requestId, secret redaction), `/metrics`, `docker-compose.observability.yml`
-(Prometheus, Grafana, Loki, GlitchTip), configurable endpoints. (Tracing → v1.1.)
+## PR9 — Observability ✅
+`pino` (JSON, requestId, secret redaction) + `prom-client` `/metrics` (HTTP duration,
+extractions by provider/completeness, fallback, tokens, errors) via an input-layer
+telemetry plugin (domain stays clean). `docker-compose.observability.yml` (Prometheus,
+Grafana, Loki+promtail, GlitchTip) with provisioned datasources. GlitchTip **SDK** deferred
+to deploy (PR10/11); the stack is ready. (Tracing → v1.1.)
 
 ## PR10 — Deploy
 GitHub Actions (build+test → ghcr.io → SSH deploy), Caddy (TLS + IP allowlist), and a
