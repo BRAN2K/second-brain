@@ -1,0 +1,96 @@
+# Observability stack (ADR 0009). Run together with the app so they share one network:
+#   docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+#
+# - Prometheus scrapes the app's /metrics
+# - Grafana visualizes Prometheus + Loki (datasources auto-provisioned)
+# - Loki stores logs; promtail ships container stdout to it
+# - GlitchTip receives errors (the app SDK is wired near deploy; infra is ready here)
+#
+# Endpoints are configurable so this can move to a dedicated monitoring host later.
+
+services:
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./docker/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:11.5.1
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes:
+      - ./docker/observability/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+      - loki
+
+  loki:
+    image: grafana/loki:3.4.1
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki-data:/loki
+
+  promtail:
+    image: grafana/promtail:3.4.1
+    command: -config.file=/etc/promtail/promtail.yml
+    volumes:
+      - ./docker/observability/promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+
+  # --- GlitchTip (Sentry-compatible error tracking) -------------------------
+  glitchtip-postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: glitchtip
+      POSTGRES_PASSWORD: glitchtip
+      POSTGRES_DB: glitchtip
+    volumes:
+      - glitchtip-pg:/var/lib/postgresql
+
+  glitchtip-redis:
+    image: redis:7-alpine
+
+  glitchtip-web:
+    image: glitchtip/glitchtip:v4.2.1
+    depends_on:
+      - glitchtip-postgres
+      - glitchtip-redis
+    environment:
+      DATABASE_URL: postgres://glitchtip:glitchtip@glitchtip-postgres:5432/glitchtip
+      REDIS_URL: redis://glitchtip-redis:6379/0
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-change-me-in-prod}
+      PORT: "8000"
+      GLITCHTIP_DOMAIN: ${GLITCHTIP_DOMAIN:-http://localhost:8000}
+    ports:
+      - "8000:8000"
+
+  glitchtip-worker:
+    image: glitchtip/glitchtip:v4.2.1
+    command: ./bin/run-celery-with-beat.sh
+    depends_on:
+      - glitchtip-postgres
+      - glitchtip-redis
+    environment:
+      DATABASE_URL: postgres://glitchtip:glitchtip@glitchtip-postgres:5432/glitchtip
+      REDIS_URL: redis://glitchtip-redis:6379/0
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-change-me-in-prod}
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  loki-data:
+  glitchtip-pg:

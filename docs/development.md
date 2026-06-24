@@ -45,6 +45,23 @@ curl localhost:3000/ready      # {"status":"ready"} once Postgres is reachable
 docker compose down            # stop (add -v to wipe the DB volume)
 ```
 
+## Observability
+
+Logs are structured JSON (pino) on stdout, each request tagged with `x-request-id`; secrets
+are redacted. Metrics are exposed at `/metrics` (Prometheus format).
+
+Run the full stack alongside the app (one merged network so Prometheus can scrape `app:3000`):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+# Grafana    http://localhost:3001  (admin/admin by default)
+# Prometheus http://localhost:9090
+# GlitchTip  http://localhost:8000  (error tracking; app SDK wired near deploy)
+```
+
+Grafana datasources (Prometheus + Loki) are auto-provisioned; promtail ships container logs
+to Loki. The endpoints are configurable so the stack can move to a dedicated host later.
+
 ## Conventions
 - **Path alias:** `@/*` → `src/*` (configured in `tsconfig.json`; Bun reads it at runtime,
   so it must be present in the runtime image).

@@ -7,8 +7,9 @@ _Last updated: 2026-06-22_
 The Second Brain Extraction API has a working extraction pipeline end to end:
 `POST /v1/extractions` takes **text or audio** + a template and returns structured data
 with a `missingFields` report, persisted to Postgres (audio is transcribed first via Groq
-Whisper), plus read endpoints (`GET /v1/extractions/:id` and a cursor-paginated list).
-Bootstrap (PR0) through read endpoints (PR8) are complete and verified. Observability is next.
+Whisper), plus read endpoints (`GET /v1/extractions/:id` and a cursor-paginated list) and
+observability (structured logs, `/metrics`, an observability compose stack). Bootstrap (PR0)
+through observability (PR9) are complete and verified. Deploy is next.
 
 ## Delivery progress
 
@@ -23,8 +24,8 @@ Bootstrap (PR0) through read endpoints (PR8) are complete and verified. Observab
 | PR6 | Use-case + extraction endpoint (text) | ✅ Done |
 | PR7 | Audio transcription flow | ✅ Done |
 | PR8 | Read endpoints (cursor pagination) | ✅ Done |
-| PR9 | Observability stack | ⏳ Next |
-| PR10 | Deploy (GitHub Actions, ghcr.io, Caddy, migration pipeline) | ⬜ Planned |
+| PR9 | Observability stack | ✅ Done |
+| PR10 | Deploy (GitHub Actions, ghcr.io, Caddy, migration pipeline) | ⏳ Next |
 | PR11 | Secrets (Infisical) | ⬜ Planned |
 
 See [roadmap.md](./roadmap.md) for details.
@@ -208,11 +209,32 @@ and an optional UUID `cursor`, returning **422** on bad values. Read presenters
 (`presentExtraction`/`presentList`/`presentNotFound`) omit soft-delete bookkeeping. Covered by
 HTTP unit tests (fakes) and an integration test against real Postgres.
 
+## PR9 — verified
+
+| Check | Result |
+|---|---|
+| `bun run typecheck` | ✅ clean |
+| `bun run test:unit` | ✅ 128/128 (no Docker needed) |
+| `bun run lint` (Biome) | ✅ clean |
+| `/metrics` + `x-request-id` smoke (local boot) | ✅ |
+
+What landed: `createLogger` (pino, JSON, level from `LOG_LEVEL`, secret redaction) and
+`createMetrics` (prom-client registry + default process metrics). An input-layer
+**telemetry** plugin assigns/propagates `x-request-id`, logs each request, and records
+`http_request_duration_seconds` (labeled by the matched route pattern → bounded
+cardinality). `/metrics` is served by the health adapter; the extraction route records
+`extractions_total` (provider, complete), `extraction_fallback_total`,
+`extraction_tokens_total` and `extraction_errors_total` — all at the HTTP edge, so the
+domain/use-case stay metrics-free. `docker-compose.observability.yml` adds Prometheus,
+Grafana (provisioned datasources), Loki + promtail, and GlitchTip; run it alongside the app
+with `-f docker-compose.yml -f docker-compose.observability.yml`. The GlitchTip **SDK** is
+deferred to deploy (decision); the infra is ready.
+
 ## Environment notes
 - **Bun** installed at `~/.bun/bin/bun` (v1.3.14).
 - **Docker** runs via Docker Desktop WSL integration (engine 29.5.3, Compose v5.x).
 - Local secrets via `.env` (copy from `.env.example`); Infisical comes near deploy.
 
 ## Next step
-PR9 — Observability: `pino` (JSON, requestId, secret redaction), `/metrics`,
-`docker-compose.observability.yml` (Prometheus, Grafana, Loki, GlitchTip).
+PR10 — Deploy: GitHub Actions (build+test → ghcr.io → SSH), Caddy (TLS + IP allowlist),
+and a separate migration pipeline (`workflow_dispatch`, expand/contract).

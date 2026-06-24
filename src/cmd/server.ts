@@ -8,12 +8,14 @@ import {
 	type HealthDeps,
 	healthRoutes,
 } from "@/adapters/input/health/http/routes";
+import { type TelemetryDeps, telemetry } from "@/adapters/input/http/telemetry";
 import { loadConfig } from "@/config";
 import { createContainer } from "./container";
 
 export interface AppDeps {
 	health?: HealthDeps;
 	extraction?: ExtractionDeps;
+	telemetry?: TelemetryDeps;
 }
 
 /**
@@ -22,7 +24,11 @@ export interface AppDeps {
  * `startServer` loads config (fail-fast), builds the container, and binds the port.
  */
 export function buildApp(deps: AppDeps = {}) {
-	const app = new Elysia().use(healthRoutes(deps.health ?? {}));
+	const app = new Elysia();
+	if (deps.telemetry) {
+		app.use(telemetry(deps.telemetry));
+	}
+	app.use(healthRoutes(deps.health ?? {}));
 	if (deps.extraction) {
 		app.use(extractionRoutes(deps.extraction));
 	}
@@ -34,6 +40,7 @@ export function startServer() {
 	const container = createContainer(config);
 
 	const app = buildApp({
+		telemetry: { logger: container.logger, metrics: container.metrics },
 		health: {
 			// Ready = Postgres reachable AND at least one provider configured.
 			checkReady: async () => {
@@ -47,6 +54,7 @@ export function startServer() {
 					return false;
 				}
 			},
+			metricsRegistry: container.metrics.registry,
 		},
 		extraction: {
 			providers: container.providerRegistry.all(),
@@ -54,11 +62,13 @@ export function startServer() {
 			validate: container.outputValidator.validate,
 			repository: container.extractionRepository,
 			transcriber: container.transcriber,
+			metrics: container.metrics,
 		},
 	}).listen(config.PORT);
 
-	console.log(
-		`[${config.APP_ENV}] listening on http://localhost:${config.PORT}`,
+	container.logger.info(
+		{ port: config.PORT, env: config.APP_ENV },
+		"server listening",
 	);
 	return app;
 }
