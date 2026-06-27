@@ -9,9 +9,9 @@ import {
 	type ExtractInformationDeps,
 	extractInformation,
 } from "@/domain/use-cases/extract-information";
-import { fakeProvider } from "../helpers/fake-provider";
-import { fakeRepository } from "../helpers/fake-repository";
-import { fakeTranscriber } from "../helpers/fake-transcriber";
+import { fakeProvider } from "@test/helpers/fake-provider";
+import { fakeRepository } from "@test/helpers/fake-repository";
+import { fakeTranscriber } from "@test/helpers/fake-transcriber";
 
 const validate = createOutputValidator().validate;
 const order = ["openai", "groq"];

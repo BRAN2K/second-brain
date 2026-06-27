@@ -3,12 +3,12 @@ import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
 import { buildApp } from "@/infrastructure/container/server";
 import type { NewExtraction } from "@/domain/entities/extraction";
-import { fakeProvider } from "../helpers/fake-provider";
+import { fakeProvider } from "@test/helpers/fake-provider";
 import {
 	type FakeRepository,
 	fakeRepository,
-} from "../helpers/fake-repository";
-import { fakeTranscriber } from "../helpers/fake-transcriber";
+} from "@test/helpers/fake-repository";
+import { fakeTranscriber } from "@test/helpers/fake-transcriber";
 
 const repository: FakeRepository = fakeRepository();
 const deps: ExtractionDeps = {

@@ -1,8 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { pino } from "pino";
 
-// Mirror of the redaction config in src/adapters/output/observability/logger.ts.
-// We assert behavior against a buffer rather than stdout.
 const REDACT_PATHS = [
 	"authorization",
 	"*.authorization",

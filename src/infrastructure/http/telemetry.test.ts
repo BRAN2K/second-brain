@@ -4,9 +4,9 @@ import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
 import { createMetrics } from "@/infrastructure/metrics";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
 import { buildApp } from "@/infrastructure/container/server";
-import { fakeProvider } from "../helpers/fake-provider";
-import { fakeRepository } from "../helpers/fake-repository";
-import { fakeTranscriber } from "../helpers/fake-transcriber";
+import { fakeProvider } from "@test/helpers/fake-provider";
+import { fakeRepository } from "@test/helpers/fake-repository";
+import { fakeTranscriber } from "@test/helpers/fake-transcriber";
 
 const silentLogger = pino({ level: "silent" });
 const templateJson = JSON.stringify([

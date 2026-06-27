@@ -4,7 +4,7 @@ import { ProviderError } from "@/domain/errors/provider-error";
 import type { ExtractionInput } from "@/domain/ports/extraction-provider";
 import { selectAndExtract } from "@/domain/services/provider-selection";
 import type { CanonicalSchema } from "@/domain/services/template-to-schema";
-import { fakeProvider } from "../helpers/fake-provider";
+import { fakeProvider } from "@test/helpers/fake-provider";
 
 const schema: CanonicalSchema = {
 	type: "object",
