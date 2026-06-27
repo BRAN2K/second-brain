@@ -3,8 +3,8 @@
  * STT API key is missing). Mapped to 503 — the capability is simply not available.
  */
 export class TranscriptionUnavailable extends Error {
-	constructor() {
-		super("Audio transcription is not available");
-		this.name = "TranscriptionUnavailable";
-	}
+  constructor() {
+    super("Audio transcription is not available");
+    this.name = "TranscriptionUnavailable";
+  }
 }

@@ -10,20 +10,20 @@
  */
 
 function isMissing(value: unknown): boolean {
-	if (value === undefined || value === null) {
-		return true;
-	}
-	if (typeof value === "string") {
-		return value.trim() === "";
-	}
-	return false;
+  if (value === undefined || value === null) {
+    return true;
+  }
+  if (typeof value === "string") {
+    return value.trim() === "";
+  }
+  return false;
 }
 
 /** Returns the required field names absent from `data`, preserving their order. */
 export function findMissingFields(required: string[], data: unknown): string[] {
-	const record =
-		data !== null && typeof data === "object"
-			? (data as Record<string, unknown>)
-			: {};
-	return required.filter((name) => isMissing(record[name]));
+  const record =
+    data !== null && typeof data === "object"
+      ? (data as Record<string, unknown>)
+      : {};
+  return required.filter((name) => isMissing(record[name]));
 }

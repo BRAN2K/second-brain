@@ -5,10 +5,10 @@
  * rather than trusting the HTTP edge. Carries every issue found, not just the first.
  */
 export class TemplateInvalid extends Error {
-	constructor(public readonly issues: string[]) {
-		super(
-			`Invalid template:\n${issues.map((issue) => `  - ${issue}`).join("\n")}`,
-		);
-		this.name = "TemplateInvalid";
-	}
+  constructor(public readonly issues: string[]) {
+    super(
+      `Invalid template:\n${issues.map((issue) => `  - ${issue}`).join("\n")}`,
+    );
+    this.name = "TemplateInvalid";
+  }
 }

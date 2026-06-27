@@ -4,19 +4,19 @@
  * `adapters/output/transcription`. The original audio is never stored — only its text.
  */
 export interface TranscriptionRequest {
-	/** The uploaded audio bytes. */
-	file: Blob;
-	filename: string;
+  /** The uploaded audio bytes. */
+  file: Blob;
+  filename: string;
 }
 
 export interface TranscriptionResult {
-	text: string;
-	model: string;
-	latencyMs: number;
+  text: string;
+  model: string;
+  latencyMs: number;
 }
 
 export interface Transcriber {
-	/** Whether speech-to-text is usable right now (e.g. its API key is configured). */
-	isAvailable(): boolean;
-	transcribe(request: TranscriptionRequest): Promise<TranscriptionResult>;
+  /** Whether speech-to-text is usable right now (e.g. its API key is configured). */
+  isAvailable(): boolean;
+  transcribe(request: TranscriptionRequest): Promise<TranscriptionResult>;
 }

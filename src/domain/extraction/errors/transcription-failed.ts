@@ -3,8 +3,8 @@
  * a processing failure of the upstream STT service.
  */
 export class TranscriptionFailed extends Error {
-	constructor(options?: { cause?: unknown }) {
-		super("Audio transcription failed", options);
-		this.name = "TranscriptionFailed";
-	}
+  constructor(options?: { cause?: unknown }) {
+    super("Audio transcription failed", options);
+    this.name = "TranscriptionFailed";
+  }
 }

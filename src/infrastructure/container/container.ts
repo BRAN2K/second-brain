@@ -12,26 +12,26 @@ import { createMetrics } from "@/infrastructure/metrics";
  * for injection into routes/use-cases.
  */
 export function createContainer(config: Config) {
-	const db = createDb(config.DATABASE_URL);
-	const extractionRepository = new KyselyExtractionRepository(db);
-	const providerRegistry = createLlmRegistry(config);
-	const outputValidator = createOutputValidator();
-	const transcriber = createGroqWhisper({
-		apiKey: config.GROQ_API_KEY,
-		model: config.GROQ_WHISPER_MODEL,
-	});
-	const logger = createLogger(config);
-	const metrics = createMetrics();
+  const db = createDb(config.DATABASE_URL);
+  const extractionRepository = new KyselyExtractionRepository(db);
+  const providerRegistry = createLlmRegistry(config);
+  const outputValidator = createOutputValidator();
+  const transcriber = createGroqWhisper({
+    apiKey: config.GROQ_API_KEY,
+    model: config.GROQ_WHISPER_MODEL,
+  });
+  const logger = createLogger(config);
+  const metrics = createMetrics();
 
-	return {
-		db,
-		extractionRepository,
-		providerRegistry,
-		outputValidator,
-		transcriber,
-		logger,
-		metrics,
-	};
+  return {
+    db,
+    extractionRepository,
+    providerRegistry,
+    outputValidator,
+    transcriber,
+    logger,
+    metrics,
+  };
 }
 
 export type Container = ReturnType<typeof createContainer>;

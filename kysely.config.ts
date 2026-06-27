@@ -7,8 +7,8 @@ import { Pool } from "pg";
  * environment. Migrations run separately from code deploys (expand/contract).
  */
 export default defineConfig({
-	dialect: new PostgresDialect({
-		pool: new Pool({ connectionString: process.env.DATABASE_URL }),
-	}),
-	migrations: { migrationFolder: "migrations" },
+  dialect: new PostgresDialect({
+    pool: new Pool({ connectionString: process.env.DATABASE_URL }),
+  }),
+  migrations: { migrationFolder: "migrations" },
 });

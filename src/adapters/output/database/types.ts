@@ -8,19 +8,19 @@ import type { ColumnType, Selectable } from "kysely";
 type JsonbWrite = string;
 
 export interface ExtractionTable {
-	id: ColumnType<string, never, never>;
-	created_at: ColumnType<Date, never, never>;
-	updated_at: ColumnType<Date, never, never>;
-	deleted_at: ColumnType<Date | null, never, Date | null>;
-	source_type: "text" | "audio";
-	input_text: string;
-	template: ColumnType<unknown, JsonbWrite, JsonbWrite>;
-	result: ColumnType<unknown | null, JsonbWrite | null, JsonbWrite | null>;
-	missing_fields: ColumnType<string[], JsonbWrite, JsonbWrite>;
-	complete: ColumnType<boolean, boolean | undefined, boolean>;
-	provider: ColumnType<string | null, string | null | undefined, string | null>;
-	model: ColumnType<string | null, string | null | undefined, string | null>;
-	meta: ColumnType<Record<string, unknown>, JsonbWrite, JsonbWrite>;
+  id: ColumnType<string, never, never>;
+  created_at: ColumnType<Date, never, never>;
+  updated_at: ColumnType<Date, never, never>;
+  deleted_at: ColumnType<Date | null, never, Date | null>;
+  source_type: "text" | "audio";
+  input_text: string;
+  template: ColumnType<unknown, JsonbWrite, JsonbWrite>;
+  result: ColumnType<unknown | null, JsonbWrite | null, JsonbWrite | null>;
+  missing_fields: ColumnType<string[], JsonbWrite, JsonbWrite>;
+  complete: ColumnType<boolean, boolean | undefined, boolean>;
+  provider: ColumnType<string | null, string | null | undefined, string | null>;
+  model: ColumnType<string | null, string | null | undefined, string | null>;
+  meta: ColumnType<Record<string, unknown>, JsonbWrite, JsonbWrite>;
 }
 
 /**
@@ -30,17 +30,17 @@ export interface ExtractionTable {
  * source row id (no FK).
  */
 export interface ExtractionAuditTable {
-	id: string;
-	changed_at: Date;
-	operation: "INSERT" | "UPDATE" | "DELETE";
-	row_id: string;
-	requested_by: string | null;
-	data: unknown;
+  id: string;
+  changed_at: Date;
+  operation: "INSERT" | "UPDATE" | "DELETE";
+  row_id: string;
+  requested_by: string | null;
+  data: unknown;
 }
 
 export interface Database {
-	extraction: ExtractionTable;
-	extraction_audit: ExtractionAuditTable;
+  extraction: ExtractionTable;
+  extraction_audit: ExtractionAuditTable;
 }
 
 export type ExtractionRow = Selectable<ExtractionTable>;
