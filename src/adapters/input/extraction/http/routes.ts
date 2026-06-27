@@ -1,9 +1,9 @@
 import { Elysia } from "elysia";
-import type { Metrics } from "@/infrastructure/metrics";
 import {
 	type ExtractInformationDeps,
 	extractInformation,
 } from "@/domain/use-cases/extract-information";
+import type { Metrics } from "@/infrastructure/metrics";
 import {
 	PROBLEM_CONTENT_TYPE,
 	presentError,

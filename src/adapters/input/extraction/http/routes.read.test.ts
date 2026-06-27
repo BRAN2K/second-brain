@@ -1,14 +1,14 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
-import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { buildApp } from "@/infrastructure/container/server";
-import type { NewExtraction } from "@/domain/entities/extraction";
 import { fakeProvider } from "@test/helpers/fake-provider";
 import {
 	type FakeRepository,
 	fakeRepository,
 } from "@test/helpers/fake-repository";
 import { fakeTranscriber } from "@test/helpers/fake-transcriber";
+import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
+import { createOutputValidator } from "@/adapters/output/validation/output-validator";
+import type { NewExtraction } from "@/domain/entities/extraction";
+import { buildApp } from "@/infrastructure/container/server";
 
 const repository: FakeRepository = fakeRepository();
 const deps: ExtractionDeps = {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
+import { fakeProvider } from "@test/helpers/fake-provider";
 import { NoProviderAvailable } from "@/domain/errors/no-provider-available";
 import { ProviderError } from "@/domain/errors/provider-error";
 import type { ExtractionInput } from "@/domain/ports/extraction-provider";
 import { selectAndExtract } from "@/domain/services/provider-selection";
 import type { CanonicalSchema } from "@/domain/services/template-to-schema";
-import { fakeProvider } from "@test/helpers/fake-provider";
 
 const schema: CanonicalSchema = {
 	type: "object",

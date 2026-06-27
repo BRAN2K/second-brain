@@ -2,8 +2,8 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Kysely } from "kysely";
 import { FileMigrationProvider, Migrator } from "kysely/migration";
-import { createDb } from "@/infrastructure/database/client";
 import type { Database } from "@/adapters/output/database/types";
+import { createDb } from "@/infrastructure/database/client";
 
 const TEST_DATABASE_URL =
 	process.env.TEST_DATABASE_URL ??

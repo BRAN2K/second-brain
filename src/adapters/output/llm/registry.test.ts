@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { createProviderRegistry } from "@/adapters/output/llm/registry";
 import { fakeProvider } from "@test/helpers/fake-provider";
+import { createProviderRegistry } from "@/adapters/output/llm/registry";
 
 describe("createProviderRegistry", () => {
 	const openai = fakeProvider({ name: "openai" });

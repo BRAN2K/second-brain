@@ -1,4 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import { fakeProvider } from "@test/helpers/fake-provider";
+import { fakeRepository } from "@test/helpers/fake-repository";
+import { fakeTranscriber } from "@test/helpers/fake-transcriber";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
 import type { Template } from "@/domain/entities/template";
 import { InvalidProviderOutput } from "@/domain/errors/invalid-provider-output";
@@ -9,9 +12,6 @@ import {
 	type ExtractInformationDeps,
 	extractInformation,
 } from "@/domain/use-cases/extract-information";
-import { fakeProvider } from "@test/helpers/fake-provider";
-import { fakeRepository } from "@test/helpers/fake-repository";
-import { fakeTranscriber } from "@test/helpers/fake-transcriber";
 
 const validate = createOutputValidator().validate;
 const order = ["openai", "groq"];

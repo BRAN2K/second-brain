@@ -11,6 +11,8 @@
 		"test:unit": "bun test src/",
 		"test:integration": "bun test test/integration",
 		"typecheck": "tsc --noEmit",
+		"fullcheck": "bun run lint && bun run typecheck && bun run test:unit",
+		"prepare": "git config core.hooksPath .githooks",
 		"lint": "biome check .",
 		"format": "biome check --write .",
 		"db:test:up": "docker compose -f docker-compose.test.yml up -d --wait",

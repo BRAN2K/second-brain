@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { createLlmRegistry } from "@/adapters/output/llm/index";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { loadConfig } from "@/infrastructure/config";
 import { findMissingFields } from "@/domain/services/missing-fields";
 import { templateToSchema } from "@/domain/services/template-to-schema";
+import { loadConfig } from "@/infrastructure/config";
 
 /**
  * Opt-in live smoke test — hits the real provider APIs. Skipped unless `LLM_LIVE=1`

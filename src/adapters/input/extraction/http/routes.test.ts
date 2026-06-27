@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
-import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { buildApp } from "@/infrastructure/container/server";
 import { fakeProvider } from "@test/helpers/fake-provider";
 import { fakeRepository } from "@test/helpers/fake-repository";
 import { fakeTranscriber } from "@test/helpers/fake-transcriber";
+import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
+import { createOutputValidator } from "@/adapters/output/validation/output-validator";
+import { buildApp } from "@/infrastructure/container/server";
 
 const validate = createOutputValidator().validate;
 const templateJson = JSON.stringify([

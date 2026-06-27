@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import { pino } from "pino";
-import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
-import { createMetrics } from "@/infrastructure/metrics";
-import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { buildApp } from "@/infrastructure/container/server";
 import { fakeProvider } from "@test/helpers/fake-provider";
 import { fakeRepository } from "@test/helpers/fake-repository";
 import { fakeTranscriber } from "@test/helpers/fake-transcriber";
+import { pino } from "pino";
+import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
+import { createOutputValidator } from "@/adapters/output/validation/output-validator";
+import { buildApp } from "@/infrastructure/container/server";
+import { createMetrics } from "@/infrastructure/metrics";
 
 const silentLogger = pino({ level: "silent" });
 const templateJson = JSON.stringify([

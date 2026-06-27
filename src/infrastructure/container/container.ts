@@ -1,11 +1,11 @@
-import { createDb } from "@/infrastructure/database/client";
-import { createLogger } from "@/infrastructure/logger";
-import { createMetrics } from "@/infrastructure/metrics";
 import { KyselyExtractionRepository } from "@/adapters/output/database/extraction-repository";
 import { createLlmRegistry } from "@/adapters/output/llm/index";
 import { createGroqWhisper } from "@/adapters/output/transcription/groq-whisper";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
 import type { Config } from "@/infrastructure/config";
+import { createDb } from "@/infrastructure/database/client";
+import { createLogger } from "@/infrastructure/logger";
+import { createMetrics } from "@/infrastructure/metrics";
 
 /**
  * Composition root wiring: builds concrete adapters from config and exposes them
