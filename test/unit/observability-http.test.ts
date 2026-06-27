@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { pino } from "pino";
 import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
-import { createMetrics } from "@/adapters/output/observability/metrics";
+import { createMetrics } from "@/infrastructure/metrics";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { buildApp } from "@/cmd/server";
+import { buildApp } from "@/infrastructure/container/server";
 import { fakeProvider } from "../helpers/fake-provider";
 import { fakeRepository } from "../helpers/fake-repository";
 import { fakeTranscriber } from "../helpers/fake-transcriber";

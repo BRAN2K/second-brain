@@ -4,7 +4,7 @@ import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
 import { KyselyExtractionRepository } from "@/adapters/output/database/extraction-repository";
 import type { Database } from "@/adapters/output/database/types";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { buildApp } from "@/cmd/server";
+import { buildApp } from "@/infrastructure/container/server";
 import { fakeProvider } from "../helpers/fake-provider";
 import { fakeTranscriber } from "../helpers/fake-transcriber";
 import { setupTestDb } from "../helpers/test-db";

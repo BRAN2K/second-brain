@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { ConfigError, loadConfig } from "@/config";
+import { ConfigError, loadConfig } from "@/infrastructure/config";
 
 // Minimal env that satisfies all required vars; spread per-test to override.
 const baseEnv = { DATABASE_URL: "postgres://app:app@localhost:5432/db" };

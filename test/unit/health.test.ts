@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { buildApp } from "@/cmd/server";
+import { buildApp } from "@/infrastructure/container/server";
 
 describe("health endpoints", () => {
 	const app = buildApp();

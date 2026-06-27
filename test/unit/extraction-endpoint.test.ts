@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { buildApp } from "@/cmd/server";
+import { buildApp } from "@/infrastructure/container/server";
 import { fakeProvider } from "../helpers/fake-provider";
 import { fakeRepository } from "../helpers/fake-repository";
 import { fakeTranscriber } from "../helpers/fake-transcriber";

@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import type { Metrics } from "@/adapters/output/observability/metrics";
+import type { Metrics } from "@/infrastructure/metrics";
 import {
 	type ExtractInformationDeps,
 	extractInformation,

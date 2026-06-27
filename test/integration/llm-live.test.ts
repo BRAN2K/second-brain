@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createLlmRegistry } from "@/adapters/output/llm/index";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { loadConfig } from "@/config";
+import { loadConfig } from "@/infrastructure/config";
 import { findMissingFields } from "@/domain/services/missing-fields";
 import { templateToSchema } from "@/domain/services/template-to-schema";
 

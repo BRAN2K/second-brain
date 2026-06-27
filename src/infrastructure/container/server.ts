@@ -8,8 +8,8 @@ import {
   type HealthDeps,
   healthRoutes,
 } from "@/adapters/input/health/http/routes";
-import { type TelemetryDeps, telemetry } from "@/adapters/input/http/telemetry";
-import { loadConfig } from "@/config";
+import { type TelemetryDeps, telemetry } from "@/infrastructure/http/telemetry";
+import { loadConfig } from "@/infrastructure/config";
 import { createContainer } from "./container";
 
 export interface AppDeps {

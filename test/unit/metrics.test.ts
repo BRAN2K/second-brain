@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { createMetrics } from "@/adapters/output/observability/metrics";
+import { createMetrics } from "@/infrastructure/metrics";
 
 describe("createMetrics", () => {
 	it("records HTTP duration with method/route/status labels", async () => {

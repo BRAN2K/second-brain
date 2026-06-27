@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
-import type { Logger } from "@/adapters/output/observability/logger";
-import type { Metrics } from "@/adapters/output/observability/metrics";
+import type { Logger } from "@/infrastructure/logger";
+import type { Metrics } from "@/infrastructure/metrics";
 
 /**
  * Cross-cutting HTTP telemetry: assigns/propagates an `x-request-id`, logs each request

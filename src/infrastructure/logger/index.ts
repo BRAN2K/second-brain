@@ -1,5 +1,5 @@
 import { type Logger, pino } from "pino";
-import type { Config } from "@/config";
+import type { Config } from "@/infrastructure/config";
 
 export type { Logger };
 

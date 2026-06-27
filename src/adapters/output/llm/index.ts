@@ -1,4 +1,4 @@
-import type { Config } from "@/config";
+import type { Config } from "@/infrastructure/config";
 import type { ExtractionProvider } from "@/domain/ports/extraction-provider";
 import { createGeminiProvider } from "./gemini-provider";
 import { createOpenAiCompatibleProvider } from "./openai-compatible-provider";
