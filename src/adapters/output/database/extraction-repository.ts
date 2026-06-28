@@ -1,39 +1,28 @@
-import type { Kysely } from "kysely";
-import type {
-  Extraction,
-  NewExtraction,
-} from "@/domain/extraction/entities/extraction";
+import type { Insertable, Kysely } from "kysely";
+import { Extraction } from "@/domain/extraction/entities/extraction";
+import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
 import type {
   ExtractionRepository,
   ListExtractionsParams,
 } from "@/domain/extraction/repositories/extraction";
-import type { Database, ExtractionRow } from "./types";
+import { toUuidV7, type UuidV7 } from "@/domain/shared/types/uuid-v7";
+import type { Database, ExtractionRow, ExtractionTable } from "./types";
 
 /** Postgres-backed ExtractionRepository (Kysely). Soft delete is encapsulated here. */
 export class KyselyExtractionRepository implements ExtractionRepository {
   constructor(private readonly db: Kysely<Database>) {}
 
-  async save(input: NewExtraction): Promise<Extraction> {
+  async save(extraction: Extraction): Promise<Extraction> {
     const row = await this.db
       .insertInto("extraction")
-      .values({
-        source_type: input.sourceType,
-        input_text: input.inputText,
-        template: JSON.stringify(input.template),
-        result: input.result == null ? null : JSON.stringify(input.result),
-        missing_fields: JSON.stringify(input.missingFields ?? []),
-        complete: input.complete ?? false,
-        provider: input.provider ?? null,
-        model: input.model ?? null,
-        meta: JSON.stringify(input.meta ?? {}),
-      })
+      .values(toPersistence(extraction))
       .returningAll()
       .executeTakeFirstOrThrow();
 
     return toDomain(row);
   }
 
-  async findById(id: string): Promise<Extraction | null> {
+  async findById(id: UuidV7): Promise<Extraction | null> {
     const row = await this.db
       .selectFrom("extraction")
       .selectAll()
@@ -60,7 +49,7 @@ export class KyselyExtractionRepository implements ExtractionRepository {
     return rows.map(toDomain);
   }
 
-  async softDelete(id: string): Promise<void> {
+  async softDelete(id: UuidV7): Promise<void> {
     await this.db
       .updateTable("extraction")
       .set({ deleted_at: new Date() })
@@ -70,13 +59,31 @@ export class KyselyExtractionRepository implements ExtractionRepository {
   }
 }
 
-function toDomain(row: ExtractionRow): Extraction {
+function toPersistence(e: Extraction): Insertable<ExtractionTable> {
   return {
-    id: row.id,
+    id: e.id,
+    created_at: e.createdAt,
+    // ponytail: enum value → column literal at the DB write boundary.
+    source_type: e.sourceType as "text" | "audio",
+    input_text: e.inputText,
+    template: JSON.stringify(e.template),
+    result: e.result == null ? null : JSON.stringify(e.result),
+    missing_fields: JSON.stringify(e.missingFields),
+    complete: e.complete,
+    provider: e.provider,
+    model: e.model,
+    meta: JSON.stringify(e.meta),
+  };
+}
+
+function toDomain(row: ExtractionRow): Extraction {
+  return Extraction.reconstitute({
+    id: toUuidV7(row.id),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,
-    sourceType: row.source_type,
+    // ponytail: DB CHECK constraint guarantees the value is a valid source type.
+    sourceType: row.source_type as ExtractionSourceType,
     inputText: row.input_text,
     template: row.template,
     result: row.result,
@@ -85,5 +92,5 @@ function toDomain(row: ExtractionRow): Extraction {
     provider: row.provider,
     model: row.model,
     meta: row.meta,
-  };
+  });
 }

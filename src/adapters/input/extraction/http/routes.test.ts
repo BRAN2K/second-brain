@@ -19,14 +19,13 @@ function appWith(extraction: ExtractionDeps) {
 function post(
   app: ReturnType<typeof buildApp>,
   fields: Record<string, string | Blob>,
-  query = "",
 ) {
   const fd = new FormData();
   for (const [key, value] of Object.entries(fields)) {
     fd.append(key, value);
   }
   return app.handle(
-    new Request(`http://localhost/v1/extractions${query}`, {
+    new Request("http://localhost/v1/extractions", {
       method: "POST",
       body: fd,
     }),
@@ -46,10 +45,10 @@ interface ResponseBody {
 const json = async (res: Response) => (await res.json()) as ResponseBody;
 
 const deps = (overrides: Partial<ExtractionDeps> = {}): ExtractionDeps => ({
-  providers: [
-    fakeProvider({ name: "openai", data: { title: "Milk", amount: 2 } }),
-  ],
-  order: ["openai"],
+  provider: fakeProvider({
+    name: "openai",
+    data: { title: "Milk", amount: 2 },
+  }),
   validate,
   repository: fakeRepository(),
   transcriber: fakeTranscriber(),
@@ -74,7 +73,7 @@ describe("POST /v1/extractions — text", () => {
     const res = await post(
       appWith(
         deps({
-          providers: [fakeProvider({ name: "openai", data: { amount: 2 } })],
+          provider: fakeProvider({ name: "openai", data: { amount: 2 } }),
         }),
       ),
       { text: "buy", template: templateJson },
@@ -83,23 +82,6 @@ describe("POST /v1/extractions — text", () => {
     const body = await json(res);
     expect(body.complete).toBe(false);
     expect(body.missingFields).toEqual(["title"]);
-  });
-
-  it("forces a provider via ?provider=", async () => {
-    const res = await post(
-      appWith(
-        deps({
-          providers: [
-            fakeProvider({ name: "openai", data: { title: "A" } }),
-            fakeProvider({ name: "groq", data: { title: "B" } }),
-          ],
-          order: ["openai", "groq"],
-        }),
-      ),
-      { text: "x", template: templateJson },
-      "?provider=groq",
-    );
-    expect((await json(res)).meta.provider).toBe("groq");
   });
 });
 
@@ -140,25 +122,11 @@ describe("POST /v1/extractions — request validation", () => {
 });
 
 describe("POST /v1/extractions — provider failures", () => {
-  it("returns 502 when a forced provider is unavailable", async () => {
+  it("returns 503 when the provider is unavailable", async () => {
     const res = await post(
       appWith(
         deps({
-          providers: [fakeProvider({ name: "groq", available: false })],
-          order: ["groq"],
-        }),
-      ),
-      { text: "x", template: templateJson },
-      "?provider=groq",
-    );
-    expect(res.status).toBe(502);
-  });
-
-  it("returns 503 when no provider is available", async () => {
-    const res = await post(
-      appWith(
-        deps({
-          providers: [fakeProvider({ name: "openai", available: false })],
+          provider: fakeProvider({ name: "openai", available: false }),
         }),
       ),
       { text: "x", template: templateJson },
@@ -166,13 +134,11 @@ describe("POST /v1/extractions — provider failures", () => {
     expect(res.status).toBe(503);
   });
 
-  it("returns 502 when the provider fails transiently and is exhausted", async () => {
+  it("returns 502 when the provider raises a ProviderError", async () => {
     const res = await post(
       appWith(
         deps({
-          providers: [
-            fakeProvider({ name: "openai", outcomes: ["transient"] }),
-          ],
+          provider: fakeProvider({ name: "openai", outcomes: ["permanent"] }),
         }),
       ),
       { text: "x", template: templateJson },
@@ -186,7 +152,7 @@ describe("POST /v1/extractions — audio", () => {
     const res = await post(
       appWith(
         deps({
-          providers: [fakeProvider({ name: "openai", data: { title: "tea" } })],
+          provider: fakeProvider({ name: "openai", data: { title: "tea" } }),
           transcriber: fakeTranscriber({ text: "buy tea" }),
         }),
       ),

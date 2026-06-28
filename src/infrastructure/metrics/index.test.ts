@@ -12,12 +12,11 @@ describe("createMetrics", () => {
     expect(text).toContain('status="200"');
   });
 
-  it("counts extractions, fallbacks and tokens", async () => {
+  it("counts extractions and tokens", async () => {
     const metrics = createMetrics();
     metrics.recordExtraction({
       provider: "groq",
       complete: true,
-      fallbackUsed: true,
       inputTokens: 10,
       outputTokens: 4,
     });
@@ -26,24 +25,12 @@ describe("createMetrics", () => {
     expect(text).toContain(
       'extractions_total{provider="groq",complete="true"} 1',
     );
-    expect(text).toContain('extraction_fallback_total{provider="groq"} 1');
     expect(text).toContain(
       'extraction_tokens_total{provider="groq",type="input"} 10',
     );
     expect(text).toContain(
       'extraction_tokens_total{provider="groq",type="output"} 4',
     );
-  });
-
-  it("does not count fallback when not used", async () => {
-    const metrics = createMetrics();
-    metrics.recordExtraction({
-      provider: "openai",
-      complete: false,
-      fallbackUsed: false,
-    });
-    const text = await metrics.registry.metrics();
-    expect(text).not.toContain('extraction_fallback_total{provider="openai"}');
   });
 
   it("counts errors by reason", async () => {

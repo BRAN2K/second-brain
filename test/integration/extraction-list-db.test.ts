@@ -2,10 +2,9 @@ import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import type { Kysely } from "kysely";
 import { KyselyExtractionRepository } from "@/adapters/output/database/extraction-repository";
 import type { Database } from "@/adapters/output/database/types";
-import type {
-  Extraction,
-  NewExtraction,
-} from "@/domain/extraction/entities/extraction";
+import { Extraction } from "@/domain/extraction/entities/extraction";
+import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
+import { Template } from "@/domain/extraction/value-objects/template";
 import { setupTestDb } from "../helpers/test-db";
 
 /**
@@ -15,13 +14,18 @@ import { setupTestDb } from "../helpers/test-db";
 let db: Kysely<Database>;
 let repository: KyselyExtractionRepository;
 
-const newExtraction = (text: string): NewExtraction => ({
-  sourceType: "text",
-  inputText: text,
-  template: [{ name: "title", type: "string", required: true }],
-  result: { title: text },
-  complete: true,
-});
+const newExtraction = (text: string): Extraction =>
+  Extraction.create({
+    sourceType: ExtractionSourceType.Text,
+    inputText: text,
+    template: Template.create([
+      { name: "title", type: "string", required: true },
+    ]),
+    result: { title: text },
+    provider: "test",
+    model: "test",
+    meta: {},
+  });
 
 beforeAll(async () => {
   db = await setupTestDb();
@@ -37,6 +41,7 @@ describe("KyselyExtractionRepository.list", () => {
     const saved: Extraction[] = [];
     for (const text of ["a", "b", "c", "d"]) {
       saved.push(await repository.save(newExtraction(text)));
+      await Bun.sleep(2); // ponytail: distinct ms so domain UUIDv7s order deterministically
     }
     const mine = new Set(saved.map((e) => e.id));
     const ours = (rows: Extraction[]) =>

@@ -7,11 +7,11 @@ import {
 import { createOpenAiCompatibleProvider } from "@/adapters/output/llm/openai-compatible-provider";
 import { ProviderError } from "@/domain/extraction/errors/provider-error";
 import type { ExtractionInput } from "@/domain/extraction/ports/http/extraction-provider";
-import { templateToSchema } from "@/domain/extraction/services/template-to-schema";
+import { Template } from "@/domain/extraction/value-objects/template";
 
-const { schema } = templateToSchema([
+const schema = Template.create([
   { name: "title", type: "string", required: true },
-]);
+]).toCanonicalSchema();
 const input: ExtractionInput = { content: "Buy milk", schema };
 
 const realFetch = globalThis.fetch;

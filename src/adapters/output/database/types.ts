@@ -1,15 +1,16 @@
 import type { ColumnType, Selectable } from "kysely";
 
 /**
- * Kysely schema types. DB-managed columns (id, created_at, updated_at) are not
- * insertable/updatable. jsonb columns are written as stringified JSON (node-postgres
- * would otherwise turn JS arrays into PG arrays) and parsed back to objects on read.
+ * Kysely schema types. `id` and `created_at` are minted by the domain (UUID v7) and
+ * inserted by the app; `updated_at` stays DB-managed (trigger). jsonb columns are written
+ * as stringified JSON (node-postgres would otherwise turn JS arrays into PG arrays) and
+ * parsed back to objects on read.
  */
 type JsonbWrite = string;
 
 export interface ExtractionTable {
-  id: ColumnType<string, never, never>;
-  created_at: ColumnType<Date, never, never>;
+  id: ColumnType<string, string, never>;
+  created_at: ColumnType<Date, Date | undefined, never>;
   updated_at: ColumnType<Date, never, never>;
   deleted_at: ColumnType<Date | null, never, Date | null>;
   source_type: "text" | "audio";

@@ -1,16 +1,16 @@
 import { describe, expect, it } from "bun:test";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { templateToSchema } from "@/domain/extraction/services/template-to-schema";
+import { Template } from "@/domain/extraction/value-objects/template";
 
 const validator = createOutputValidator();
 
 // Build a canonical schema from a template (the real upstream of this service).
-const { schema } = templateToSchema([
+const schema = Template.create([
   { name: "title", type: "string", required: true },
   { name: "amount", type: "number", required: false },
   { name: "status", type: "enum", required: false, values: ["open", "done"] },
   { name: "tags", type: "array", required: false, items: { type: "string" } },
-]);
+]).toCanonicalSchema();
 
 describe("createOutputValidator (lenient)", () => {
   it("accepts well-typed complete output", () => {

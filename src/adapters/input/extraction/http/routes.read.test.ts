@@ -7,28 +7,44 @@ import {
 import { fakeTranscriber } from "@test/helpers/fake-transcriber";
 import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import type { NewExtraction } from "@/domain/extraction/entities/extraction";
+import { Extraction } from "@/domain/extraction/entities/extraction";
+import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
+import { toUuidV7 } from "@/domain/shared/types/uuid-v7";
 import { buildApp } from "@/infrastructure/container/server";
 
 const repository: FakeRepository = fakeRepository();
 const deps: ExtractionDeps = {
-  providers: [fakeProvider({ name: "openai" })],
-  order: ["openai"],
+  provider: fakeProvider({ name: "openai" }),
   validate: createOutputValidator().validate,
   repository,
   transcriber: fakeTranscriber(),
 };
 const app = buildApp({ extraction: deps });
 
+let seq = 0;
 const seed = (text: string): Promise<unknown> => {
-  const input: NewExtraction = {
-    sourceType: "text",
+  seq++;
+  // Deterministic ascending ids so list ordering is stable in the test.
+  const id = toUuidV7(
+    `00000000-0000-7000-8000-${String(seq).padStart(12, "0")}`,
+  );
+  const now = new Date();
+  const extraction = Extraction.reconstitute({
+    id,
+    createdAt: now,
+    updatedAt: now,
+    deletedAt: null,
+    sourceType: ExtractionSourceType.Text,
     inputText: text,
     template: [{ name: "title", type: "string", required: true }],
     result: { title: text },
+    missingFields: [],
     complete: true,
-  };
-  return repository.save(input);
+    provider: "openai",
+    model: "test",
+    meta: {},
+  });
+  return repository.save(extraction);
 };
 
 const get = (path: string) =>

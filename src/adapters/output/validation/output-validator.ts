@@ -2,7 +2,7 @@ import Ajv, { type ValidateFunction } from "ajv";
 import type {
   CanonicalSchema,
   JsonSchema,
-} from "@/domain/extraction/services/template-to-schema";
+} from "@/domain/extraction/value-objects/canonical-schema";
 
 /**
  * Structural validation of provider output, run in **"lenient"** mode.

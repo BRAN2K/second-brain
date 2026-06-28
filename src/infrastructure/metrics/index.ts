@@ -14,7 +14,6 @@ import {
 export interface ExtractionOutcome {
   provider: string;
   complete: boolean;
-  fallbackUsed: boolean;
   inputTokens?: number;
   outputTokens?: number;
 }
@@ -50,13 +49,6 @@ export function createMetrics(): Metrics {
     registers: [registry],
   });
 
-  const fallbacks = new Counter({
-    name: "extraction_fallback_total",
-    help: "Extractions that fell back to a non-preferred provider",
-    labelNames: ["provider"],
-    registers: [registry],
-  });
-
   const tokens = new Counter({
     name: "extraction_tokens_total",
     help: "LLM tokens consumed by provider and direction",
@@ -80,9 +72,6 @@ export function createMetrics(): Metrics {
     },
     recordExtraction(outcome) {
       extractions.labels(outcome.provider, String(outcome.complete)).inc();
-      if (outcome.fallbackUsed) {
-        fallbacks.labels(outcome.provider).inc();
-      }
       if (outcome.inputTokens) {
         tokens.labels(outcome.provider, "input").inc(outcome.inputTokens);
       }

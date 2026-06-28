@@ -1,4 +1,4 @@
-import type { CanonicalSchema } from "@/domain/extraction/services/template-to-schema";
+import type { CanonicalSchema } from "@/domain/extraction/value-objects/canonical-schema";
 
 /**
  * Driven port for an LLM extraction provider (OpenAI / Gemini / Groq). Concrete
@@ -6,11 +6,8 @@ import type { CanonicalSchema } from "@/domain/extraction/services/template-to-s
  * their own dialect. The domain never imports provider SDKs.
  *
  * Provider output is NEVER the source of truth — it is always re-validated on our side
- * (see `adapters/output/validation`) and completeness is decided by `missing-fields`.
+ * (see `adapters/output/validation`) and completeness is decided by the `Template`.
  */
-
-/** The closed set of providers the v1 registry knows about. */
-export type ProviderName = "openai" | "gemini" | "groq";
 
 export interface ExtractionInput {
   /** Text (or transcription) to extract from. */

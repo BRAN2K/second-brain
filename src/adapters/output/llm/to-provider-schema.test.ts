@@ -3,16 +3,16 @@ import {
   schemaInstruction,
   toGeminiSchema,
 } from "@/adapters/output/llm/to-provider-schema";
-import { templateToSchema } from "@/domain/extraction/services/template-to-schema";
+import { Template } from "@/domain/extraction/value-objects/template";
 
-const { schema } = templateToSchema([
+const schema = Template.create([
   { name: "title", type: "string", required: true, description: "the title" },
   { name: "amount", type: "number", required: false },
   { name: "paid", type: "boolean", required: false },
   { name: "due", type: "date", required: false },
   { name: "status", type: "enum", required: true, values: ["open", "done"] },
   { name: "tags", type: "array", required: false, items: { type: "string" } },
-]);
+]).toCanonicalSchema();
 
 describe("schemaInstruction (OpenAI-compatible)", () => {
   it("embeds the canonical schema and the null guidance", () => {

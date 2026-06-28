@@ -1,3 +1,4 @@
+import { ProviderName } from "@/domain/extraction/enums/provider-name";
 import { ProviderError } from "@/domain/extraction/errors/provider-error";
 import type {
   ExtractionInput,
@@ -26,7 +27,7 @@ const BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 
 export function createGeminiProvider(cfg: GeminiConfig): ExtractionProvider {
   return {
-    name: "gemini",
+    name: ProviderName.Gemini,
     isAvailable: () => Boolean(cfg.apiKey),
 
     async extract(input: ExtractionInput): Promise<ExtractionOutput> {

@@ -2,6 +2,9 @@ import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import type { Kysely } from "kysely";
 import { KyselyExtractionRepository } from "@/adapters/output/database/extraction-repository";
 import type { Database } from "@/adapters/output/database/types";
+import { Extraction } from "@/domain/extraction/entities/extraction";
+import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
+import { Template } from "@/domain/extraction/value-objects/template";
 import { setupTestDb } from "../helpers/test-db";
 
 let db: Kysely<Database>;
@@ -19,39 +22,65 @@ afterAll(async () => {
 const UUIDV7 =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
+const titleTemplate = () =>
+  Template.create([{ name: "title", type: "string", required: true }]);
+
+/** A complete, valid extraction whose only required field is satisfied. */
+const simple = (inputText: string) =>
+  Extraction.create({
+    sourceType: ExtractionSourceType.Text,
+    inputText,
+    template: titleTemplate(),
+    result: { title: "ok" },
+    provider: "test",
+    model: "test",
+    meta: {},
+  });
+
 describe("KyselyExtractionRepository (integration)", () => {
-  it("saves with DB-generated id (uuidv7), timestamps, and defaults", async () => {
-    const template = [{ name: "title", type: "string", required: true }];
-    const e = await repo.save({
-      sourceType: "text",
-      inputText: "hello world",
-      template,
-    });
+  it("saves with domain-generated id (uuidv7), timestamps, and computed completeness", async () => {
+    const e = await repo.save(
+      Extraction.create({
+        sourceType: ExtractionSourceType.Text,
+        inputText: "hello world",
+        template: titleTemplate(),
+        result: null,
+        provider: "test",
+        model: "test",
+        meta: {},
+      }),
+    );
 
     expect(e.id).toMatch(UUIDV7);
     expect(e.createdAt).toBeInstanceOf(Date);
     expect(e.updatedAt).toBeInstanceOf(Date);
     expect(e.deletedAt).toBeNull();
-    expect(e.missingFields).toEqual([]);
+    // result is null → the required `title` is missing, so it's incomplete.
+    expect(e.missingFields).toEqual(["title"]);
     expect(e.complete).toBe(false);
     expect(e.result).toBeNull();
     expect(e.meta).toEqual({});
     // jsonb round-trips back to an object/array, not a string.
-    expect(e.template).toEqual(template);
+    expect(e.template).toEqual([
+      { name: "title", type: "string", required: true },
+    ]);
   });
 
-  it("persists provided result/missingFields/complete/provider/meta", async () => {
-    const e = await repo.save({
-      sourceType: "audio",
-      inputText: "transcription text",
-      template: { fields: [] },
-      result: { title: "x", value: null },
-      missingFields: ["value"],
-      complete: false,
-      provider: "groq",
-      model: "whisper-large-v3-turbo",
-      meta: { latencyMs: 12 },
-    });
+  it("persists result/missingFields/complete/provider/meta", async () => {
+    const e = await repo.save(
+      Extraction.create({
+        sourceType: ExtractionSourceType.Audio,
+        inputText: "transcription text",
+        template: Template.create([
+          { name: "title", type: "string", required: true },
+          { name: "value", type: "string", required: true },
+        ]),
+        result: { title: "x", value: null },
+        provider: "groq",
+        model: "whisper-large-v3-turbo",
+        meta: { latencyMs: 12 },
+      }),
+    );
 
     const found = await repo.findById(e.id);
     expect(found).not.toBeNull();
@@ -62,11 +91,7 @@ describe("KyselyExtractionRepository (integration)", () => {
   });
 
   it("findById returns null after soft delete", async () => {
-    const e = await repo.save({
-      sourceType: "text",
-      inputText: "x",
-      template: {},
-    });
+    const e = await repo.save(simple("x"));
     expect(await repo.findById(e.id)).not.toBeNull();
 
     await repo.softDelete(e.id);
@@ -74,11 +99,7 @@ describe("KyselyExtractionRepository (integration)", () => {
   });
 
   it("updated_at trigger bumps updated_at on update", async () => {
-    const e = await repo.save({
-      sourceType: "text",
-      inputText: "t",
-      template: {},
-    });
+    const e = await repo.save(simple("t"));
     await Bun.sleep(15);
     await repo.softDelete(e.id);
 
@@ -92,11 +113,7 @@ describe("KyselyExtractionRepository (integration)", () => {
   });
 
   it("audit trigger records INSERT and soft-delete as DELETE", async () => {
-    const e = await repo.save({
-      sourceType: "text",
-      inputText: "audit me",
-      template: {},
-    });
+    const e = await repo.save(simple("audit me"));
     await repo.softDelete(e.id);
 
     const audit = await db

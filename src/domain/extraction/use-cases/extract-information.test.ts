@@ -3,7 +3,7 @@ import { fakeProvider } from "@test/helpers/fake-provider";
 import { fakeRepository } from "@test/helpers/fake-repository";
 import { fakeTranscriber } from "@test/helpers/fake-transcriber";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import type { Template } from "@/domain/extraction/entities/template";
+import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
 import { InvalidProviderOutput } from "@/domain/extraction/errors/invalid-provider-output";
 import { NoProviderAvailable } from "@/domain/extraction/errors/no-provider-available";
 import { TemplateInvalid } from "@/domain/extraction/errors/template-invalid";
@@ -12,28 +12,28 @@ import {
   type ExtractInformationDeps,
   extractInformation,
 } from "@/domain/extraction/use-cases/extract-information";
+import { ExtractionSource } from "@/domain/extraction/value-objects/extraction-source";
+import type { RawTemplateField } from "@/domain/extraction/value-objects/template";
 
 const validate = createOutputValidator().validate;
-const order = ["openai", "groq"];
 
-const template: Template = [
+const template: RawTemplateField[] = [
   { name: "title", type: "string", required: true },
   { name: "amount", type: "number", required: false },
 ];
 
-const textSource = (text: string) => ({ kind: "text" as const, text });
-const audioSource = () => ({
-  kind: "audio" as const,
-  file: new Blob(["fake-bytes"], { type: "audio/mpeg" }),
-  filename: "note.mp3",
-});
+const textSource = (text: string) => ExtractionSource.text(text);
+const audioSource = () =>
+  ExtractionSource.audio(
+    new Blob(["fake-bytes"], { type: "audio/mpeg" }),
+    "note.mp3",
+  );
 
 function deps(
   overrides: Partial<ExtractInformationDeps> = {},
 ): ExtractInformationDeps {
   return {
-    providers: [fakeProvider({ name: "openai", data: { title: "Hi" } })],
-    order,
+    provider: fakeProvider({ name: "openai", data: { title: "Hi" } }),
     validate,
     repository: fakeRepository(),
     transcriber: fakeTranscriber(),
@@ -46,9 +46,10 @@ describe("extractInformation (text)", () => {
     const repository = fakeRepository();
     const result = await extractInformation(
       deps({
-        providers: [
-          fakeProvider({ name: "openai", data: { title: "Hi", amount: 5 } }),
-        ],
+        provider: fakeProvider({
+          name: "openai",
+          data: { title: "Hi", amount: 5 },
+        }),
         repository,
       }),
       { source: textSource("buy"), template },
@@ -58,32 +59,17 @@ describe("extractInformation (text)", () => {
     expect(result.data).toEqual({ title: "Hi", amount: 5 });
     expect(result.meta.provider).toBe("openai");
     expect(repository.saved).toHaveLength(1);
-    expect(repository.saved[0].sourceType).toBe("text");
+    expect(repository.saved[0].sourceType).toBe(ExtractionSourceType.Text);
     expect(repository.saved[0].inputText).toBe("buy");
   });
 
   it("reports missing required fields but still succeeds", async () => {
     const result = await extractInformation(
-      deps({
-        providers: [fakeProvider({ name: "openai", data: { amount: 5 } })],
-      }),
+      deps({ provider: fakeProvider({ name: "openai", data: { amount: 5 } }) }),
       { source: textSource("buy"), template },
     );
     expect(result.complete).toBe(false);
     expect(result.missingFields).toEqual(["title"]);
-  });
-
-  it("honors a forced provider", async () => {
-    const result = await extractInformation(
-      deps({
-        providers: [
-          fakeProvider({ name: "openai", data: { title: "A" } }),
-          fakeProvider({ name: "groq", data: { title: "B" } }),
-        ],
-      }),
-      { source: textSource("buy"), template, forced: "groq" },
-    );
-    expect(result.meta.provider).toBe("groq");
   });
 
   it("throws TemplateInvalid for a semantically broken template", async () => {
@@ -95,12 +81,10 @@ describe("extractInformation (text)", () => {
     ).rejects.toBeInstanceOf(TemplateInvalid);
   });
 
-  it("throws NoProviderAvailable when none are available", async () => {
+  it("throws NoProviderAvailable when the provider is unavailable", async () => {
     await expect(
       extractInformation(
-        deps({
-          providers: [fakeProvider({ name: "openai", available: false })],
-        }),
+        deps({ provider: fakeProvider({ name: "openai", available: false }) }),
         { source: textSource("buy"), template },
       ),
     ).rejects.toBeInstanceOf(NoProviderAvailable);
@@ -110,9 +94,10 @@ describe("extractInformation (text)", () => {
     await expect(
       extractInformation(
         deps({
-          providers: [
-            fakeProvider({ name: "openai", data: { amount: "not a number" } }),
-          ],
+          provider: fakeProvider({
+            name: "openai",
+            data: { amount: "not a number" },
+          }),
         }),
         { source: textSource("buy"), template },
       ),
@@ -126,7 +111,7 @@ describe("extractInformation (audio)", () => {
     const transcriber = fakeTranscriber({ text: "buy three teas" });
     const result = await extractInformation(
       deps({
-        providers: [fakeProvider({ name: "openai", data: { title: "tea" } })],
+        provider: fakeProvider({ name: "openai", data: { title: "tea" } }),
         repository,
         transcriber,
       }),
@@ -135,7 +120,7 @@ describe("extractInformation (audio)", () => {
 
     expect(transcriber.calls).toBe(1);
     expect(result.complete).toBe(true);
-    expect(repository.saved[0].sourceType).toBe("audio");
+    expect(repository.saved[0].sourceType).toBe(ExtractionSourceType.Audio);
     expect(repository.saved[0].inputText).toBe("buy three teas"); // transcript stored
   });
 

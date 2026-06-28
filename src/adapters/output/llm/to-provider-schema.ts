@@ -1,7 +1,7 @@
 import type {
   CanonicalSchema,
   JsonSchema,
-} from "@/domain/extraction/services/template-to-schema";
+} from "@/domain/extraction/value-objects/canonical-schema";
 
 /**
  * Per-dialect translation of the canonical JSON Schema. OpenAI-compatible endpoints

@@ -15,11 +15,10 @@ const templateJson = JSON.stringify([
 
 function appWith(
   metrics = createMetrics(),
-  providers = [fakeProvider({ name: "groq", data: { title: "Tea" } })],
+  provider = fakeProvider({ name: "groq", data: { title: "Tea" } }),
 ) {
   const extraction: ExtractionDeps = {
-    providers,
-    order: providers.map((p) => p.name),
+    provider,
     validate: createOutputValidator().validate,
     repository: fakeRepository(),
     transcriber: fakeTranscriber(),
@@ -81,9 +80,10 @@ describe("observability HTTP", () => {
   });
 
   it("records an error metric when an extraction fails with 5xx", async () => {
-    const { app, metrics } = appWith(createMetrics(), [
+    const { app, metrics } = appWith(
+      createMetrics(),
       fakeProvider({ name: "groq", outcomes: ["permanent"] }),
-    ]);
+    );
     const fd = new FormData();
     fd.append("text", "buy tea");
     fd.append("template", templateJson);

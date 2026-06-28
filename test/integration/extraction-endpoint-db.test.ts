@@ -4,6 +4,8 @@ import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
 import { KyselyExtractionRepository } from "@/adapters/output/database/extraction-repository";
 import type { Database } from "@/adapters/output/database/types";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
+import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
+import { toUuidV7 } from "@/domain/shared/types/uuid-v7";
 import { buildApp } from "@/infrastructure/container/server";
 import { fakeProvider } from "../helpers/fake-provider";
 import { fakeTranscriber } from "../helpers/fake-transcriber";
@@ -12,7 +14,7 @@ import { setupTestDb } from "../helpers/test-db";
 /**
  * End-to-end HTTP → use-case → real Postgres. Uses a fake provider (no LLM calls) but
  * the real Kysely repository, so it proves the full wiring and that result/template/meta
- * round-trip through jsonb columns and DB-generated ids/timestamps.
+ * round-trip through jsonb columns (id is domain-minted UUID v7, timestamps DB-managed).
  */
 let db: Kysely<Database>;
 let deps: ExtractionDeps;
@@ -20,10 +22,10 @@ let deps: ExtractionDeps;
 beforeAll(async () => {
   db = await setupTestDb();
   deps = {
-    providers: [
-      fakeProvider({ name: "openai", data: { title: "Green tea", amount: 3 } }),
-    ],
-    order: ["openai"],
+    provider: fakeProvider({
+      name: "openai",
+      data: { title: "Green tea", amount: 3 },
+    }),
     validate: createOutputValidator().validate,
     repository: new KyselyExtractionRepository(db),
     transcriber: fakeTranscriber(),
@@ -35,7 +37,7 @@ afterAll(async () => {
 });
 
 describe("POST /v1/extractions (real DB)", () => {
-  it("persists the extraction and returns a DB-generated id", async () => {
+  it("persists the extraction and returns a domain-minted id", async () => {
     const app = buildApp({ extraction: deps });
     const template = JSON.stringify([
       { name: "title", type: "string", required: true },
@@ -62,11 +64,11 @@ describe("POST /v1/extractions (real DB)", () => {
 
     // The row exists in Postgres with the same id and round-tripped jsonb.
     const repository = new KyselyExtractionRepository(db);
-    const saved = await repository.findById(body.meta.id);
+    const saved = await repository.findById(toUuidV7(body.meta.id));
     expect(saved).not.toBeNull();
     expect(saved?.result).toEqual({ title: "Green tea", amount: 3 });
     expect(saved?.provider).toBe("openai");
     expect(saved?.complete).toBe(true);
-    expect(saved?.sourceType).toBe("text");
+    expect(saved?.sourceType).toBe(ExtractionSourceType.Text);
   });
 });

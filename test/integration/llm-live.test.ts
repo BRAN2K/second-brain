@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createLlmRegistry } from "@/adapters/output/llm/index";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
-import { findMissingFields } from "@/domain/extraction/services/missing-fields";
-import { templateToSchema } from "@/domain/extraction/services/template-to-schema";
+import { Template } from "@/domain/extraction/value-objects/template";
 import { loadConfig } from "@/infrastructure/config";
 
 /**
@@ -20,10 +19,11 @@ suite("LLM live extraction", () => {
   const registry = createLlmRegistry(config);
   const validator = createOutputValidator();
 
-  const { schema, required } = templateToSchema([
+  const template = Template.create([
     { name: "item", type: "string", required: true },
     { name: "quantity", type: "number", required: false },
   ]);
+  const schema = template.toCanonicalSchema();
   const content = "Please buy 3 boxes of green tea.";
 
   const available = registry.available();
@@ -39,7 +39,7 @@ suite("LLM live extraction", () => {
       const result = validator.validate(schema, output.data);
       expect(result.valid).toBe(true);
       // "item" should be extractable from the prompt above.
-      expect(findMissingFields(required, result.data)).toEqual([]);
+      expect(template.findMissingFields(result.data)).toEqual([]);
       expect(output.raw.model).toBeTruthy();
     }, 30_000);
   }

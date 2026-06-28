@@ -39,6 +39,11 @@ export function startServer() {
   const config = loadConfig();
   const container = createContainer(config);
 
+  const provider = container.providerRegistry.preferred();
+  if (!provider) {
+    throw new Error("No LLM provider is configured");
+  }
+
   const app = buildApp({
     telemetry: { logger: container.logger, metrics: container.metrics },
     health: {
@@ -57,8 +62,7 @@ export function startServer() {
       metricsRegistry: container.metrics.registry,
     },
     extraction: {
-      providers: container.providerRegistry.all(),
-      order: container.providerRegistry.order,
+      provider,
       validate: container.outputValidator.validate,
       repository: container.extractionRepository,
       transcriber: container.transcriber,
