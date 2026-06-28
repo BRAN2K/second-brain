@@ -1,4 +1,4 @@
-import { ProviderError } from "@/domain/errors/provider-error";
+import { ProviderError } from "@/domain/extraction/errors/provider-error";
 
 /**
  * Maps an HTTP status to the transient/permanent classification the selection policy
@@ -7,16 +7,16 @@ import { ProviderError } from "@/domain/errors/provider-error";
  * would fail the same way on a retry or another provider.
  */
 export function isTransientStatus(status: number): boolean {
-	return status === 408 || status === 429 || status >= 500;
+  return status === 408 || status === 429 || status >= 500;
 }
 
 /** Builds a `ProviderError` from an HTTP response status. */
 export function providerErrorFromStatus(
-	provider: string,
-	status: number,
-	body?: string,
+  provider: string,
+  status: number,
+  body?: string,
 ): ProviderError {
-	return new ProviderError(provider, isTransientStatus(status), {
-		cause: body,
-	});
+  return new ProviderError(provider, isTransientStatus(status), {
+    cause: body,
+  });
 }

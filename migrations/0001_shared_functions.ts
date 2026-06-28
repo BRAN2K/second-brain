@@ -2,9 +2,9 @@ import { type Kysely, sql } from "kysely";
 
 // Roll-forward only: no `down` (see ADR 0003). To undo, write a new migration.
 export async function up(db: Kysely<unknown>): Promise<void> {
-	// Generic trigger fn: bumps updated_at on every UPDATE. Reused by any table
-	// that has an updated_at column.
-	await sql`
+  // Generic trigger fn: bumps updated_at on every UPDATE. Reused by any table
+  // that has an updated_at column.
+  await sql`
 		CREATE FUNCTION set_updated_at() RETURNS trigger AS $$
 		BEGIN
 			NEW.updated_at = now();
@@ -13,12 +13,12 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 		$$ LANGUAGE plpgsql;
 	`.execute(db);
 
-	// Generic audit trigger fn: writes one row per change to "<table>_audit"
-	// (uniform schema). Soft delete (deleted_at NULL -> NOT NULL) is recorded as
-	// DELETE; data is the row snapshot after the operation (OLD for hard deletes);
-	// requested_by comes from the session GUC app.requested_by (NULL until set);
-	// row_id is the source row id (no FK).
-	await sql`
+  // Generic audit trigger fn: writes one row per change to "<table>_audit"
+  // (uniform schema). Soft delete (deleted_at NULL -> NOT NULL) is recorded as
+  // DELETE; data is the row snapshot after the operation (OLD for hard deletes);
+  // requested_by comes from the session GUC app.requested_by (NULL until set);
+  // row_id is the source row id (no FK).
+  await sql`
 		CREATE FUNCTION record_audit() RETURNS trigger AS $$
 		DECLARE
 			audit_table text := TG_TABLE_NAME || '_audit';
