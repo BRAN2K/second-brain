@@ -5,7 +5,6 @@ import type {
   ExtractionRepository,
   ListExtractionsParams,
 } from "@/domain/extraction/repositories/extraction";
-import { toUuidV7, type UuidV7 } from "@/domain/shared/types/uuid-v7";
 import type { Database, ExtractionRow, ExtractionTable } from "./types";
 
 /** Postgres-backed ExtractionRepository (Kysely). Soft delete is encapsulated here. */
@@ -22,7 +21,7 @@ export class KyselyExtractionRepository implements ExtractionRepository {
     return toDomain(row);
   }
 
-  async findById(id: UuidV7): Promise<Extraction | null> {
+  async findById(id: string): Promise<Extraction | null> {
     const row = await this.db
       .selectFrom("extraction")
       .selectAll()
@@ -49,7 +48,7 @@ export class KyselyExtractionRepository implements ExtractionRepository {
     return rows.map(toDomain);
   }
 
-  async softDelete(id: UuidV7): Promise<void> {
+  async softDelete(id: string): Promise<void> {
     await this.db
       .updateTable("extraction")
       .set({ deleted_at: new Date() })
@@ -78,7 +77,7 @@ function toPersistence(e: Extraction): Insertable<ExtractionTable> {
 
 function toDomain(row: ExtractionRow): Extraction {
   return Extraction.reconstitute({
-    id: toUuidV7(row.id),
+    id: row.id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,

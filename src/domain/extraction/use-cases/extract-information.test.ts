@@ -12,7 +12,6 @@ import {
   type ExtractInformationDeps,
   extractInformation,
 } from "@/domain/extraction/use-cases/extract-information";
-import { ExtractionSource } from "@/domain/extraction/value-objects/extraction-source";
 import type { RawTemplateField } from "@/domain/extraction/value-objects/template";
 
 const validate = createOutputValidator().validate;
@@ -22,12 +21,15 @@ const template: RawTemplateField[] = [
   { name: "amount", type: "number", required: false },
 ];
 
-const textSource = (text: string) => ExtractionSource.text(text);
-const audioSource = () =>
-  ExtractionSource.audio(
-    new Blob(["fake-bytes"], { type: "audio/mpeg" }),
-    "note.mp3",
-  );
+const textInput = (text: string) => ({
+  sourceType: ExtractionSourceType.Text as const,
+  inputText: text,
+});
+const audioInput = () => ({
+  sourceType: ExtractionSourceType.Audio as const,
+  file: new Blob(["fake-bytes"], { type: "audio/mpeg" }),
+  filename: "note.mp3",
+});
 
 function deps(
   overrides: Partial<ExtractInformationDeps> = {},
@@ -52,7 +54,7 @@ describe("extractInformation (text)", () => {
         }),
         repository,
       }),
-      { source: textSource("buy"), template },
+      { ...textInput("buy"), template },
     );
 
     expect(result.complete).toBe(true);
@@ -66,7 +68,7 @@ describe("extractInformation (text)", () => {
   it("reports missing required fields but still succeeds", async () => {
     const result = await extractInformation(
       deps({ provider: fakeProvider({ name: "openai", data: { amount: 5 } }) }),
-      { source: textSource("buy"), template },
+      { ...textInput("buy"), template },
     );
     expect(result.complete).toBe(false);
     expect(result.missingFields).toEqual(["title"]);
@@ -75,7 +77,7 @@ describe("extractInformation (text)", () => {
   it("throws TemplateInvalid for a semantically broken template", async () => {
     await expect(
       extractInformation(deps(), {
-        source: textSource("buy"),
+        ...textInput("buy"),
         template: [{ name: "s", type: "enum", required: true }],
       }),
     ).rejects.toBeInstanceOf(TemplateInvalid);
@@ -85,7 +87,7 @@ describe("extractInformation (text)", () => {
     await expect(
       extractInformation(
         deps({ provider: fakeProvider({ name: "openai", available: false }) }),
-        { source: textSource("buy"), template },
+        { ...textInput("buy"), template },
       ),
     ).rejects.toBeInstanceOf(NoProviderAvailable);
   });
@@ -99,7 +101,7 @@ describe("extractInformation (text)", () => {
             data: { amount: "not a number" },
           }),
         }),
-        { source: textSource("buy"), template },
+        { ...textInput("buy"), template },
       ),
     ).rejects.toBeInstanceOf(InvalidProviderOutput);
   });
@@ -115,7 +117,7 @@ describe("extractInformation (audio)", () => {
         repository,
         transcriber,
       }),
-      { source: audioSource(), template },
+      { ...audioInput(), template },
     );
 
     expect(transcriber.calls).toBe(1);
@@ -128,7 +130,7 @@ describe("extractInformation (audio)", () => {
     await expect(
       extractInformation(
         deps({ transcriber: fakeTranscriber({ available: false }) }),
-        { source: audioSource(), template },
+        { ...audioInput(), template },
       ),
     ).rejects.toBeInstanceOf(TranscriptionUnavailable);
   });
@@ -137,7 +139,7 @@ describe("extractInformation (audio)", () => {
     const transcriber = fakeTranscriber();
     await expect(
       extractInformation(deps({ transcriber }), {
-        source: audioSource(),
+        ...audioInput(),
         template: [{ name: "s", type: "enum", required: true }],
       }),
     ).rejects.toBeInstanceOf(TemplateInvalid);

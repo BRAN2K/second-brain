@@ -5,7 +5,6 @@ import { KyselyExtractionRepository } from "@/adapters/output/database/extractio
 import type { Database } from "@/adapters/output/database/types";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
 import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import { toUuidV7 } from "@/domain/shared/types/uuid-v7";
 import { buildApp } from "@/infrastructure/container/server";
 import { fakeProvider } from "../helpers/fake-provider";
 import { fakeTranscriber } from "../helpers/fake-transcriber";
@@ -64,7 +63,7 @@ describe("POST /v1/extractions (real DB)", () => {
 
     // The row exists in Postgres with the same id and round-tripped jsonb.
     const repository = new KyselyExtractionRepository(db);
-    const saved = await repository.findById(toUuidV7(body.meta.id));
+    const saved = await repository.findById(body.meta.id);
     expect(saved).not.toBeNull();
     expect(saved?.result).toEqual({ title: "Green tea", amount: 3 });
     expect(saved?.provider).toBe("openai");

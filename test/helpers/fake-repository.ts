@@ -3,7 +3,6 @@ import type {
   ExtractionRepository,
   ListExtractionsParams,
 } from "@/domain/extraction/repositories/extraction";
-import type { UuidV7 } from "@/domain/shared/types/uuid-v7";
 
 /** In-memory `ExtractionRepository` for HTTP/use-case tests (no DB). */
 export interface FakeRepository extends ExtractionRepository {
@@ -19,7 +18,7 @@ export function fakeRepository(): FakeRepository {
       saved.push(extraction);
       return extraction;
     },
-    async findById(id: UuidV7): Promise<Extraction | null> {
+    async findById(id: string): Promise<Extraction | null> {
       return (
         saved.find((row) => row.id === id && row.deletedAt === null) ?? null
       );

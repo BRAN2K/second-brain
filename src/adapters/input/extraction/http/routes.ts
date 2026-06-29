@@ -1,10 +1,9 @@
 import { Elysia } from "elysia";
+import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
 import {
   type ExtractInformationDeps,
   extractInformation,
 } from "@/domain/extraction/use-cases/extract-information";
-import { ExtractionSource } from "@/domain/extraction/value-objects/extraction-source";
-import { toUuidV7, type UuidV7 } from "@/domain/shared/types/uuid-v7";
 import type { Metrics } from "@/infrastructure/metrics";
 import {
   PROBLEM_CONTENT_TYPE,
@@ -61,10 +60,16 @@ export function extractionRoutes(deps: ExtractionDeps) {
 
       try {
         const result = await extractInformation(deps, {
-          source:
-            source.kind === "audio"
-              ? ExtractionSource.audio(source.file, source.filename)
-              : ExtractionSource.text(source.text),
+          ...(source.kind === "audio"
+            ? {
+                sourceType: ExtractionSourceType.Audio,
+                file: source.file,
+                filename: source.filename,
+              }
+            : {
+                sourceType: ExtractionSourceType.Text,
+                inputText: source.text,
+              }),
           template: parsed.value.template,
           instructions: parsed.value.instructions,
         });
@@ -92,14 +97,7 @@ export function extractionRoutes(deps: ExtractionDeps) {
         return presentNotFound(`${INSTANCE}/${params.id}`);
       };
 
-      let id: UuidV7;
-      try {
-        id = toUuidV7(params.id);
-      } catch {
-        return notFound(); // malformed id → treat as missing
-      }
-
-      const extraction = await deps.repository.findById(id);
+      const extraction = await deps.repository.findById(params.id);
       if (!extraction) {
         return notFound();
       }

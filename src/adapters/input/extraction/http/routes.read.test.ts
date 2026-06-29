@@ -9,7 +9,6 @@ import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";
 import { Extraction } from "@/domain/extraction/entities/extraction";
 import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import { toUuidV7 } from "@/domain/shared/types/uuid-v7";
 import { buildApp } from "@/infrastructure/container/server";
 
 const repository: FakeRepository = fakeRepository();
@@ -25,9 +24,7 @@ let seq = 0;
 const seed = (text: string): Promise<unknown> => {
   seq++;
   // Deterministic ascending ids so list ordering is stable in the test.
-  const id = toUuidV7(
-    `00000000-0000-7000-8000-${String(seq).padStart(12, "0")}`,
-  );
+  const id = `00000000-0000-7000-8000-${String(seq).padStart(12, "0")}`;
   const now = new Date();
   const extraction = Extraction.reconstitute({
     id,

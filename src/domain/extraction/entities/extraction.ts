@@ -1,16 +1,14 @@
+import { uuidv7 } from "uuidv7";
 import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
 import type { Template } from "@/domain/extraction/value-objects/template";
 import { AggregateRoot } from "@/domain/shared/aggregate-root";
-import { generateUuidV7, type UuidV7 } from "@/domain/shared/types/uuid-v7";
 
 interface ExtractionProps {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
   sourceType: ExtractionSourceType;
-  /** Original text, or the transcription when the source is audio. */
   inputText: string;
-  /** Plain snapshot of the template used for this extraction. */
   template: unknown;
   result: unknown | null;
   missingFields: string[];
@@ -33,7 +31,7 @@ export interface CreateExtractionProps {
 
 /** Input to `Extraction.reconstitute` — the full state loaded from persistence. */
 export interface ReconstituteExtractionProps extends ExtractionProps {
-  id: UuidV7;
+  id: string;
 }
 
 /**
@@ -42,10 +40,10 @@ export interface ReconstituteExtractionProps extends ExtractionProps {
  * and `complete` are derived from the template, never set from outside. `create` mints a
  * new aggregate; `reconstitute` rebuilds one from a stored row.
  */
-export class Extraction extends AggregateRoot<UuidV7> {
+export class Extraction extends AggregateRoot<string> {
   private readonly props: ExtractionProps;
 
-  private constructor(id: UuidV7, props: ExtractionProps) {
+  private constructor(id: string, props: ExtractionProps) {
     super(id);
     this.props = props;
   }
@@ -53,7 +51,7 @@ export class Extraction extends AggregateRoot<UuidV7> {
   static create(input: CreateExtractionProps): Extraction {
     const now = new Date();
     const missingFields = input.template.findMissingFields(input.result);
-    return new Extraction(generateUuidV7(), {
+    return new Extraction(uuidv7(), {
       createdAt: now,
       updatedAt: now,
       deletedAt: null,

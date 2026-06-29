@@ -66,6 +66,15 @@ export const MAX_PAGE_LIMIT = 100;
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/**
+ * True when `value` is a syntactically valid UUID (any version). Used at the HTTP edge to
+ * reject malformed ids/cursors before they reach the `uuid` column (which would 500 on
+ * garbage). We don't check the version — a well-formed id that doesn't exist is a clean 404.
+ */
+export function isUuid(value: string): boolean {
+  return UUID_RE.test(value);
+}
+
 export interface Pagination {
   cursor?: string;
   limit: number;
@@ -102,7 +111,7 @@ export function parsePagination(
   let cursor: string | undefined;
   const rawCursor = query.cursor;
   if (rawCursor !== undefined && rawCursor !== "") {
-    if (typeof rawCursor === "string" && UUID_RE.test(rawCursor)) {
+    if (typeof rawCursor === "string" && isUuid(rawCursor)) {
       cursor = rawCursor;
     } else {
       errors.push({ field: "cursor", message: "cursor must be a UUID" });

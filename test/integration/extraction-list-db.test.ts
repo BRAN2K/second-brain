@@ -41,7 +41,6 @@ describe("KyselyExtractionRepository.list", () => {
     const saved: Extraction[] = [];
     for (const text of ["a", "b", "c", "d"]) {
       saved.push(await repository.save(newExtraction(text)));
-      await Bun.sleep(2); // ponytail: distinct ms so domain UUIDv7s order deterministically
     }
     const mine = new Set(saved.map((e) => e.id));
     const ours = (rows: Extraction[]) =>
