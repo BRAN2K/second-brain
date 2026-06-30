@@ -1,8 +1,3 @@
-/**
- * The field types a template may declare. Leaf types describe a single value; `Array` is
- * a list of a leaf type (never nested). `TemplateLeafType` is the leaf-only subset, used
- * for an array's element type.
- */
 export enum TemplateFieldType {
   String = "string",
   Number = "number",

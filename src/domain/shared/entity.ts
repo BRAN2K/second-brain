@@ -11,16 +11,7 @@ export abstract class Entity<TId> {
     this.id = id;
   }
 
-  equals(other?: Entity<TId>): boolean {
-    if (other === undefined || other === null) {
-      return false;
-    }
-    if (other === this) {
-      return true;
-    }
-    if (other.constructor !== this.constructor) {
-      return false;
-    }
+  equals(other: Entity<TId>): boolean {
     return this.id === other.id;
   }
 }

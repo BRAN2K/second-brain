@@ -1,4 +1,3 @@
-import { ProviderName } from "@/domain/extraction/enums/provider-name";
 import type { ExtractionProvider } from "@/domain/extraction/ports/http/extraction-provider";
 import type { Config } from "@/infrastructure/config";
 import { createGeminiProvider } from "./gemini-provider";
@@ -12,13 +11,13 @@ export { createProviderRegistry } from "./registry";
 export function createLlmProviders(config: Config): ExtractionProvider[] {
   return [
     createOpenAiCompatibleProvider({
-      name: ProviderName.OpenAI,
+      name: "openai",
       baseURL: "https://api.openai.com/v1",
       apiKey: config.OPENAI_API_KEY,
       model: config.OPENAI_MODEL,
     }),
     createOpenAiCompatibleProvider({
-      name: ProviderName.Groq,
+      name: "groq",
       baseURL: "https://api.groq.com/openai/v1",
       apiKey: config.GROQ_API_KEY,
       model: config.GROQ_MODEL,
