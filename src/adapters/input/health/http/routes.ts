@@ -2,18 +2,11 @@ import { Elysia } from "elysia";
 import type { Registry } from "prom-client";
 
 export interface HealthDeps {
-  /** Readiness probe (e.g. DB reachable). When omitted, readiness is assumed ok. */
   checkReady?: () => Promise<boolean>;
-  /** Prometheus registry; when provided, exposes `/metrics`. */
   metricsRegistry?: Registry;
 }
 
-/**
- * Liveness/readiness/metrics endpoints (input adapter).
- * `/health` = process is up. `/ready` = able to serve traffic. The readiness probe is
- * injected by the composition root (Postgres reachable AND >= 1 available provider).
- * `/metrics` exposes Prometheus metrics when a registry is provided.
- */
+// TODO: refactor this function later
 export function healthRoutes(deps: HealthDeps = {}) {
   const app = new Elysia()
     .get("/health", () => ({ status: "ok" }))

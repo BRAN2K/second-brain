@@ -18,7 +18,6 @@ interface ExtractionProps {
   meta: Record<string, unknown>;
 }
 
-/** Input to `Extraction.create` — identity and timestamps are minted by the aggregate. */
 export interface CreateExtractionProps {
   sourceType: ExtractionSourceType;
   inputText: string;
@@ -29,17 +28,10 @@ export interface CreateExtractionProps {
   meta: Record<string, unknown>;
 }
 
-/** Input to `Extraction.reconstitute` — the full state loaded from persistence. */
 export interface ReconstituteExtractionProps extends ExtractionProps {
   id: string;
 }
 
-/**
- * The extraction aggregate root: one extraction request and its outcome. It owns its
- * identity (UUID v7 minted in `create`) and the completeness invariant — `missingFields`
- * and `complete` are derived from the template, never set from outside. `create` mints a
- * new aggregate; `reconstitute` rebuilds one from a stored row.
- */
 export class Extraction extends AggregateRoot<string> {
   private readonly props: ExtractionProps;
 
@@ -50,14 +42,15 @@ export class Extraction extends AggregateRoot<string> {
 
   static create(input: CreateExtractionProps): Extraction {
     const now = new Date();
-    const missingFields = input.template.findMissingFields(input.result);
+    const missingFields: string[] = [];
+
     return new Extraction(uuidv7(), {
       createdAt: now,
       updatedAt: now,
       deletedAt: null,
       sourceType: input.sourceType,
       inputText: input.inputText,
-      template: input.template.toJSON(),
+      template: input.template,
       result: input.result ?? null,
       missingFields,
       complete: missingFields.length === 0,

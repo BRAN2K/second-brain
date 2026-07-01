@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import type { Kysely } from "kysely";
-import type { ExtractionDeps } from "@/adapters/input/extraction/http/routes";
+import type { ExtractionDeps } from "@/adapters/input/extraction/http/extract.route";
 import { KyselyExtractionRepository } from "@/adapters/output/database/extraction-repository";
 import type { Database } from "@/adapters/output/database/types";
 import { createOutputValidator } from "@/adapters/output/validation/output-validator";

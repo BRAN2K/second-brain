@@ -3,7 +3,7 @@ import { sql } from "kysely";
 import {
   type ExtractionDeps,
   extractionRoutes,
-} from "@/adapters/input/extraction/http/routes";
+} from "@/adapters/input/extraction/http/extract.route";
 import {
   type HealthDeps,
   healthRoutes,
