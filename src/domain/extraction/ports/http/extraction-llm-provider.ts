@@ -1,6 +1,6 @@
 export interface ExtractionInput {
   content: string;
-  schema: any; //TODO: define a proper type
+  schema: unknown; //TODO: define a proper type
   instructions?: string;
 }
 
@@ -11,10 +11,10 @@ export interface ProviderRawMeta {
 }
 
 export interface ExtractionOutput {
-  data: any; //TODO: define a proper type
+  data: unknown; //TODO: define a proper type
   raw: ProviderRawMeta;
 }
 
-export interface ExtractionProvider {
+export interface IExtractionLLMProvider {
   extract(input: ExtractionInput): Promise<ExtractionOutput>;
 }

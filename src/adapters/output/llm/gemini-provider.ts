@@ -2,10 +2,10 @@ import { ProviderError } from "@/domain/extraction/errors/provider-error";
 import type {
   ExtractionInput,
   ExtractionOutput,
-  ExtractionProvider,
-} from "@/domain/extraction/ports/http/extraction-provider";
+  IExtractionLLMProvider,
+} from "@/domain/extraction/ports/http/extraction-llm-provider";
 
-export class geminiExtractionProvider implements ExtractionProvider {
+export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
   constructor(
     private readonly geminiApiKey: string,
     private readonly geminiModel: string,

@@ -13,8 +13,8 @@ interface ExtractionProps {
   result: unknown | null;
   missingFields: string[];
   complete: boolean;
-  provider: string | null;
-  model: string | null;
+  provider: string;
+  model: string;
   meta: Record<string, unknown>;
 }
 
@@ -92,10 +92,10 @@ export class Extraction extends AggregateRoot<string> {
   get complete(): boolean {
     return this.props.complete;
   }
-  get provider(): string | null {
+  get provider(): string {
     return this.props.provider;
   }
-  get model(): string | null {
+  get model(): string {
     return this.props.model;
   }
   get meta(): Record<string, unknown> {

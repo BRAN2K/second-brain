@@ -1,12 +1,8 @@
 import { type Static, Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 
-/**
- * Single source of truth for runtime configuration.
- * Env vars are the only input; this module validates and coerces them, and the
- * app reads config exclusively through the typed object returned by `loadConfig`.
- * Extended per PR (DATABASE_URL, provider keys, etc.).
- */
+// TODO: refactor/simplify this file
+
 export const ConfigSchema = Type.Object({
   APP_ENV: Type.Union([Type.Literal("local"), Type.Literal("prod")], {
     default: "local",
@@ -19,20 +15,20 @@ export const ConfigSchema = Type.Object({
     { default: "info" },
   ),
   DATABASE_URL: Type.String({ minLength: 1 }),
-
-  // LLM providers. Keys are optional and may be absent OR empty (e.g. a blank line
-  // from .env.example): a provider is "available" only when its key is a non-empty
-  // string, so the app runs with any subset configured. Order is tried when no
-  // provider is forced (cheapest/most reliable first).
-  OPENAI_API_KEY: Type.Optional(Type.String()),
-  GROQ_API_KEY: Type.Optional(Type.String()),
-  GEMINI_API_KEY: Type.Optional(Type.String()),
+  OPENAI_API_KEY: Type.String(),
+  GROQ_API_KEY: Type.String(),
+  GEMINI_API_KEY: Type.String(),
   PROVIDER_ORDER: Type.String({ default: "groq,openai,gemini" }),
   OPENAI_MODEL: Type.String({ default: "gpt-4o-mini" }),
   GROQ_MODEL: Type.String({ default: "llama-3.3-70b-versatile" }),
   GEMINI_MODEL: Type.String({ default: "gemini-2.0-flash" }),
-  // Speech-to-text (audio): uses GROQ_API_KEY; available only when that key is set.
+  GEMINI_URL: Type.String({
+    default: "https://generativelanguage.googleapis.com/v1beta",
+  }),
   GROQ_WHISPER_MODEL: Type.String({ default: "whisper-large-v3-turbo" }),
+  GROQ_WHISPER_URL: Type.String({
+    default: "https://api.groq.com/openai/v1/audio/transcriptions",
+  }),
 });
 
 export type Config = Static<typeof ConfigSchema>;
@@ -46,11 +42,6 @@ export class ConfigError extends Error {
   }
 }
 
-/**
- * Validates the environment and returns a frozen, typed config object.
- * Throws `ConfigError` (fail-fast) so misconfiguration surfaces at boot, never
- * mid-request. Extra env vars are ignored.
- */
 export function loadConfig(
   env: Record<string, string | undefined> = Bun.env,
 ): Config {

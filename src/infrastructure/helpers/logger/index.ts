@@ -1,13 +1,5 @@
 import { type Logger, pino } from "pino";
-import type { Config } from "@/infrastructure/config";
-
-export type { Logger };
-
-/**
- * Structured JSON logger (pino). Logs go to stdout — shipping them to Loki is an infra
- * concern (promtail/Docker log driver in docker-compose.observability.yml), so the app
- * has no Loki coupling. Secrets are redacted defensively even though we control fields.
- */
+import type { Config } from "@/infrastructure/helpers/config";
 
 const REDACT_PATHS = [
   "authorization",
@@ -30,3 +22,5 @@ export function createLogger(config: Config): Logger {
     base: { env: config.APP_ENV },
   });
 }
+
+export type { Logger };

@@ -1,11 +1,13 @@
 import { TranscriptionFailed } from "@/domain/extraction/errors/transcription-failed";
 import type {
-  Transcriber,
+  ITranscriberLLMProvider,
   TranscriptionRequest,
   TranscriptionResult,
-} from "@/domain/extraction/ports/http/transcriber";
+} from "@/domain/extraction/ports/http/transcriber-llm-provider";
 
-export class GroqWhisperTranscriber implements Transcriber {
+export class GroqWhisperTranscriberLLMProvider
+  implements ITranscriberLLMProvider
+{
   constructor(
     private readonly groqApiKey: string,
     private readonly groqModel: string,

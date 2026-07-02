@@ -1,8 +1,9 @@
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
-import type { Database } from "@/adapters/output/database/types";
+import type { Database } from "@/adapters/output/database/postgres/types";
 
-/** Creates a Kysely client backed by node-postgres. Caller owns its lifecycle. */
+// TODO: refine this plugin
+
 export function createDb(connectionString: string): Kysely<Database> {
   return new Kysely<Database>({
     dialect: new PostgresDialect({

@@ -9,6 +9,6 @@ export interface TranscriptionResult {
   outputTokens?: number;
 }
 
-export interface Transcriber {
+export interface ITranscriberLLMProvider {
   transcribe(request: TranscriptionRequest): Promise<TranscriptionResult>;
 }
