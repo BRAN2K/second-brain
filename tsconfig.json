@@ -16,8 +16,7 @@
     "noUnusedParameters": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@test/*": ["./test/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src", "test"]

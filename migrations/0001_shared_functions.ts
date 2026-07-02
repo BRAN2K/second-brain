@@ -1,6 +1,5 @@
 import { type Kysely, sql } from "kysely";
 
-// Roll-forward only: no `down` (see ADR 0003). To undo, write a new migration.
 export async function up(db: Kysely<unknown>): Promise<void> {
   // Generic trigger fn: bumps updated_at on every UPDATE. Reused by any table
   // that has an updated_at column.

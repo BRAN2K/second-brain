@@ -8,7 +8,7 @@
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
     "test": "bun test",
-    "test:unit": "bun test src/",
+    "test:unit": "bun test",
     "test:integration": "bun test test/integration",
     "typecheck": "tsc --noEmit",
     "fullcheck": "bun run lint && bun run typecheck && bun run test:unit",
@@ -26,7 +26,8 @@
     "kysely": "^0.29.2",
     "pg": "^8.22.0",
     "pino": "^10.3.1",
-    "prom-client": "^15.1.3"
+    "prom-client": "^15.1.3",
+    "uuidv7": "^1.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.0",

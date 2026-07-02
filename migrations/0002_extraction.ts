@@ -1,8 +1,6 @@
 import { type Kysely, sql } from "kysely";
 
-// Roll-forward only: no `down` (see ADR 0003).
 export async function up(db: Kysely<unknown>): Promise<void> {
-  // Central record: one row per extraction request. DB owns id/timestamps/soft-delete.
   await sql`
 		CREATE TABLE extraction (
 			id             uuid PRIMARY KEY DEFAULT uuidv7(),
@@ -21,7 +19,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 		);
 	`.execute(db);
 
-  // Cursor pagination filters soft-deleted rows and orders by id (UUIDv7).
   await sql`
 		CREATE INDEX extraction_active_id_idx
 			ON extraction (id DESC)
@@ -34,8 +31,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 			FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 	`.execute(db);
 
-  // Per-entity audit log (uniform schema), partitioned monthly by changed_at.
-  // The partition key must be part of the primary key, hence (id, changed_at).
   await sql`
 		CREATE TABLE extraction_audit (
 			id           uuid NOT NULL DEFAULT uuidv7(),
@@ -48,8 +43,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 		) PARTITION BY RANGE (changed_at);
 	`.execute(db);
 
-  // Catch-all partition so inserts never fail. Production pre-creates monthly
-  // partitions (e.g. via pg_partman or a scheduled job); see ADR 0003.
   await sql`
 		CREATE TABLE extraction_audit_default PARTITION OF extraction_audit DEFAULT;
 	`.execute(db);
