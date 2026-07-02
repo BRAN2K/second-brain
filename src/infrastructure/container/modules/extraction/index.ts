@@ -13,10 +13,6 @@ export type ExtractionRouteFactory = (
   shared: SharedDeps,
 ) => AnyElysia;
 
-/**
- * Every route of the extraction module. Adding a use case = create its factory
- * file next to this one and list it here; nothing else changes.
- */
 const routes: ExtractionRouteFactory[] = [createExtractionRoute];
 
 export function createExtractionModule(config: Config, shared: SharedDeps) {

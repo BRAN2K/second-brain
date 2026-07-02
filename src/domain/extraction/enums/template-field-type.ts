@@ -20,7 +20,6 @@ export const LEAF_TYPES: readonly TemplateLeafType[] = [
   TemplateFieldType.Enum,
 ];
 
-/** Boundary guards: validate raw strings (HTTP/DB) before they become enum types. */
 export function isTemplateFieldType(value: string): value is TemplateFieldType {
   return (Object.values(TemplateFieldType) as string[]).includes(value);
 }
