@@ -4,31 +4,22 @@ export async function up(db: Kysely<unknown>): Promise<void> {
   await sql`
 		CREATE TABLE extraction (
 			id             uuid PRIMARY KEY DEFAULT uuidv7(),
-			created_at     timestamptz NOT NULL DEFAULT now(),
-			updated_at     timestamptz NOT NULL DEFAULT now(),
-      deleted_at     timestamptz,
+			template_id    uuid NOT NULL REFERENCES template(id),
 			source_type    text NOT NULL CHECK (source_type IN ('text', 'audio')),
 			input_text     text NOT NULL,
 			template       jsonb NOT NULL,
 			result         jsonb,
 			missing_fields jsonb NOT NULL DEFAULT '[]'::jsonb,
-			complete       boolean NOT NULL DEFAULT false,
-			provider       text,
-			model          text,
+			provider       text NOT NULL,
+			model          text NOT NULL,
 			meta           jsonb NOT NULL DEFAULT '{}'::jsonb
+			created_at     timestamptz NOT NULL DEFAULT now(),
 		);
 	`.execute(db);
 
   await sql`
-		CREATE INDEX extraction_active_id_idx
-			ON extraction (id DESC)
-			WHERE deleted_at IS NULL;
-	`.execute(db);
-
-  await sql`
-		CREATE TRIGGER extraction_set_updated_at
-			BEFORE UPDATE ON extraction
-			FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+		CREATE INDEX extraction_template_created_idx
+			ON extraction (template_id, created_at DESC);
 	`.execute(db);
 
   await sql`
