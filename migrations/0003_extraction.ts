@@ -12,8 +12,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 			missing_fields jsonb NOT NULL DEFAULT '[]'::jsonb,
 			provider       text NOT NULL,
 			model          text NOT NULL,
-			meta           jsonb NOT NULL DEFAULT '{}'::jsonb
-			created_at     timestamptz NOT NULL DEFAULT now(),
+			meta           jsonb NOT NULL DEFAULT '{}'::jsonb,
+			created_at     timestamptz NOT NULL DEFAULT now()
 		);
 	`.execute(db);
 
