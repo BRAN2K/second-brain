@@ -60,7 +60,7 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
     }
 
     if (props.default !== undefined) {
-      issues.add(defaultIssue(props));
+      issues.add(TemplateItem.defaultIssue(props));
     }
 
     if (issues.hasAny) {
@@ -99,19 +99,19 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
   toJSON(): TemplateItemProps {
     return { ...this.props };
   }
-}
 
-function defaultIssue(item: TemplateItemProps): string | null {
-  switch (item.kind) {
-    case TemplateFieldKind.Number:
-      return Guard.againstWrongType(item.default, "number", "default");
-    case TemplateFieldKind.String:
-      return Guard.againstWrongType(item.default, "string", "default");
-    case TemplateFieldKind.Boolean:
-      return Guard.againstWrongType(item.default, "boolean", "default");
-    case TemplateFieldKind.Date:
-      return Guard.againstInvalidDateString(item.default, "default");
-    case TemplateFieldKind.Enum:
-      return Guard.againstValueNotInList(item.default, item.values, "default");
+  private static defaultIssue(item: TemplateItemProps): string | null {
+    switch (item.kind) {
+      case TemplateFieldKind.Number:
+        return Guard.againstWrongType(item.default, "number", "default");
+      case TemplateFieldKind.String:
+        return Guard.againstWrongType(item.default, "string", "default");
+      case TemplateFieldKind.Boolean:
+        return Guard.againstWrongType(item.default, "boolean", "default");
+      case TemplateFieldKind.Date:
+        return Guard.againstInvalidDateString(item.default, "default");
+      case TemplateFieldKind.Enum:
+        return Guard.againstValueNotInList(item.default, item.values, "default");
+    }
   }
 }
