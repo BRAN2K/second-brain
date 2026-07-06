@@ -1,53 +1,48 @@
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
 import { ValueObject } from "@/domain/shared/value-object";
-import { TemplateFieldType } from "@/domain/template/enums/template-field-type";
+import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import { InvalidTemplateItem } from "@/domain/template/errors/invalid-template-item";
 
-interface TemplateItemTypeBase {
-  rules?: string[];
-}
-
-export interface NumberItemType extends TemplateItemTypeBase {
-  type: TemplateFieldType.Number;
-  default?: number;
-}
-
-export interface StringItemType extends TemplateItemTypeBase {
-  type: TemplateFieldType.String;
-  default?: string;
-}
-
-export interface BooleanItemType extends TemplateItemTypeBase {
-  type: TemplateFieldType.Boolean;
-  default?: boolean;
-}
-
-export interface DateItemType extends TemplateItemTypeBase {
-  type: TemplateFieldType.Date;
-  default?: string;
-}
-
-export interface EnumItemType extends TemplateItemTypeBase {
-  type: TemplateFieldType.Enum;
-  default?: string;
-  values: string[];
-}
-
-export type TemplateItemType =
-  | NumberItemType
-  | StringItemType
-  | BooleanItemType
-  | DateItemType
-  | EnumItemType;
-
-export interface TemplateItemProps {
+interface TemplateItemBase {
   name: string;
-  type: TemplateItemType;
   required: boolean;
   rules?: string[];
   description?: string;
 }
+
+export interface NumberTemplateItem extends TemplateItemBase {
+  kind: TemplateFieldKind.Number;
+  default?: number;
+}
+
+export interface StringTemplateItem extends TemplateItemBase {
+  kind: TemplateFieldKind.String;
+  default?: string;
+}
+
+export interface BooleanTemplateItem extends TemplateItemBase {
+  kind: TemplateFieldKind.Boolean;
+  default?: boolean;
+}
+
+export interface DateTemplateItem extends TemplateItemBase {
+  kind: TemplateFieldKind.Date;
+  default?: string;
+}
+
+export interface EnumTemplateItem extends TemplateItemBase {
+  kind: TemplateFieldKind.Enum;
+  default?: string;
+  values: string[]; // obrigatorio quando o kind for enum
+}
+
+export type TemplateItemProps =
+  | NumberTemplateItem
+  | StringTemplateItem
+  | BooleanTemplateItem
+  | DateTemplateItem
+  | EnumTemplateItem;
 
 export class TemplateItem extends ValueObject<TemplateItemProps> {
   private constructor(props: TemplateItemProps) {
@@ -59,13 +54,13 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
 
     issues.add(Guard.againstEmptyString(props.name, "name"));
 
-    if (props.type.type === TemplateFieldType.Enum) {
-      issues.add(Guard.againstEmptyArray(props.type.values ?? [], "values"));
-      issues.add(Guard.againstDuplicates(props.type.values ?? [], "values"));
+    if (props.kind === TemplateFieldKind.Enum) {
+      issues.add(Guard.againstEmptyArray(props.values ?? [], "values"));
+      issues.add(Guard.againstDuplicates(props.values ?? [], "values"));
     }
 
-    if (props.type.default !== undefined) {
-      issues.add(defaultIssue(props.type));
+    if (props.default !== undefined) {
+      issues.add(defaultIssue(props));
     }
 
     if (issues.hasAny) {
@@ -75,7 +70,6 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
     return new TemplateItem(props);
   }
 
-  // Rows already passed create() on the way in; loading trusts the database.
   static reconstitute(props: TemplateItemProps): TemplateItem {
     return new TemplateItem(props);
   }
@@ -83,8 +77,14 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
   get name(): string {
     return this.props.name;
   }
-  get type(): TemplateItemType {
-    return this.props.type;
+  get kind(): TemplateFieldKind {
+    return this.props.kind;
+  }
+  get default(): TemplateItemProps["default"] {
+    return this.props.default;
+  }
+  get values(): string[] | undefined {
+    return this.props.kind === TemplateFieldKind.Enum ? this.props.values : undefined;
   }
   get required(): boolean {
     return this.props.required;
@@ -101,17 +101,17 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
   }
 }
 
-function defaultIssue(type: TemplateItemType): string | null {
-  switch (type.type) {
-    case TemplateFieldType.Number:
-      return Guard.againstWrongType(type.default, "number", "default");
-    case TemplateFieldType.String:
-      return Guard.againstWrongType(type.default, "string", "default");
-    case TemplateFieldType.Boolean:
-      return Guard.againstWrongType(type.default, "boolean", "default");
-    case TemplateFieldType.Date:
-      return Guard.againstInvalidDateString(type.default, "default");
-    case TemplateFieldType.Enum:
-      return Guard.againstValueNotInList(type.default, type.values, "default");
+function defaultIssue(item: TemplateItemProps): string | null {
+  switch (item.kind) {
+    case TemplateFieldKind.Number:
+      return Guard.againstWrongType(item.default, "number", "default");
+    case TemplateFieldKind.String:
+      return Guard.againstWrongType(item.default, "string", "default");
+    case TemplateFieldKind.Boolean:
+      return Guard.againstWrongType(item.default, "boolean", "default");
+    case TemplateFieldKind.Date:
+      return Guard.againstInvalidDateString(item.default, "default");
+    case TemplateFieldKind.Enum:
+      return Guard.againstValueNotInList(item.default, item.values, "default");
   }
 }
