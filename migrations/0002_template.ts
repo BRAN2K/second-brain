@@ -5,7 +5,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 		CREATE TABLE template (
 			id          uuid PRIMARY KEY DEFAULT uuidv7(),
 			name        text NOT NULL,
-			description text,
+			description text NOT NULL,
 			items       jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(items) = 'array'),
 			rules       text[] DEFAULT '{}',
 			created_at  timestamptz NOT NULL DEFAULT now(),

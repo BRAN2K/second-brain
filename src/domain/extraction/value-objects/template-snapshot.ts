@@ -10,7 +10,7 @@ import type { TemplateItem } from "@/domain/template/value-objects/template-item
 export interface TemplateSnapshotProps {
   id: string;
   name: string;
-  description: string | null;
+  description: string;
   items: TemplateItem[];
   rules: string[];
 }
@@ -54,7 +54,7 @@ export class TemplateSnapshot extends ValueObject<TemplateSnapshotProps> {
   get name(): string {
     return this.props.name;
   }
-  get description(): string | null {
+  get description(): string {
     return this.props.description;
   }
   get items(): TemplateItem[] {

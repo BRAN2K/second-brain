@@ -5,7 +5,7 @@ type JsonbWrite = string;
 export interface TemplateTable {
   id: ColumnType<string, string, never>;
   name: ColumnType<string, string, string>;
-  description: ColumnType<string | null, string | null, string | null>;
+  description: ColumnType<string, string, string>;
   items: ColumnType<unknown, JsonbWrite, JsonbWrite>;
   rules: ColumnType<string[] | null, string[], string[]>;
   created_at: ColumnType<Date, Date | null, never>;

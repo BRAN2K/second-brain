@@ -7,7 +7,7 @@ import type { TemplateItem } from "@/domain/template/value-objects/template-item
 
 interface TemplateProps {
   name: string;
-  description: string | null;
+  description: string;
   items: TemplateItem[];
   rules: string[];
   createdAt: Date;
@@ -17,7 +17,7 @@ interface TemplateProps {
 
 export interface CreateTemplateProps {
   name: string;
-  description?: string;
+  description: string;
   items: TemplateItem[];
   rules?: string[];
 }
@@ -38,6 +38,7 @@ export class Template extends AggregateRoot<string> {
     const issues = new Issues();
 
     issues.add(Guard.againstEmptyString(input.name, "name"));
+    issues.add(Guard.againstEmptyString(input.description, "description"));
     issues.add(Guard.againstEmptyArray(input.items, "items"));
     issues.add(
       Guard.againstDuplicates(
@@ -54,7 +55,7 @@ export class Template extends AggregateRoot<string> {
 
     return new Template(uuidv7(), {
       name: input.name,
-      description: input.description ?? null,
+      description: input.description,
       items: input.items,
       rules: input.rules ?? [],
       createdAt: now,
@@ -71,7 +72,7 @@ export class Template extends AggregateRoot<string> {
   get name(): string {
     return this.props.name;
   }
-  get description(): string | null {
+  get description(): string {
     return this.props.description;
   }
   get items(): TemplateItem[] {
