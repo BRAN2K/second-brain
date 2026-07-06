@@ -25,7 +25,6 @@ export class PostgresExtractionRepository implements IExtractionRepository {
       .selectFrom("extraction")
       .selectAll()
       .where("id", "=", id)
-      .where("deleted_at", "is", null)
       .executeTakeFirst();
 
     return row ? toDomain(row) : null;
@@ -35,7 +34,6 @@ export class PostgresExtractionRepository implements IExtractionRepository {
     let query = this.db
       .selectFrom("extraction")
       .selectAll()
-      .where("deleted_at", "is", null)
       .orderBy("id", "desc")
       .limit(limit);
 

@@ -2,21 +2,31 @@ import type { ColumnType } from "kysely";
 
 type JsonbWrite = string;
 
-export interface ExtractionTable {
+export interface TemplateTable {
   id: ColumnType<string, string, never>;
+  name: ColumnType<string, string, string>;
+  description: ColumnType<string | null, string | null, string | null>;
+  items: ColumnType<unknown, JsonbWrite, JsonbWrite>;
+  rules: ColumnType<string[] | null, string[], string[]>;
   created_at: ColumnType<Date, Date | null, never>;
   updated_at: ColumnType<Date, never, never>;
-  deleted_at: ColumnType<Date | null, never, never>;
+  deleted_at: ColumnType<Date | null, never, Date | null>;
+}
+
+export interface ExtractionTable {
+  id: ColumnType<string, string, never>;
+  template_id: ColumnType<string, string, never>;
+  created_at: ColumnType<Date, Date | null, never>;
   source_type: ColumnType<"text" | "audio", "text" | "audio", never>;
   input_text: ColumnType<string, string, never>;
   template: ColumnType<unknown, JsonbWrite, never>;
   result: ColumnType<unknown | null, JsonbWrite | null, never>;
-  missing_fields: ColumnType<string[], JsonbWrite, never>;
-  complete: ColumnType<boolean, boolean, never>;
+  missing_fields: ColumnType<unknown, JsonbWrite, never>;
   provider: ColumnType<string, string, never>;
   model: ColumnType<string, string, never>;
   meta: ColumnType<Record<string, unknown>, JsonbWrite, never>;
 }
+
 export interface AuditTable {
   id: string;
   changed_at: Date;
@@ -27,6 +37,8 @@ export interface AuditTable {
 }
 
 export interface Database {
+  template: TemplateTable;
+  template_audit: AuditTable;
   extraction: ExtractionTable;
   extraction_audit: AuditTable;
 }
