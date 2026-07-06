@@ -11,8 +11,6 @@ export const Guard = {
     return new Set(values).size !== values.length ? `${field} must not contain duplicates` : null;
   },
 
-  // value is unknown on purpose: a value of the wrong type is just as much
-  // "not in the list", and the message already tells the caller what is valid.
   againstValueNotInList(value: unknown, list: readonly string[], field: string): string | null {
     return (list as readonly unknown[]).includes(value)
       ? null

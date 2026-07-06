@@ -5,8 +5,6 @@ import { ValueObject } from "@/domain/shared/value-object";
 import type { Template } from "@/domain/template/entities/template";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 
-// What the template looked like at extraction time. Editing a template must
-// not reinterpret past extractions, so this copy is persisted with each one.
 export interface TemplateSnapshotProps {
   id: string;
   name: string;
