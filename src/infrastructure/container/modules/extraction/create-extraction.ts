@@ -26,9 +26,7 @@ export function createExtractionRoute(config: Config, shared: SharedDeps) {
     templateRepository,
     transcriberLLMProvider,
   );
-  const createExtractionController = new CreateExtractionController(
-    createExtractionUseCase,
-  );
+  const createExtractionController = new CreateExtractionController(createExtractionUseCase);
 
   return createExtractionController.execute();
 }

@@ -5,9 +5,7 @@ import type {
 } from "@/domain/extraction/use-cases/create-extraction";
 
 export class CreateExtractionController {
-  constructor(
-    private readonly createExtractionUseCase: CreateExtractionUseCase,
-  ) {}
+  constructor(private readonly createExtractionUseCase: CreateExtractionUseCase) {}
 
   // TODO: route must accept a middleware function that can be used to validate the request payload and handle errors automatically
   // TODO: route should be a POST request with a multipart/form-data content type

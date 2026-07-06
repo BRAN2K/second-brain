@@ -22,9 +22,7 @@ export function toDomain(row: Selectable<TemplateTable>): Template {
     id: row.id,
     name: row.name,
     description: row.description,
-    items: (row.items as TemplateItemProps[]).map((item) =>
-      TemplateItem.reconstitute(item),
-    ),
+    items: (row.items as TemplateItemProps[]).map((item) => TemplateItem.reconstitute(item)),
     rules: row.rules ?? [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,

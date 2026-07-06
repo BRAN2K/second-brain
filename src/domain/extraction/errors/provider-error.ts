@@ -4,10 +4,7 @@ export class ProviderError extends Error {
     public readonly transient: boolean,
     options?: { cause?: unknown },
   ) {
-    super(
-      `Provider "${provider}" failed (${transient ? "transient" : "permanent"})`,
-      options,
-    );
+    super(`Provider "${provider}" failed (${transient ? "transient" : "permanent"})`, options);
     this.name = "ProviderError";
   }
 }

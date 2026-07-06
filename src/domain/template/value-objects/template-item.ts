@@ -23,7 +23,6 @@ export interface BooleanItemType extends TemplateItemTypeBase {
   default?: boolean;
 }
 
-// Dates travel as ISO strings (jsonb/HTTP safe).
 export interface DateItemType extends TemplateItemTypeBase {
   type: TemplateFieldType.Date;
   default?: string;
@@ -32,12 +31,10 @@ export interface DateItemType extends TemplateItemTypeBase {
 export interface EnumItemType extends TemplateItemTypeBase {
   type: TemplateFieldType.Enum;
   default?: string;
-  values: string[]; // obrigatorio quando o type for enum
+  values: string[];
 }
 
-// Discriminated on `type`: each variant types its own `default`, and only the
-// enum variant carries `values`.
-export type TemplateItemTypeProps =
+export type TemplateItemType =
   | NumberItemType
   | StringItemType
   | BooleanItemType
@@ -46,7 +43,7 @@ export type TemplateItemTypeProps =
 
 export interface TemplateItemProps {
   name: string;
-  type: TemplateItemTypeProps;
+  type: TemplateItemType;
   required: boolean;
   rules?: string[];
   description?: string;
@@ -64,6 +61,7 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
 
     if (props.type.type === TemplateFieldType.Enum) {
       issues.add(Guard.againstEmptyArray(props.type.values ?? [], "values"));
+      issues.add(Guard.againstDuplicates(props.type.values ?? [], "values"));
     }
 
     if (props.type.default !== undefined) {
@@ -85,7 +83,7 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
   get name(): string {
     return this.props.name;
   }
-  get type(): TemplateItemTypeProps {
+  get type(): TemplateItemType {
     return this.props.type;
   }
   get required(): boolean {
@@ -103,26 +101,17 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
   }
 }
 
-function defaultIssue(type: TemplateItemTypeProps): string | null {
-  function enumDefaultIssue(type: EnumItemType): string | null {
-    if (typeof type.default !== "string") {
+function defaultIssue(type: TemplateItemType): string | null {
+  switch (type.type) {
+    case TemplateFieldType.Number:
+      return Guard.againstWrongType(type.default, "number", "default");
+    case TemplateFieldType.String:
       return Guard.againstWrongType(type.default, "string", "default");
-    }
-
-    return Guard.againstValueNotInList(type.default, type.values, "default");
+    case TemplateFieldType.Boolean:
+      return Guard.againstWrongType(type.default, "boolean", "default");
+    case TemplateFieldType.Date:
+      return Guard.againstInvalidDateString(type.default, "default");
+    case TemplateFieldType.Enum:
+      return Guard.againstValueNotInList(type.default, type.values, "default");
   }
-
-  const defaultValidators: Record<TemplateFieldType, () => string | null> = {
-    [TemplateFieldType.Number]: () =>
-      Guard.againstWrongType(type.default, "number", "default"),
-    [TemplateFieldType.String]: () =>
-      Guard.againstWrongType(type.default, "string", "default"),
-    [TemplateFieldType.Boolean]: () =>
-      Guard.againstWrongType(type.default, "boolean", "default"),
-    [TemplateFieldType.Date]: () =>
-      Guard.againstInvalidDateString(type.default, "default"),
-    [TemplateFieldType.Enum]: () => enumDefaultIssue(type as EnumItemType),
-  };
-
-  return defaultValidators[type.type]();
 }

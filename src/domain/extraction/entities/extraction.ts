@@ -55,9 +55,7 @@ export class Extraction extends AggregateRoot<string> {
     // Missing fields must refer to fields the template actually declares.
     const itemNames = input.template.items.map((item) => item.name);
     for (const missing of input.missingFields) {
-      issues.add(
-        Guard.againstValueNotInList(missing.field, itemNames, "missingFields"),
-      );
+      issues.add(Guard.againstValueNotInList(missing.field, itemNames, "missingFields"));
     }
 
     if (issues.hasAny) {

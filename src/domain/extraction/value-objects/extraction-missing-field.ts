@@ -25,9 +25,7 @@ export class ExtractionMissingField extends ValueObject<ExtractionMissingFieldPr
     return new ExtractionMissingField(props);
   }
 
-  static reconstitute(
-    props: ExtractionMissingFieldProps,
-  ): ExtractionMissingField {
+  static reconstitute(props: ExtractionMissingFieldProps): ExtractionMissingField {
     return new ExtractionMissingField(props);
   }
 

@@ -17,25 +17,22 @@ export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
 
     let response: Response;
     try {
-      response = await fetch(
-        `${this.geminiUrl}/models/${this.geminiModel}:generateContent`,
-        {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            "x-goog-api-key": this.geminiApiKey,
-          },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: "user", parts: [{ text: input.content }] }],
-            generationConfig: {
-              temperature: 0,
-              responseMimeType: "application/json",
-              responseSchema: {}, //TODO: define schema
-            },
-          }),
+      response = await fetch(`${this.geminiUrl}/models/${this.geminiModel}:generateContent`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-goog-api-key": this.geminiApiKey,
         },
-      );
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: "user", parts: [{ text: input.content }] }],
+          generationConfig: {
+            temperature: 0,
+            responseMimeType: "application/json",
+            responseSchema: {}, //TODO: define schema
+          },
+        }),
+      });
     } catch (cause) {
       throw new ProviderError("gemini", true, { cause });
     }

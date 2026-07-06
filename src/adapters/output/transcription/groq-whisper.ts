@@ -5,9 +5,7 @@ import type {
   TranscriptionResult,
 } from "@/domain/extraction/ports/http/transcriber-llm-provider";
 
-export class GroqWhisperTranscriberLLMProvider
-  implements ITranscriberLLMProvider
-{
+export class GroqWhisperTranscriberLLMProvider implements ITranscriberLLMProvider {
   constructor(
     private readonly groqApiKey: string,
     private readonly groqModel: string,

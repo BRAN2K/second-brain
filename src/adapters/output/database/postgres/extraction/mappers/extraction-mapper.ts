@@ -20,9 +20,7 @@ type TemplateSnapshotRow = Omit<TemplateSnapshotProps, "items"> & {
   items: TemplateItemProps[];
 };
 
-export function toPersistence(
-  extraction: Extraction,
-): Insertable<ExtractionTable> {
+export function toPersistence(extraction: Extraction): Insertable<ExtractionTable> {
   return {
     id: extraction.id,
     template_id: extraction.templateId,
@@ -30,8 +28,7 @@ export function toPersistence(
     source_type: extraction.sourceType as "text" | "audio",
     input_text: extraction.inputText,
     template: JSON.stringify(extraction.template),
-    result:
-      extraction.result == null ? null : JSON.stringify(extraction.result),
+    result: extraction.result == null ? null : JSON.stringify(extraction.result),
     missing_fields: JSON.stringify(extraction.missingFields),
     provider: extraction.provider,
     model: extraction.model,
@@ -53,8 +50,8 @@ export function toDomain(row: Selectable<ExtractionTable>): Extraction {
       items: rawTemplate.items.map((item) => TemplateItem.reconstitute(item)),
     }),
     result: row.result,
-    missingFields: (row.missing_fields as ExtractionMissingFieldProps[]).map(
-      (field) => ExtractionMissingField.reconstitute(field),
+    missingFields: (row.missing_fields as ExtractionMissingFieldProps[]).map((field) =>
+      ExtractionMissingField.reconstitute(field),
     ),
     provider: row.provider,
     model: row.model,
