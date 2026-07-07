@@ -16,8 +16,8 @@ export interface ExtractionResult {
   data: Record<string, ExtractionFieldValue>;
   provider: string;
   model: string;
-  inputTokens?: number;
-  outputTokens?: number;
+  inputTokens: number;
+  outputTokens: number;
 }
 
 export interface IExtractionLLMProvider {

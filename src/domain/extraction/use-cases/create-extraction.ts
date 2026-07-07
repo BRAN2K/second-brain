@@ -65,7 +65,7 @@ export class CreateExtractionUseCase {
       provider: output.provider,
       model: output.model,
       meta: {
-        tokensUsed: (output.inputTokens ?? 0) + (output.outputTokens ?? 0),
+        tokensUsed: output.inputTokens + output.outputTokens,
         processingTime: Date.now() - startedAt,
         ...(transcription && { transcription }),
       },
