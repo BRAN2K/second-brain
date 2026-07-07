@@ -1,7 +1,7 @@
 import { CreateExtractionController } from "@/adapters/input/extraction/http/create-extraction";
 import { PostgresExtractionRepository } from "@/adapters/output/database/postgres/extraction/extraction-repository";
 import { PostgresTemplateRepository } from "@/adapters/output/database/postgres/template/template-repository";
-import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini-provider";
+import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini/gemini-provider";
 import { GroqWhisperTranscriberLLMProvider } from "@/adapters/output/transcription/groq-whisper";
 import { CreateExtractionUseCase } from "@/domain/extraction/use-cases/create-extraction";
 import type { Config } from "@/infrastructure/helpers/config";
