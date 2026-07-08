@@ -42,7 +42,7 @@ describe("GeminiExtractionLLMProvider", () => {
     );
   });
 
-  it("maps 429/5xx to transient ProviderError", async () => {
+  it("maps HTTP failures to ProviderError", async () => {
     mockFetch(() => new Response("rate limited", { status: 429 }));
 
     const error = await buildProvider()
@@ -50,21 +50,10 @@ describe("GeminiExtractionLLMProvider", () => {
       .catch((caught: unknown) => caught);
 
     expect(error).toBeInstanceOf(ProviderError);
-    expect((error as ProviderError).transient).toBe(true);
+    expect((error as ProviderError).provider).toBe("gemini");
   });
 
-  it("maps other HTTP errors to permanent ProviderError", async () => {
-    mockFetch(() => new Response("bad request", { status: 400 }));
-
-    const error = await buildProvider()
-      .extract({ content: "texto", template: buildSnapshot() })
-      .catch((caught: unknown) => caught);
-
-    expect(error).toBeInstanceOf(ProviderError);
-    expect((error as ProviderError).transient).toBe(false);
-  });
-
-  it("maps network failures to transient ProviderError", async () => {
+  it("maps network failures to ProviderError", async () => {
     mockFetch(() => {
       throw new Error("connection refused");
     });
@@ -74,6 +63,6 @@ describe("GeminiExtractionLLMProvider", () => {
       .catch((caught: unknown) => caught);
 
     expect(error).toBeInstanceOf(ProviderError);
-    expect((error as ProviderError).transient).toBe(true);
+    expect((error as ProviderError).provider).toBe("gemini");
   });
 });

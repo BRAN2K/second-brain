@@ -33,22 +33,7 @@ function responseSchema(items: TemplateItem[]): GeminiSchema {
 }
 
 function fieldSchema(item: TemplateItem): GeminiSchema {
-  const schema: GeminiSchema = { type: "STRING", nullable: true };
-
-  switch (item.kind) {
-    case TemplateFieldKind.Number:
-      schema.type = "NUMBER";
-      break;
-    case TemplateFieldKind.Boolean:
-      schema.type = "BOOLEAN";
-      break;
-    case TemplateFieldKind.Date:
-      schema.format = "date-time";
-      break;
-    case TemplateFieldKind.Enum:
-      schema.enum = item.values;
-      break;
-  }
+  const schema: GeminiSchema = { ...kindSchema(item), nullable: true };
 
   const description = fieldDescription(item);
   if (description) {
@@ -56,6 +41,21 @@ function fieldSchema(item: TemplateItem): GeminiSchema {
   }
 
   return schema;
+}
+
+function kindSchema(item: TemplateItem): GeminiSchema {
+  switch (item.kind) {
+    case TemplateFieldKind.Number:
+      return { type: "NUMBER" };
+    case TemplateFieldKind.Boolean:
+      return { type: "BOOLEAN" };
+    case TemplateFieldKind.Date:
+      return { type: "STRING", format: "date-time" };
+    case TemplateFieldKind.Enum:
+      return { type: "STRING", enum: item.values };
+    default:
+      return { type: "STRING" };
+  }
 }
 
 function fieldDescription(item: TemplateItem): string | undefined {

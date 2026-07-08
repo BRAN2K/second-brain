@@ -36,17 +36,21 @@ export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
         body: JSON.stringify(request),
       });
     } catch (cause) {
-      throw new ProviderError(GEMINI_PROVIDER, true, { cause });
+      throw new ProviderError(GEMINI_PROVIDER, { cause });
     }
 
     if (!response.ok) {
-      const transient = response.status === 429 || response.status >= 500;
-      const body = await response.text().catch(() => "");
-      throw new ProviderError(GEMINI_PROVIDER, transient, {
-        cause: new Error(`${response.status} - ${body}`),
-      });
+      throw await httpFailure(response);
     }
 
     return (await response.json()) as GeminiGenerateContentResponse;
   }
+}
+
+async function httpFailure(response: Response): Promise<ProviderError> {
+  const body = await response.text().catch(() => "");
+
+  return new ProviderError(GEMINI_PROVIDER, {
+    cause: new Error(`${response.status} - ${body}`),
+  });
 }

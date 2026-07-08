@@ -21,44 +21,42 @@ export function toExtractionResult(payload: GeminiGenerateContentResponse): Extr
 function extractionData(
   payload: GeminiGenerateContentResponse,
 ): Record<string, ExtractionFieldValue> {
+  const text = generatedText(payload);
+  const parsed = parseJson(text) as Record<string, ExtractionFieldValue>;
+
+  return parsed;
+}
+
+function generatedText(payload: GeminiGenerateContentResponse): string {
   const candidate = payload.candidates?.[0];
 
   if (!candidate) {
     const blockReason = payload.promptFeedback?.blockReason;
-    throw invalid(
-      blockReason ? `prompt was blocked (${blockReason})` : "response has no candidates",
-    );
+    const message = blockReason
+      ? `prompt was blocked (${blockReason})`
+      : "response has no candidates";
+
+    throw new InvalidProviderOutput(GEMINI_PROVIDER, [message]);
   }
 
   if (candidate.finishReason !== "STOP") {
-    throw invalid(`generation did not complete (finishReason: ${candidate.finishReason})`);
+    throw new InvalidProviderOutput(GEMINI_PROVIDER, [
+      `generation did not complete (finishReason: ${candidate.finishReason})`,
+    ]);
   }
 
   const text = candidate.content.parts?.[0]?.text;
   if (!text) {
-    throw invalid("response has no text part");
+    throw new InvalidProviderOutput(GEMINI_PROVIDER, ["response has no text part"]);
   }
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    throw invalid("response text is not valid JSON");
-  }
-
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw invalid("extraction output must be a JSON object");
-  }
-
-  for (const [field, value] of Object.entries(parsed)) {
-    if (value !== null && !["string", "number", "boolean"].includes(typeof value)) {
-      throw invalid(`field "${field}" must be a scalar or null`);
-    }
-  }
-
-  return parsed as Record<string, ExtractionFieldValue>;
+  return text;
 }
 
-function invalid(issue: string): InvalidProviderOutput {
-  return new InvalidProviderOutput(GEMINI_PROVIDER, [issue]);
+function parseJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new InvalidProviderOutput(GEMINI_PROVIDER, ["response text is not valid JSON"]);
+  }
 }
