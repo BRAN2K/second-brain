@@ -50,10 +50,24 @@ function fieldSchema(item: TemplateItem): GeminiSchema {
       break;
   }
 
-  const description = [item.description, ...(item.rules ?? [])].filter(Boolean).join("\n");
+  const description = fieldDescription(item);
   if (description) {
     schema.description = description;
   }
 
   return schema;
+}
+
+function fieldDescription(item: TemplateItem): string | undefined {
+  const lines: string[] = [];
+
+  if (item.description) {
+    lines.push(item.description);
+  }
+
+  if (item.rules) {
+    lines.push(...item.rules);
+  }
+
+  return lines.length > 0 ? lines.join("\n") : undefined;
 }
