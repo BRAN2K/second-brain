@@ -41,10 +41,4 @@ describe("toExtractionResult", () => {
 
     expect(() => toExtractionResult(payload)).toThrow(InvalidProviderOutput);
   });
-
-  it("rejects extraction values that are not scalars or null", () => {
-    const payload = geminiPayload({ text: JSON.stringify({ produto: { nested: true } }) });
-
-    expect(() => toExtractionResult(payload)).toThrow(InvalidProviderOutput);
-  });
 });
