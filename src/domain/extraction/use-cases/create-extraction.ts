@@ -7,6 +7,7 @@ import type {
 } from "@/domain/extraction/ports/http/extraction-llm-provider";
 import type { ITranscriberLLMProvider } from "@/domain/extraction/ports/http/transcriber-llm-provider";
 import type { IExtractionRepository } from "@/domain/extraction/repositories/extraction";
+import { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
 import { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field";
 import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
 import { TemplateNotFound } from "@/domain/template/errors/template-not-found";
@@ -19,12 +20,6 @@ export interface CreateExtractionInput {
   inputText?: string;
   file?: Blob;
   instructions?: string;
-}
-
-interface TranscriptionMeta {
-  model: string;
-  inputTokens?: number;
-  outputTokens?: number;
 }
 
 export class CreateExtractionUseCase {
@@ -43,7 +38,7 @@ export class CreateExtractionUseCase {
       throw new TemplateNotFound(input.templateId);
     }
 
-    const { text, transcription } = await this.resolveInputText(input);
+    const text = await this.resolveInputText(input);
 
     const snapshot = TemplateSnapshot.fromTemplate(template);
 
@@ -64,19 +59,16 @@ export class CreateExtractionUseCase {
       missingFields,
       provider: output.provider,
       model: output.model,
-      meta: {
+      meta: ExtractionMeta.create({
         tokensUsed: output.inputTokens + output.outputTokens,
         processingTime: Date.now() - startedAt,
-        ...(transcription && { transcription }),
-      },
+      }),
     });
 
     return this.extractionRepository.save(extraction);
   }
 
-  private async resolveInputText(
-    input: CreateExtractionInput,
-  ): Promise<{ text: string; transcription?: TranscriptionMeta }> {
+  private async resolveInputText(input: CreateExtractionInput): Promise<string> {
     if (input.sourceType === ExtractionSourceType.Audio) {
       if (!input.file) {
         throw new ExtractionInvalid(["file is required when sourceType is audio"]);
@@ -84,21 +76,14 @@ export class CreateExtractionUseCase {
 
       const transcription = await this.transcriber.transcribe({ file: input.file });
 
-      return {
-        text: transcription.text,
-        transcription: {
-          model: transcription.model,
-          inputTokens: transcription.inputTokens,
-          outputTokens: transcription.outputTokens,
-        },
-      };
+      return transcription.text;
     }
 
     if (!input.inputText) {
       throw new ExtractionInvalid(["inputText is required when sourceType is text"]);
     }
 
-    return { text: input.inputText };
+    return input.inputText;
   }
 
   // Applies the partial-success semantics to the provider output:

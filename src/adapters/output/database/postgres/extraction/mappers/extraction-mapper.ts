@@ -2,6 +2,10 @@ import type { Insertable, Selectable } from "kysely";
 import { Extraction } from "@/domain/extraction/entities/extraction";
 import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
 import {
+  ExtractionMeta,
+  type ExtractionMetaProps,
+} from "@/domain/extraction/value-objects/extraction-meta";
+import {
   ExtractionMissingField,
   type ExtractionMissingFieldProps,
 } from "@/domain/extraction/value-objects/extraction-missing-field";
@@ -55,6 +59,6 @@ export function toDomain(row: Selectable<ExtractionTable>): Extraction {
     ),
     provider: row.provider,
     model: row.model,
-    meta: row.meta,
+    meta: ExtractionMeta.reconstitute(row.meta as ExtractionMetaProps),
   });
 }

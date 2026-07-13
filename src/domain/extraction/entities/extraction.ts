@@ -1,6 +1,7 @@
 import { uuidv7 } from "uuidv7";
 import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
 import { ExtractionInvalid } from "@/domain/extraction/errors/extraction-invalid";
+import type { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
 import type { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field";
 import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
 import { AggregateRoot } from "@/domain/shared/aggregate-root";
@@ -17,7 +18,7 @@ interface ExtractionProps {
   missingFields: ExtractionMissingField[];
   provider: string;
   model: string;
-  meta: Record<string, unknown>;
+  meta: ExtractionMeta;
 }
 
 export interface CreateExtractionProps {
@@ -29,7 +30,7 @@ export interface CreateExtractionProps {
   missingFields: ExtractionMissingField[];
   provider: string;
   model: string;
-  meta: Record<string, unknown>;
+  meta: ExtractionMeta;
 }
 
 export interface ReconstituteExtractionProps extends ExtractionProps {
@@ -111,7 +112,7 @@ export class Extraction extends AggregateRoot<string> {
   get model(): string {
     return this.props.model;
   }
-  get meta(): Record<string, unknown> {
+  get meta(): ExtractionMeta {
     return this.props.meta;
   }
 }

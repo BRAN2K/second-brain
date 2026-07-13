@@ -24,7 +24,7 @@ export interface ExtractionTable {
   missing_fields: ColumnType<unknown, JsonbWrite, never>;
   provider: ColumnType<string, string, never>;
   model: ColumnType<string, string, never>;
-  meta: ColumnType<Record<string, unknown>, JsonbWrite, never>;
+  meta: ColumnType<unknown, JsonbWrite, never>;
 }
 
 export interface AuditTable {

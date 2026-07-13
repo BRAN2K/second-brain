@@ -197,11 +197,6 @@ describe("CreateExtractionUseCase", () => {
     expect(transcriber.calls).toHaveLength(1);
     expect(extraction.inputText).toBe("texto transcrito do audio");
     expect(provider.calls[0]?.content).toBe("texto transcrito do audio");
-    expect(extraction.meta.transcription).toEqual({
-      model: "fake-whisper",
-      inputTokens: 3,
-      outputTokens: undefined,
-    });
   });
 
   it("throws TemplateNotFound for an unknown template", () => {
