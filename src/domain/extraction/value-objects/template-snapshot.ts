@@ -56,10 +56,10 @@ export class TemplateSnapshot extends ValueObject<TemplateSnapshotProps> {
     return this.props.description;
   }
   get items(): TemplateItem[] {
-    return this.props.items;
+    return [...this.props.items];
   }
   get rules(): string[] {
-    return this.props.rules;
+    return [...this.props.rules];
   }
 
   toJSON(): TemplateSnapshotProps {

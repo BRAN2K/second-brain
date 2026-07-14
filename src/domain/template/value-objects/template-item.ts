@@ -84,13 +84,13 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
     return this.props.default;
   }
   get values(): string[] | undefined {
-    return this.props.kind === TemplateFieldKind.Enum ? this.props.values : undefined;
+    return this.props.kind === TemplateFieldKind.Enum ? [...this.props.values] : undefined;
   }
   get required(): boolean {
     return this.props.required;
   }
   get rules(): string[] | undefined {
-    return this.props.rules;
+    return this.props.rules ? [...this.props.rules] : undefined;
   }
   get description(): string | undefined {
     return this.props.description;

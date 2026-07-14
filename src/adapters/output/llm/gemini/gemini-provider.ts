@@ -8,7 +8,7 @@ import type {
   ExtractionInput,
   ExtractionResult,
   IExtractionLLMProvider,
-} from "@/domain/extraction/ports/http/extraction-llm-provider";
+} from "@/domain/extraction/ports/extraction-llm-provider";
 
 export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
   constructor(

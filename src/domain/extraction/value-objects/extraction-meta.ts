@@ -4,8 +4,9 @@ import { Issues } from "@/domain/shared/issues";
 import { ValueObject } from "@/domain/shared/value-object";
 
 export interface ExtractionMetaProps {
-  tokensUsed: number;
-  processingTime: number;
+  inputTokens: number;
+  outputTokens: number;
+  transcriptionDurationMs: number;
 }
 
 export class ExtractionMeta extends ValueObject<ExtractionMetaProps> {
@@ -16,8 +17,11 @@ export class ExtractionMeta extends ValueObject<ExtractionMetaProps> {
   static create(props: ExtractionMetaProps): ExtractionMeta {
     const issues = new Issues();
 
-    issues.add(Guard.againstWrongType(props.tokensUsed, "number", "tokensUsed"));
-    issues.add(Guard.againstWrongType(props.processingTime, "number", "processingTime"));
+    issues.add(Guard.againstWrongType(props.inputTokens, "number", "inputTokens"));
+    issues.add(Guard.againstWrongType(props.outputTokens, "number", "outputTokens"));
+    issues.add(
+      Guard.againstWrongType(props.transcriptionDurationMs, "number", "transcriptionDurationMs"),
+    );
 
     if (issues.hasAny) {
       throw new InvalidExtractionMeta(issues.all);
@@ -30,11 +34,14 @@ export class ExtractionMeta extends ValueObject<ExtractionMetaProps> {
     return new ExtractionMeta(props);
   }
 
-  get tokensUsed(): number {
-    return this.props.tokensUsed;
+  get inputTokens(): number {
+    return this.props.inputTokens;
   }
-  get processingTime(): number {
-    return this.props.processingTime;
+  get outputTokens(): number {
+    return this.props.outputTokens;
+  }
+  get transcriptionDurationMs(): number {
+    return this.props.transcriptionDurationMs;
   }
 
   toJSON(): ExtractionMetaProps {

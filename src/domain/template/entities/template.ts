@@ -2,7 +2,7 @@ import { uuidv7 } from "uuidv7";
 import { AggregateRoot } from "@/domain/shared/aggregate-root";
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
-import { TemplateInvalid } from "@/domain/template/errors/template-invalid";
+import { InvalidTemplate } from "@/domain/template/errors/invalid-template";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 
 interface TemplateProps {
@@ -48,7 +48,7 @@ export class Template extends AggregateRoot<string> {
     );
 
     if (issues.hasAny) {
-      throw new TemplateInvalid(issues.all);
+      throw new InvalidTemplate(issues.all);
     }
 
     const now = new Date();
@@ -76,10 +76,10 @@ export class Template extends AggregateRoot<string> {
     return this.props.description;
   }
   get items(): TemplateItem[] {
-    return this.props.items;
+    return [...this.props.items];
   }
   get rules(): string[] {
-    return this.props.rules;
+    return [...this.props.rules];
   }
   get createdAt(): Date {
     return this.props.createdAt;

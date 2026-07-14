@@ -3,7 +3,7 @@ import type {
   ITranscriberLLMProvider,
   TranscriptionRequest,
   TranscriptionResult,
-} from "@/domain/extraction/ports/http/transcriber-llm-provider";
+} from "@/domain/extraction/ports/transcriber-llm-provider";
 
 export class GroqWhisperTranscriberLLMProvider implements ITranscriberLLMProvider {
   constructor(

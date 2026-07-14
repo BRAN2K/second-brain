@@ -1,7 +1,7 @@
 import type { GeminiGenerateContentRequest } from "@/adapters/output/llm/gemini/dtos/generate-content-request";
 import type { GeminiSchema } from "@/adapters/output/llm/gemini/dtos/response-schema";
 import { buildExtractionPrompt } from "@/adapters/output/llm/prompts/extraction-prompt";
-import type { ExtractionInput } from "@/domain/extraction/ports/http/extraction-llm-provider";
+import type { ExtractionInput } from "@/domain/extraction/ports/extraction-llm-provider";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 

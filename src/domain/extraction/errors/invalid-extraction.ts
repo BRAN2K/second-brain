@@ -1,6 +1,6 @@
-export class ExtractionInvalid extends Error {
+export class InvalidExtraction extends Error {
   constructor(public readonly issues: string[]) {
     super(`Invalid extraction:\n${issues.map((issue) => `  - ${issue}`).join("\n")}`);
-    this.name = "ExtractionInvalid";
+    this.name = "InvalidExtraction";
   }
 }

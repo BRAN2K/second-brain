@@ -1,8 +1,8 @@
 import { Extraction } from "@/domain/extraction/entities/extraction";
 import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import { ExtractionInvalid } from "@/domain/extraction/errors/extraction-invalid";
-import type { IExtractionLLMProvider } from "@/domain/extraction/ports/http/extraction-llm-provider";
-import type { ITranscriberLLMProvider } from "@/domain/extraction/ports/http/transcriber-llm-provider";
+import { InvalidExtraction } from "@/domain/extraction/errors/invalid-extraction";
+import type { IExtractionLLMProvider } from "@/domain/extraction/ports/extraction-llm-provider";
+import type { ITranscriberLLMProvider } from "@/domain/extraction/ports/transcriber-llm-provider";
 import type { IExtractionRepository } from "@/domain/extraction/repositories/extraction";
 import { toExtractionData } from "@/domain/extraction/use-cases/mappers/extraction-data-mapper";
 import { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
@@ -27,7 +27,7 @@ export class CreateExtractionUseCase {
   ) {}
 
   async execute(input: CreateExtractionInput): Promise<Extraction> {
-    const startedAt = Date.now();
+    const transcriptionStartedAt = Date.now();
     const template = await this.templateRepository.findById(input.templateId);
 
     if (!template) {
@@ -56,8 +56,9 @@ export class CreateExtractionUseCase {
       provider: output.provider,
       model: output.model,
       meta: ExtractionMeta.create({
-        tokensUsed: output.inputTokens + output.outputTokens,
-        processingTime: Date.now() - startedAt,
+        inputTokens: output.inputTokens,
+        outputTokens: output.outputTokens,
+        transcriptionDurationMs: Date.now() - transcriptionStartedAt,
       }),
     });
 
@@ -67,7 +68,7 @@ export class CreateExtractionUseCase {
   private async resolveInputText(input: CreateExtractionInput): Promise<string> {
     if (input.sourceType === ExtractionSourceType.Audio) {
       if (!input.file) {
-        throw new ExtractionInvalid(["file is required when sourceType is audio"]);
+        throw new InvalidExtraction(["file is required when sourceType is audio"]);
       }
 
       const transcription = await this.transcriber.transcribe({ file: input.file });
@@ -76,7 +77,7 @@ export class CreateExtractionUseCase {
     }
 
     if (!input.inputText) {
-      throw new ExtractionInvalid(["inputText is required when sourceType is text"]);
+      throw new InvalidExtraction(["inputText is required when sourceType is text"]);
     }
 
     return input.inputText;

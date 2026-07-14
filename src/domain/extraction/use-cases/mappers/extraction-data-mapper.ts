@@ -1,4 +1,4 @@
-import type { ExtractionFieldValue } from "@/domain/extraction/ports/http/extraction-llm-provider";
+import type { ExtractionFieldValue } from "@/domain/extraction/ports/extraction-llm-provider";
 import { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 

@@ -1,18 +1,18 @@
 import { describe, expect, it } from "bun:test";
 import type { Extraction } from "@/domain/extraction/entities/extraction";
 import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import { ExtractionInvalid } from "@/domain/extraction/errors/extraction-invalid";
+import { InvalidExtraction } from "@/domain/extraction/errors/invalid-extraction";
 import type {
   ExtractionFieldValue,
   ExtractionInput,
   ExtractionResult,
   IExtractionLLMProvider,
-} from "@/domain/extraction/ports/http/extraction-llm-provider";
+} from "@/domain/extraction/ports/extraction-llm-provider";
 import type {
   ITranscriberLLMProvider,
   TranscriptionRequest,
   TranscriptionResult,
-} from "@/domain/extraction/ports/http/transcriber-llm-provider";
+} from "@/domain/extraction/ports/transcriber-llm-provider";
 import type {
   IExtractionRepository,
   ListExtractionsParams,
@@ -147,7 +147,8 @@ describe("CreateExtractionUseCase", () => {
     expect(extraction.template.id).toBe(template.id);
     expect(extraction.provider).toBe("fake");
     expect(extraction.model).toBe("fake-model");
-    expect(extraction.meta.tokensUsed).toBe(15);
+    expect(extraction.meta.inputTokens).toBe(10);
+    expect(extraction.meta.outputTokens).toBe(5);
 
     expect(provider.calls[0]?.content).toBe("comprei um aspirador na amazon");
     expect(extractionRepository.saved).toHaveLength(1);
@@ -216,7 +217,7 @@ describe("CreateExtractionUseCase", () => {
 
     expect(
       useCase.execute({ sourceType: ExtractionSourceType.Audio, templateId: template.id }),
-    ).rejects.toThrow(ExtractionInvalid);
+    ).rejects.toThrow(InvalidExtraction);
   });
 
   it("rejects text requests without inputText", () => {
@@ -224,6 +225,6 @@ describe("CreateExtractionUseCase", () => {
 
     expect(
       useCase.execute({ sourceType: ExtractionSourceType.Text, templateId: template.id }),
-    ).rejects.toThrow(ExtractionInvalid);
+    ).rejects.toThrow(InvalidExtraction);
   });
 });

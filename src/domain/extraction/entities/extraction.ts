@@ -1,6 +1,6 @@
 import { uuidv7 } from "uuidv7";
 import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import { ExtractionInvalid } from "@/domain/extraction/errors/extraction-invalid";
+import { InvalidExtraction } from "@/domain/extraction/errors/invalid-extraction";
 import type { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
 import type { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field";
 import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
@@ -59,7 +59,7 @@ export class Extraction extends AggregateRoot<string> {
     }
 
     if (issues.hasAny) {
-      throw new ExtractionInvalid(issues.all);
+      throw new InvalidExtraction(issues.all);
     }
 
     return new Extraction(uuidv7(), {
@@ -100,7 +100,7 @@ export class Extraction extends AggregateRoot<string> {
     return this.props.result;
   }
   get missingFields(): ExtractionMissingField[] {
-    return this.props.missingFields;
+    return [...this.props.missingFields];
   }
   get complete(): boolean {
     return this.props.missingFields.length === 0;

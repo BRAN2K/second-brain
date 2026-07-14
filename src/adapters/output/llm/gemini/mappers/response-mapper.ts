@@ -4,7 +4,7 @@ import { InvalidProviderOutput } from "@/domain/extraction/errors/invalid-provid
 import type {
   ExtractionFieldValue,
   ExtractionResult,
-} from "@/domain/extraction/ports/http/extraction-llm-provider";
+} from "@/domain/extraction/ports/extraction-llm-provider";
 
 export function toExtractionResult(payload: GeminiGenerateContentResponse): ExtractionResult {
   const usage = payload.usageMetadata;

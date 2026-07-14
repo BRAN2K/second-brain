@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import type { Template } from "@/domain/template/entities/template";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
+import { InvalidTemplate } from "@/domain/template/errors/invalid-template";
 import { InvalidTemplateItem } from "@/domain/template/errors/invalid-template-item";
-import { TemplateInvalid } from "@/domain/template/errors/template-invalid";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
@@ -80,8 +80,8 @@ describe("CreateTemplateUseCase", () => {
       await useCase.execute(input);
       expect.unreachable("should have thrown");
     } catch (error) {
-      expect(error).toBeInstanceOf(TemplateInvalid);
-      expect((error as TemplateInvalid).issues).toEqual([
+      expect(error).toBeInstanceOf(InvalidTemplate);
+      expect((error as InvalidTemplate).issues).toEqual([
         "name must not be empty",
         "item names must not contain duplicates",
       ]);
