@@ -1,9 +1,10 @@
-import { InvalidTemplateSnapshot } from "@/domain/extraction/errors/invalid-template-snapshot";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
 import { ValueObject } from "@/domain/shared/value-object";
 import type { Template } from "@/domain/template/entities/template";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
 
 export interface TemplateSnapshotProps {
   id: string;
@@ -26,7 +27,10 @@ export class TemplateSnapshot extends ValueObject<TemplateSnapshotProps> {
     issues.add(Guard.againstEmptyArray(props.items, "items"));
 
     if (issues.hasAny) {
-      throw new InvalidTemplateSnapshot(issues.all);
+      throw new UnprocessableEntityError(issues.all, {
+        resource: EXTRACTION_BRN.resource,
+        scope: EXTRACTION_BRN.scope.templateSnapshot,
+      });
     }
 
     return new TemplateSnapshot(props);

@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { Extraction } from "@/domain/extraction/entities/extraction";
 import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import { InvalidExtraction } from "@/domain/extraction/errors/invalid-extraction";
 import type {
   ExtractionFieldValue,
   ExtractionInput,
@@ -19,12 +18,12 @@ import type {
 } from "@/domain/extraction/repositories/extraction";
 import { Template } from "@/domain/template/entities/template";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
-import { TemplateNotFound } from "@/domain/template/errors/template-not-found";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
 } from "@/domain/template/repositories/template";
 import { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { NotFoundError, UnprocessableEntityError } from "@/infrastructure/helpers/errors";
 import { CreateExtractionUseCase } from "./create-extraction";
 
 function buildTemplate(): Template {
@@ -200,7 +199,7 @@ describe("CreateExtractionUseCase", () => {
     expect(provider.calls[0]?.content).toBe("texto transcrito do audio");
   });
 
-  it("throws TemplateNotFound for an unknown template", () => {
+  it("throws NotFoundError for an unknown template", () => {
     const { useCase } = buildUseCase();
 
     expect(
@@ -209,7 +208,7 @@ describe("CreateExtractionUseCase", () => {
         templateId: "missing-id",
         inputText: "qualquer texto",
       }),
-    ).rejects.toThrow(TemplateNotFound);
+    ).rejects.toThrow(NotFoundError);
   });
 
   it("rejects audio requests without a file", () => {
@@ -217,7 +216,7 @@ describe("CreateExtractionUseCase", () => {
 
     expect(
       useCase.execute({ sourceType: ExtractionSourceType.Audio, templateId: template.id }),
-    ).rejects.toThrow(InvalidExtraction);
+    ).rejects.toThrow(UnprocessableEntityError);
   });
 
   it("rejects text requests without inputText", () => {
@@ -225,6 +224,6 @@ describe("CreateExtractionUseCase", () => {
 
     expect(
       useCase.execute({ sourceType: ExtractionSourceType.Text, templateId: template.id }),
-    ).rejects.toThrow(InvalidExtraction);
+    ).rejects.toThrow(UnprocessableEntityError);
   });
 });

@@ -1,12 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import type { Template } from "@/domain/template/entities/template";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
-import { InvalidTemplate } from "@/domain/template/errors/invalid-template";
-import { InvalidTemplateItem } from "@/domain/template/errors/invalid-template-item";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
 } from "@/domain/template/repositories/template";
+import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
 import { type CreateTemplateInput, CreateTemplateUseCase } from "./create-template";
 
 class FakeTemplateRepository implements ITemplateRepository {
@@ -59,7 +58,7 @@ describe("CreateTemplateUseCase", () => {
       items: [{ name: "pagamento", kind: TemplateFieldKind.Enum, required: true, values: [] }],
     };
 
-    expect(useCase.execute(input)).rejects.toThrow(InvalidTemplateItem);
+    expect(useCase.execute(input)).rejects.toThrow(UnprocessableEntityError);
     expect(repository.saved).toHaveLength(0);
   });
 
@@ -80,8 +79,8 @@ describe("CreateTemplateUseCase", () => {
       await useCase.execute(input);
       expect.unreachable("should have thrown");
     } catch (error) {
-      expect(error).toBeInstanceOf(InvalidTemplate);
-      expect((error as InvalidTemplate).issues).toEqual([
+      expect(error).toBeInstanceOf(UnprocessableEntityError);
+      expect((error as UnprocessableEntityError).issues).toEqual([
         "name must not be empty",
         "item names must not contain duplicates",
       ]);

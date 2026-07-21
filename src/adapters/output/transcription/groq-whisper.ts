@@ -1,9 +1,19 @@
-import { TranscriptionFailed } from "@/domain/extraction/errors/transcription-failed";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import type {
   ITranscriberLLMProvider,
   TranscriptionRequest,
   TranscriptionResult,
 } from "@/domain/extraction/ports/transcriber-llm-provider";
+import { UpstreamError } from "@/infrastructure/helpers/errors";
+
+function transcriptionFailed(cause: unknown): UpstreamError {
+  return new UpstreamError({
+    resource: EXTRACTION_BRN.resource,
+    scope: EXTRACTION_BRN.scope.transcription,
+    message: "Audio transcription failed",
+    cause,
+  });
+}
 
 export class GroqWhisperTranscriberLLMProvider implements ITranscriberLLMProvider {
   constructor(
@@ -23,17 +33,17 @@ export class GroqWhisperTranscriberLLMProvider implements ITranscriberLLMProvide
         body: formData,
       });
     } catch (cause) {
-      throw new TranscriptionFailed({ cause });
+      throw transcriptionFailed(cause);
     }
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");
-      throw new TranscriptionFailed({ cause: body });
+      throw transcriptionFailed(body);
     }
 
     const json = (await response.json()) as { text?: string };
     if (typeof json.text !== "string") {
-      throw new TranscriptionFailed({ cause: "empty transcription" });
+      throw transcriptionFailed("empty transcription");
     }
 
     return {

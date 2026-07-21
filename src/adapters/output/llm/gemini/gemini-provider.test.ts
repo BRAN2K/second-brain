@@ -3,7 +3,7 @@ import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini/gemini
 import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
 import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
 import { buildSnapshot, geminiPayload } from "@/adapters/output/llm/gemini/test-fixtures";
-import { ProviderError } from "@/domain/extraction/errors/provider-error";
+import { UpstreamError } from "@/infrastructure/helpers/errors";
 
 const originalFetch = globalThis.fetch;
 
@@ -42,18 +42,18 @@ describe("GeminiExtractionLLMProvider", () => {
     );
   });
 
-  it("maps HTTP failures to ProviderError", async () => {
+  it("maps HTTP failures to UpstreamError", async () => {
     mockFetch(() => new Response("rate limited", { status: 429 }));
 
     const error = await buildProvider()
       .extract({ content: "texto", template: buildSnapshot() })
       .catch((caught: unknown) => caught);
 
-    expect(error).toBeInstanceOf(ProviderError);
-    expect((error as ProviderError).provider).toBe("gemini");
+    expect(error).toBeInstanceOf(UpstreamError);
+    expect((error as UpstreamError).message).toContain("gemini");
   });
 
-  it("maps network failures to ProviderError", async () => {
+  it("maps network failures to UpstreamError", async () => {
     mockFetch(() => {
       throw new Error("connection refused");
     });
@@ -62,7 +62,7 @@ describe("GeminiExtractionLLMProvider", () => {
       .extract({ content: "texto", template: buildSnapshot() })
       .catch((caught: unknown) => caught);
 
-    expect(error).toBeInstanceOf(ProviderError);
-    expect((error as ProviderError).provider).toBe("gemini");
+    expect(error).toBeInstanceOf(UpstreamError);
+    expect((error as UpstreamError).message).toContain("gemini");
   });
 });

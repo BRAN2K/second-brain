@@ -2,8 +2,9 @@ import { uuidv7 } from "uuidv7";
 import { AggregateRoot } from "@/domain/shared/aggregate-root";
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
-import { InvalidTemplate } from "@/domain/template/errors/invalid-template";
+import { TEMPLATE_BRN } from "@/domain/template/brn";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
 
 interface TemplateProps {
   name: string;
@@ -48,7 +49,7 @@ export class Template extends AggregateRoot<string> {
     );
 
     if (issues.hasAny) {
-      throw new InvalidTemplate(issues.all);
+      throw new UnprocessableEntityError(issues.all, { resource: TEMPLATE_BRN.resource });
     }
 
     const now = new Date();

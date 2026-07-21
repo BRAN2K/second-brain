@@ -1,7 +1,8 @@
-import { InvalidExtractionMissingField } from "@/domain/extraction/errors/invalid-extraction-missing-field";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
 import { ValueObject } from "@/domain/shared/value-object";
+import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
 
 export interface ExtractionMissingFieldProps {
   field: string;
@@ -19,7 +20,10 @@ export class ExtractionMissingField extends ValueObject<ExtractionMissingFieldPr
     issues.add(Guard.againstEmptyString(props.field, "field"));
 
     if (issues.hasAny) {
-      throw new InvalidExtractionMissingField(issues.all);
+      throw new UnprocessableEntityError(issues.all, {
+        resource: EXTRACTION_BRN.resource,
+        scope: EXTRACTION_BRN.scope.missingField,
+      });
     }
 
     return new ExtractionMissingField(props);

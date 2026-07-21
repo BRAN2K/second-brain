@@ -1,8 +1,9 @@
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
 import { ValueObject } from "@/domain/shared/value-object";
+import { TEMPLATE_BRN } from "@/domain/template/brn";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
-import { InvalidTemplateItem } from "@/domain/template/errors/invalid-template-item";
+import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
 
 interface TemplateItemBase {
   name: string;
@@ -64,7 +65,10 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
     }
 
     if (issues.hasAny) {
-      throw new InvalidTemplateItem(issues.all);
+      throw new UnprocessableEntityError(issues.all, {
+        resource: TEMPLATE_BRN.resource,
+        scope: TEMPLATE_BRN.scope.item,
+      });
     }
 
     return new TemplateItem(props);

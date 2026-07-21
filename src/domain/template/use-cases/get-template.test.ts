@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { Template } from "@/domain/template/entities/template";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
-import { TemplateNotFound } from "@/domain/template/errors/template-not-found";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
 } from "@/domain/template/repositories/template";
 import { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { NotFoundError } from "@/infrastructure/helpers/errors";
 import { GetTemplateUseCase } from "./get-template";
 
 function buildTemplate(): Template {
@@ -43,9 +43,9 @@ describe("GetTemplateUseCase", () => {
     expect(await useCase.execute(template.id)).toBe(template);
   });
 
-  it("throws TemplateNotFound when it does not exist", () => {
+  it("throws NotFoundError when it does not exist", () => {
     const useCase = new GetTemplateUseCase(new FakeTemplateRepository([]));
 
-    expect(useCase.execute("missing-id")).rejects.toThrow(TemplateNotFound);
+    expect(useCase.execute("missing-id")).rejects.toThrow(NotFoundError);
   });
 });

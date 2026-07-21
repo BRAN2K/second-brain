@@ -3,12 +3,13 @@ import type { GeminiGenerateContentRequest } from "@/adapters/output/llm/gemini/
 import type { GeminiGenerateContentResponse } from "@/adapters/output/llm/gemini/dtos/generate-content-response";
 import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
 import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
-import { ProviderError } from "@/domain/extraction/errors/provider-error";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import type {
   ExtractionInput,
   ExtractionResult,
   IExtractionLLMProvider,
 } from "@/domain/extraction/ports/extraction-llm-provider";
+import { UpstreamError } from "@/infrastructure/helpers/errors";
 
 export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
   constructor(
@@ -36,7 +37,7 @@ export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
         body: JSON.stringify(request),
       });
     } catch (cause) {
-      throw new ProviderError(GEMINI_PROVIDER, { cause });
+      throw providerFailed(cause);
     }
 
     if (!response.ok) {
@@ -47,10 +48,17 @@ export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
   }
 }
 
-async function httpFailure(response: Response): Promise<ProviderError> {
+function providerFailed(cause: unknown): UpstreamError {
+  return new UpstreamError({
+    resource: EXTRACTION_BRN.resource,
+    scope: EXTRACTION_BRN.scope.provider,
+    message: `Provider "${GEMINI_PROVIDER}" failed`,
+    cause,
+  });
+}
+
+async function httpFailure(response: Response): Promise<UpstreamError> {
   const body = await response.text().catch(() => "");
 
-  return new ProviderError(GEMINI_PROVIDER, {
-    cause: new Error(`${response.status} - ${body}`),
-  });
+  return providerFailed(new Error(`${response.status} - ${body}`));
 }

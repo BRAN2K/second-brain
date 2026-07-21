@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
-import { InvalidTemplateItem } from "@/domain/template/errors/invalid-template-item";
 import { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
 
 describe("TemplateItem", () => {
   it("creates a valid item without a default", () => {
@@ -18,7 +18,7 @@ describe("TemplateItem", () => {
   it("rejects an empty name", () => {
     expect(() =>
       TemplateItem.create({ name: "", kind: TemplateFieldKind.String, required: true }),
-    ).toThrow(InvalidTemplateItem);
+    ).toThrow(UnprocessableEntityError);
   });
 
   it.each([
@@ -33,7 +33,7 @@ describe("TemplateItem", () => {
         required: false,
         default: wrongDefault,
       } as never),
-    ).toThrow(InvalidTemplateItem);
+    ).toThrow(UnprocessableEntityError);
   });
 
   it("accepts a matching-type default for number, string and boolean kinds", () => {
@@ -71,7 +71,7 @@ describe("TemplateItem", () => {
         required: false,
         default: "not-a-date",
       }),
-    ).toThrow(InvalidTemplateItem);
+    ).toThrow(UnprocessableEntityError);
   });
 
   it("accepts a valid ISO date string default", () => {
@@ -93,7 +93,7 @@ describe("TemplateItem", () => {
         required: true,
         values: [],
       }),
-    ).toThrow(InvalidTemplateItem);
+    ).toThrow(UnprocessableEntityError);
   });
 
   it("rejects an enum item with duplicate values", () => {
@@ -104,7 +104,7 @@ describe("TemplateItem", () => {
         required: true,
         values: ["a", "a"],
       }),
-    ).toThrow(InvalidTemplateItem);
+    ).toThrow(UnprocessableEntityError);
   });
 
   it("rejects an enum default that is not one of the declared values", () => {
@@ -116,7 +116,7 @@ describe("TemplateItem", () => {
         values: ["a", "b"],
         default: "c",
       }),
-    ).toThrow(InvalidTemplateItem);
+    ).toThrow(UnprocessableEntityError);
   });
 
   it("accepts an enum default that is one of the declared values", () => {

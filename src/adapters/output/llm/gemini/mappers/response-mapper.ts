@@ -1,10 +1,21 @@
 import { GEMINI_PROVIDER } from "@/adapters/output/llm/gemini/constants";
 import type { GeminiGenerateContentResponse } from "@/adapters/output/llm/gemini/dtos/generate-content-response";
-import { InvalidProviderOutput } from "@/domain/extraction/errors/invalid-provider-output";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import type {
   ExtractionFieldValue,
   ExtractionResult,
 } from "@/domain/extraction/ports/extraction-llm-provider";
+import { PROBLEM, UpstreamError } from "@/infrastructure/helpers/errors";
+
+function invalidProviderOutput(issues: string[]): UpstreamError {
+  return new UpstreamError({
+    resource: EXTRACTION_BRN.resource,
+    scope: EXTRACTION_BRN.scope.providerOutput,
+    problem: PROBLEM.INVALID,
+    message: `Provider "${GEMINI_PROVIDER}" returned invalid output`,
+    issues,
+  });
+}
 
 export function toExtractionResult(payload: GeminiGenerateContentResponse): ExtractionResult {
   const usage = payload.usageMetadata;
@@ -36,18 +47,18 @@ function generatedText(payload: GeminiGenerateContentResponse): string {
       ? `prompt was blocked (${blockReason})`
       : "response has no candidates";
 
-    throw new InvalidProviderOutput(GEMINI_PROVIDER, [message]);
+    throw invalidProviderOutput([message]);
   }
 
   if (candidate.finishReason !== "STOP") {
-    throw new InvalidProviderOutput(GEMINI_PROVIDER, [
+    throw invalidProviderOutput([
       `generation did not complete (finishReason: ${candidate.finishReason})`,
     ]);
   }
 
   const text = candidate.content.parts?.[0]?.text;
   if (!text) {
-    throw new InvalidProviderOutput(GEMINI_PROVIDER, ["response has no text part"]);
+    throw invalidProviderOutput(["response has no text part"]);
   }
 
   return text;
@@ -57,6 +68,6 @@ function parseJson(text: string): unknown {
   try {
     return JSON.parse(text);
   } catch {
-    throw new InvalidProviderOutput(GEMINI_PROVIDER, ["response text is not valid JSON"]);
+    throw invalidProviderOutput(["response text is not valid JSON"]);
   }
 }

@@ -1,7 +1,8 @@
-import { InvalidExtractionMeta } from "@/domain/extraction/errors/invalid-extraction-meta";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
 import { ValueObject } from "@/domain/shared/value-object";
+import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
 
 export interface ExtractionMetaProps {
   inputTokens: number;
@@ -24,7 +25,10 @@ export class ExtractionMeta extends ValueObject<ExtractionMetaProps> {
     );
 
     if (issues.hasAny) {
-      throw new InvalidExtractionMeta(issues.all);
+      throw new UnprocessableEntityError(issues.all, {
+        resource: EXTRACTION_BRN.resource,
+        scope: EXTRACTION_BRN.scope.meta,
+      });
     }
 
     return new ExtractionMeta(props);

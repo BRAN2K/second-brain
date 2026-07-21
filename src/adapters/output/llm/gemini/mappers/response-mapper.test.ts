@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
 import { extractedData, geminiPayload } from "@/adapters/output/llm/gemini/test-fixtures";
-import { InvalidProviderOutput } from "@/domain/extraction/errors/invalid-provider-output";
+import { UpstreamError } from "@/infrastructure/helpers/errors";
 
 describe("toExtractionResult", () => {
   it("maps data, model and token usage (thinking tokens count as output)", () => {
@@ -26,19 +26,19 @@ describe("toExtractionResult", () => {
       caught = error;
     }
 
-    expect(caught).toBeInstanceOf(InvalidProviderOutput);
-    expect((caught as InvalidProviderOutput).issues).toEqual(["prompt was blocked (SAFETY)"]);
+    expect(caught).toBeInstanceOf(UpstreamError);
+    expect((caught as UpstreamError).issues).toEqual(["prompt was blocked (SAFETY)"]);
   });
 
   it("rejects generations that did not finish with STOP", () => {
     const payload = geminiPayload({ finishReason: "MAX_TOKENS" });
 
-    expect(() => toExtractionResult(payload)).toThrow(InvalidProviderOutput);
+    expect(() => toExtractionResult(payload)).toThrow(UpstreamError);
   });
 
   it("rejects responses whose text is not valid JSON", () => {
     const payload = geminiPayload({ text: "not json" });
 
-    expect(() => toExtractionResult(payload)).toThrow(InvalidProviderOutput);
+    expect(() => toExtractionResult(payload)).toThrow(UpstreamError);
   });
 });

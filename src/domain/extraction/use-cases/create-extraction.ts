@@ -1,14 +1,15 @@
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { Extraction } from "@/domain/extraction/entities/extraction";
 import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import { InvalidExtraction } from "@/domain/extraction/errors/invalid-extraction";
 import type { IExtractionLLMProvider } from "@/domain/extraction/ports/extraction-llm-provider";
 import type { ITranscriberLLMProvider } from "@/domain/extraction/ports/transcriber-llm-provider";
 import type { IExtractionRepository } from "@/domain/extraction/repositories/extraction";
 import { toExtractionData } from "@/domain/extraction/use-cases/mappers/extraction-data-mapper";
 import { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
 import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
-import { TemplateNotFound } from "@/domain/template/errors/template-not-found";
+import { TEMPLATE_BRN } from "@/domain/template/brn";
 import type { ITemplateRepository } from "@/domain/template/repositories/template";
+import { NotFoundError, UnprocessableEntityError } from "@/infrastructure/helpers/errors";
 
 export interface CreateExtractionInput {
   sourceType: ExtractionSourceType;
@@ -31,7 +32,10 @@ export class CreateExtractionUseCase {
     const template = await this.templateRepository.findById(input.templateId);
 
     if (!template) {
-      throw new TemplateNotFound(input.templateId);
+      throw new NotFoundError({
+        resource: TEMPLATE_BRN.resource,
+        message: `Template ${input.templateId} not found`,
+      });
     }
 
     const text = await this.resolveInputText(input);
@@ -68,7 +72,9 @@ export class CreateExtractionUseCase {
   private async resolveInputText(input: CreateExtractionInput): Promise<string> {
     if (input.sourceType === ExtractionSourceType.Audio) {
       if (!input.file) {
-        throw new InvalidExtraction(["file is required when sourceType is audio"]);
+        throw new UnprocessableEntityError(["file is required when sourceType is audio"], {
+          resource: EXTRACTION_BRN.resource,
+        });
       }
 
       const transcription = await this.transcriber.transcribe({ file: input.file });
@@ -77,7 +83,9 @@ export class CreateExtractionUseCase {
     }
 
     if (!input.inputText) {
-      throw new InvalidExtraction(["inputText is required when sourceType is text"]);
+      throw new UnprocessableEntityError(["inputText is required when sourceType is text"], {
+        resource: EXTRACTION_BRN.resource,
+      });
     }
 
     return input.inputText;

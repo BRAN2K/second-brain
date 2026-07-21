@@ -1,8 +1,6 @@
 import { type Static, Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 
-// TODO: refactor/simplify this file
-
 export const ConfigSchema = Type.Object({
   APP_ENV: Type.Union([Type.Literal("local"), Type.Literal("prod")], {
     default: "local",
