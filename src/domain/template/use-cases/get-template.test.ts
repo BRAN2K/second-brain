@@ -4,6 +4,7 @@ import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
+  TemplatesPage,
 } from "@/domain/template/repositories/template";
 import { TemplateItem } from "@/domain/template/value-objects/template-item";
 import { NotFoundError } from "@/infrastructure/helpers/errors";
@@ -30,8 +31,8 @@ class FakeTemplateRepository implements ITemplateRepository {
     return this.templates.find((template) => template.id === id) ?? null;
   }
 
-  async list(_params: ListTemplatesParams): Promise<Template[]> {
-    return this.templates;
+  async list(_params: ListTemplatesParams): Promise<TemplatesPage> {
+    return { templates: this.templates, hasNext: false };
   }
 }
 

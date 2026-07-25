@@ -3,6 +3,7 @@ import type { Kysely } from "kysely";
 import type { Database } from "@/adapters/output/database/postgres/types";
 import type { Config } from "@/infrastructure/helpers/config";
 import { createTemplateRoute } from "./create-template";
+import { listTemplatesRoute } from "./list-templates";
 
 export interface SharedDeps {
   db: Kysely<Database>;
@@ -10,7 +11,7 @@ export interface SharedDeps {
 
 export type TemplateRouteFactory = (config: Config, shared: SharedDeps) => AnyElysia;
 
-const routes: TemplateRouteFactory[] = [createTemplateRoute];
+const routes: TemplateRouteFactory[] = [createTemplateRoute, listTemplatesRoute];
 
 export function createTemplateModule(config: Config, shared: SharedDeps) {
   const app = new Elysia();

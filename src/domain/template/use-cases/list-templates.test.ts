@@ -4,6 +4,7 @@ import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
+  TemplatesPage,
 } from "@/domain/template/repositories/template";
 import { ListTemplatesUseCase } from "@/domain/template/use-cases/list-templates";
 import { TemplateItem } from "@/domain/template/value-objects/template-item";
@@ -29,9 +30,9 @@ class FakeTemplateRepository implements ITemplateRepository {
     return null;
   }
 
-  async list(params: ListTemplatesParams): Promise<Template[]> {
+  async list(params: ListTemplatesParams): Promise<TemplatesPage> {
     this.calls.push(params);
-    return [buildTemplate()];
+    return { templates: [buildTemplate()], hasNext: false };
   }
 }
 
@@ -40,10 +41,10 @@ describe("ListTemplatesUseCase", () => {
     const repository = new FakeTemplateRepository();
     const useCase = new ListTemplatesUseCase(repository);
 
-    const templates = await useCase.execute();
+    const page = await useCase.execute();
 
     expect(repository.calls).toEqual([{ cursor: undefined, limit: 20 }]);
-    expect(templates).toHaveLength(1);
+    expect(page.templates).toHaveLength(1);
   });
 
   it("forwards the cursor and a limit under the max as-is", async () => {
