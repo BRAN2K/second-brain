@@ -25,19 +25,13 @@ export class PostgresExtractionRepository implements IExtractionRepository {
       .selectFrom("extraction")
       .selectAll()
       .where("id", "=", id)
-      .where("deleted_at", "is", null)
       .executeTakeFirst();
 
     return row ? toDomain(row) : null;
   }
 
   async list({ cursor, limit }: ListExtractionsParams): Promise<Extraction[]> {
-    let query = this.db
-      .selectFrom("extraction")
-      .selectAll()
-      .where("deleted_at", "is", null)
-      .orderBy("id", "desc")
-      .limit(limit);
+    let query = this.db.selectFrom("extraction").selectAll().orderBy("id", "desc").limit(limit);
 
     if (cursor) {
       query = query.where("id", "<", cursor);

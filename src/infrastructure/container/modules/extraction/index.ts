@@ -8,15 +8,8 @@ export interface SharedDeps {
   db: Kysely<Database>;
 }
 
-export type ExtractionRouteFactory = (
-  config: Config,
-  shared: SharedDeps,
-) => AnyElysia;
+export type ExtractionRouteFactory = (config: Config, shared: SharedDeps) => AnyElysia;
 
-/**
- * Every route of the extraction module. Adding a use case = create its factory
- * file next to this one and list it here; nothing else changes.
- */
 const routes: ExtractionRouteFactory[] = [createExtractionRoute];
 
 export function createExtractionModule(config: Config, shared: SharedDeps) {

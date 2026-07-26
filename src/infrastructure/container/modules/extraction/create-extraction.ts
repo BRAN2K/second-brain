@@ -1,6 +1,7 @@
 import { CreateExtractionController } from "@/adapters/input/extraction/http/create-extraction";
 import { PostgresExtractionRepository } from "@/adapters/output/database/postgres/extraction/extraction-repository";
-import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini-provider";
+import { PostgresTemplateRepository } from "@/adapters/output/database/postgres/template/template-repository";
+import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini/gemini-provider";
 import { GroqWhisperTranscriberLLMProvider } from "@/adapters/output/transcription/groq-whisper";
 import { CreateExtractionUseCase } from "@/domain/extraction/use-cases/create-extraction";
 import type { Config } from "@/infrastructure/helpers/config";
@@ -8,6 +9,7 @@ import type { SharedDeps } from "./index";
 
 export function createExtractionRoute(config: Config, shared: SharedDeps) {
   const extractionRepository = new PostgresExtractionRepository(shared.db);
+  const templateRepository = new PostgresTemplateRepository(shared.db);
   const extractionLLMProvider = new GeminiExtractionLLMProvider(
     config.GEMINI_API_KEY,
     config.GEMINI_MODEL,
@@ -21,11 +23,10 @@ export function createExtractionRoute(config: Config, shared: SharedDeps) {
   const createExtractionUseCase = new CreateExtractionUseCase(
     extractionLLMProvider,
     extractionRepository,
+    templateRepository,
     transcriberLLMProvider,
   );
-  const createExtractionController = new CreateExtractionController(
-    createExtractionUseCase,
-  );
+  const createExtractionController = new CreateExtractionController(createExtractionUseCase);
 
   return createExtractionController.execute();
 }

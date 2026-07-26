@@ -20,6 +20,7 @@
     "migrate:latest": "kysely migrate latest"
   },
   "dependencies": {
+    "@elysiajs/openapi": "^1.4.15",
     "@sinclair/typebox": "^0.34.49",
     "ajv": "^8.20.0",
     "elysia": "^1.4.29",

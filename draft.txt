@@ -1,0 +1,276 @@
+interface TemplateError {
+  code: number;
+  message: string;
+}
+
+// Template definitions
+
+// Create Template Request
+enum ItemAcceptedTypes { 
+    number = "number",
+    string = "string",
+    boolean = "boolean",
+    date = "date",
+    enum = "enum",
+}
+
+interface ItemType {
+    type: ItemAcceptedTypes,
+    default?: T<ItemAcceptedTypes>,
+    rules?: string[],
+    values?: string[], //obrigatorio quando o type for enum
+}
+
+interface TemplateItem {
+    name: string,
+    type: ItemType,
+    required: boolean,
+    rules?: string[], // regra para o campo
+    description?: string,
+}
+
+interface Template {
+    name: string,
+    description?: string,
+    items: TemplateItem[],
+    rules?: string[], // regra para o template
+}
+
+// Create Template request example 
+const templateRequest: Template = {
+    name: "compra",
+    description: "Template para extrair informações de compras",
+    "items": [
+            {
+                "name": "produto",
+                "type": {"type": ItemAcceptedTypes.string},
+                "required": true,
+                "description": "Nome do produto comprado"
+            }, {
+                "name": "quantidade",
+                "type": {
+                    "type": ItemAcceptedTypes.number,
+                    "default": 1
+                },
+                "required": true,
+                "description": "Quantidade de produtos comprados",
+            }, {
+                "name": "preco",
+                "type": {"type": ItemAcceptedTypes.number},
+                "required": true,
+                "description": "Preço do produto comprado"
+            }, {
+                "name": "data",
+                "type": {"type": ItemAcceptedTypes.date},
+                "required": true,
+                "description": "Data da compra"
+            }, {
+                "name": "local",
+                "type": {"type": ItemAcceptedTypes.string},
+                "required": false,
+                "description": "Local da compra"
+            }, {
+                "name": "forma_pagamento",
+                "type": {
+                    "type": ItemAcceptedTypes.enum,
+                    "values": ["pix", "cartao de credito", "cartao de debito", "dinheiro", "boleto"]
+                },
+                "required": false,
+                "description": "Forma de pagamento utilizada na compra",
+            }
+        ],
+        "rules": [
+            "Caso o campo `produto` seja algo genérico, que não é quantificavel, como `compra do mês`, `mercado`, `supermercado`, `feira`, etc, o campo `quantidade` deve ser preenchido com 1 e o campo `preco` deve ser preenchido com o valor total da compra.",
+        ]
+}
+
+// Create Template response
+interface TemplateResponse {
+  id: string,
+  name: string,
+  description?: string,
+  items: TemplateItem[],
+  rules?: string[],
+  createdAt: Date,
+  updatedAt: Date,
+}
+
+// Template Response example  - Success
+const templateResponseSuccess: TemplateResponse = {
+    id: "uuid-compra-123",
+    name: "compra",
+    description: "Template para extrair informações de compras",
+    items: [
+        {
+            name: "produto",
+            type: { type: ItemAcceptedTypes.string },
+            required: true,
+            description: "Nome do produto comprado"
+        },
+        {
+            name: "quantidade",
+            type: { type: ItemAcceptedTypes.number, default: 1 },
+            required: true,
+            description: "Quantidade de produtos comprados"
+        },
+        {
+            name: "preco",
+            type: { type: ItemAcceptedTypes.number },
+            required: true,
+            description: "Preço do produto comprado"
+        },
+        {
+            name: "data",
+            type: { type: ItemAcceptedTypes.date },
+            required: true,
+            description: "Data da compra"
+        },
+        {
+            name: "local",
+            type: { type: ItemAcceptedTypes.string },
+            required: false,
+            description: "Local da compra"
+        },
+        {
+            name: "forma_pagamento",
+            type: { type: ItemAcceptedTypes.enum, values: ["pix", "cartao de credito", "cartao de debito", "dinheiro", "boleto"] },
+            required: false,
+            description: "Forma de pagamento utilizada na compra"
+        }
+    ],
+    rules: [
+        "Caso o campo `produto` seja algo genérico, que não é quantificavel, como `compra do mês`, `mercado`, `supermercado`, `feira`, etc, o campo `quantidade` deve ser preenchido com 1 e o campo `preco` deve ser preenchido com o valor total da compra."
+    ],
+    createdAt: new Date("2023-06-15T10:00:00Z"),
+    updatedAt: new Date("2023-06-15T10:00:00Z"),
+}
+
+// Create Template response example  - Error
+const templateBadRequestResponse: { code: number; error: string } = {
+    code: 400,
+    error: "Má formatação na request"
+}
+
+const templateNotFoundResponse: { code: number; error: string } = {
+    code: 404,
+    error: "Template não encontrado"
+}
+
+const templateInternalServerErrorResponse: { code: number; error: string } = {
+    code: 500,
+    error: "Erro interno do servidor"
+}
+
+
+
+// ---------------------------- //
+
+// Extraction Definitions
+
+// Request Extraction
+
+interface Extraction {
+    text?: string,
+    audio?: Blob,
+    templateId: string, 
+}
+
+// Request Extraction request example
+const extractionRequest: Extraction = {
+    text: "ontem a noite eu comprei um aspirador de po novo na amazon, por 359 reais, paguei no cartao de debito",
+    templateId: "uuid-compra-123"
+}
+// OU
+const extractionRequestAudio: Extraction = {
+    audio: new Blob([/* audio data */], { type: 'audio/wav' }),
+    templateId: "uuid-compra-123"
+}
+
+// Request Extraction response example
+enum ExtractionSourceType {
+  TEXT = "text",
+  AUDIO = "audio",
+}
+
+interface ExtractionResult {
+    [key: string]: any,
+}
+
+interface ExtractionMissingField {
+    field: string,
+    usedDefault: boolean,
+}
+
+interface ExtractionMetadata {
+    tokensUsed: number,
+    processingTime: number,
+}
+
+interface ExtractionResponse {
+    id: string,
+    createdAt: Date,
+    sourceType: ExtractionSourceType,
+    inputText: string,
+    template: TemplateResponse,
+    result: ExtractionResult,
+    missingFields: ExtractionMissingField[],
+    provider: string,
+    model: string,
+    meta?: ExtractionMetadata,
+}
+
+
+=> hoje eu fui no mercado e fiz a compra do mes, deu 750 reais, paguei 300 no pix e o resto no cartão
+=> [audio] ontem a noite eu comprei um aspirador de po novo na amazon, por 359 reais, paguei no cartao de debito
+   [template] {
+        "name": "compra",
+        "description": "Template para extrair informações de compras",
+        
+   }
+
+sucesso 200 {
+    extraction: {
+        produto: "aspirador de po",
+        quantidade: 1,
+        preco: 359,
+        data: "2023-06-15",
+        local: "amazon",
+    },
+    missingFields: []
+}
+
+sucesso parcial 207 {
+    extraction: {
+        produto: "aspirador de po",
+        quantidade: 1,
+        data: "2023-06-15",
+        local: "amazon",
+    },
+    missingFields: [ {field:"preco", usedDefault: false}]
+}
+
+sucesso parcial 207 {
+    extraction: {
+        produto: "aspirador de po",
+        quantidade: 1,
+        preco: 359,
+        data: "2023-06-15",
+        local: "amazon",
+    },
+    missingFields: [ {field:"quantidade", usedDefault: true}]
+}
+
+const response = {
+    id: extraction.id,
+    createdAt: extraction.createdAt.toISOString(),
+    updatedAt: extraction.updatedAt.toISOString(),
+    sourceType: extraction.sourceType,
+    inputText: extraction.inputText,
+    template: extraction.template,
+    result: extraction.result,
+    missingFields: extraction.missingFields,
+    complete: extraction.complete,
+    provider: extraction.provider,
+    model: extraction.model,
+    meta: extraction.meta,
+}
