@@ -1,37 +1,61 @@
 import { Elysia } from "elysia";
+import type { Logger } from "pino";
+import { getRequestId } from "@/infrastructure/helpers/logger";
 import { AppError } from "./app-error";
 import { BadRequestError, InternalServerError, RouteNotFoundError } from "./errors";
 import type { ErrorBody } from "./schema";
 
-export const httpErrorHandler = new Elysia({ name: "http-error-handler" }).onError(
-  { as: "global" },
-  ({ code, error, status }) => {
-    if (error instanceof AppError) {
-      return status(error.status, error.toBody() satisfies ErrorBody);
-    }
+export function createHttpErrorHandler(logger: Logger) {
+  return new Elysia({ name: "http-error-handler" }).onError(
+    { as: "global" },
+    ({ code, error, status, request }) => {
+      const requestId = getRequestId(request);
 
-    switch (code) {
-      case "VALIDATION": {
-        if (isHandlerResponseOutOfContract(error)) break;
+      if (error instanceof AppError) {
+        logger.warn({ requestId, brn: error.brn, message: error.message }, "request failed");
 
-        const badRequest = new BadRequestError(
-          error.all.map((issue) => issue.summary ?? "Invalid value"),
-        );
-
-        return status(badRequest.status, badRequest.toBody() satisfies ErrorBody);
+        return status(error.status, error.toBody() satisfies ErrorBody);
       }
-      case "NOT_FOUND": {
-        const notFound = new RouteNotFoundError();
 
-        return status(notFound.status, notFound.toBody() satisfies ErrorBody);
+      switch (code) {
+        case "VALIDATION": {
+          if (isHandlerResponseOutOfContract(error)) break;
+
+          const badRequest = new BadRequestError(
+            error.all.map((issue) => issue.summary ?? "Invalid value"),
+          );
+          logger.warn(
+            { requestId, brn: badRequest.brn, message: badRequest.message },
+            "request failed",
+          );
+
+          return status(badRequest.status, badRequest.toBody() satisfies ErrorBody);
+        }
+        case "NOT_FOUND": {
+          const notFound = new RouteNotFoundError();
+          logger.warn(
+            { requestId, brn: notFound.brn, message: notFound.message },
+            "request failed",
+          );
+
+          return status(notFound.status, notFound.toBody() satisfies ErrorBody);
+        }
       }
-    }
 
-    const internalError = new InternalServerError();
+      const internalError = new InternalServerError();
+      logger.error(
+        {
+          requestId,
+          brn: internalError.brn,
+          err: { message: (error as Error)?.message, stack: (error as Error)?.stack },
+        },
+        "unhandled error",
+      );
 
-    return status(internalError.status, internalError.toBody() satisfies ErrorBody);
-  },
-);
+      return status(internalError.status, internalError.toBody() satisfies ErrorBody);
+    },
+  );
+}
 
 function isHandlerResponseOutOfContract(error: { type: string }): boolean {
   return error.type === "response";

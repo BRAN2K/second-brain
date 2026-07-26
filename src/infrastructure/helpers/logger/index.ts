@@ -20,7 +20,9 @@ export function createLogger(config: Config): Logger {
     level: config.LOG_LEVEL,
     redact: { paths: REDACT_PATHS, censor: "[redacted]" },
     base: { env: config.APP_ENV },
+    transport: config.APP_ENV === "local" ? { target: "pino-pretty" } : undefined,
   });
 }
 
+export * from "./request-logger";
 export type { Logger };

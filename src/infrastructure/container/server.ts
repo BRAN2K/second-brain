@@ -1,14 +1,18 @@
 import { openapi } from "@elysiajs/openapi";
 import { Elysia } from "elysia";
 import { loadConfig } from "@/infrastructure/helpers/config";
-import { httpErrorHandler } from "@/infrastructure/helpers/errors";
+import { createHttpErrorHandler } from "@/infrastructure/helpers/errors";
+import { createLogger, createRequestLogger } from "@/infrastructure/helpers/logger";
 import { createContainer } from "./container";
 
 export function startServer() {
   const config = loadConfig();
   const container = createContainer(config);
+  const logger = createLogger(config);
 
   const app = new Elysia();
+
+  app.use(createRequestLogger(logger));
 
   app.use(
     openapi({
@@ -22,7 +26,7 @@ export function startServer() {
     }),
   );
 
-  app.use(httpErrorHandler);
+  app.use(createHttpErrorHandler(logger));
 
   app.use(container.extraction);
   app.use(container.template);
