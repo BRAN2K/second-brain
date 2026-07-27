@@ -7,7 +7,4 @@ dist
 *.log
 .idea
 .vscode
-docs
-plan.md
-ultraplan.md
 README.md

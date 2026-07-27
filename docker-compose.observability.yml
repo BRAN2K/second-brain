@@ -4,7 +4,6 @@
 # - Prometheus scrapes the app's /metrics
 # - Grafana visualizes Prometheus + Loki (datasources auto-provisioned)
 # - Loki stores logs; promtail ships container stdout to it
-# - GlitchTip receives errors (the app SDK is wired near deploy; infra is ready here)
 #
 # Endpoints are configurable so this can move to a dedicated monitoring host later.
 
@@ -51,46 +50,7 @@ services:
     depends_on:
       - loki
 
-  # --- GlitchTip (Sentry-compatible error tracking) -------------------------
-  glitchtip-postgres:
-    image: postgres:18
-    environment:
-      POSTGRES_USER: glitchtip
-      POSTGRES_PASSWORD: glitchtip
-      POSTGRES_DB: glitchtip
-    volumes:
-      - glitchtip-pg:/var/lib/postgresql
-
-  glitchtip-redis:
-    image: redis:7-alpine
-
-  glitchtip-web:
-    image: glitchtip/glitchtip:v4.2.1
-    depends_on:
-      - glitchtip-postgres
-      - glitchtip-redis
-    environment:
-      DATABASE_URL: postgres://glitchtip:glitchtip@glitchtip-postgres:5432/glitchtip
-      REDIS_URL: redis://glitchtip-redis:6379/0
-      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-change-me-in-prod}
-      PORT: "8000"
-      GLITCHTIP_DOMAIN: ${GLITCHTIP_DOMAIN:-http://localhost:8000}
-    ports:
-      - "8000:8000"
-
-  glitchtip-worker:
-    image: glitchtip/glitchtip:v4.2.1
-    command: ./bin/run-celery-with-beat.sh
-    depends_on:
-      - glitchtip-postgres
-      - glitchtip-redis
-    environment:
-      DATABASE_URL: postgres://glitchtip:glitchtip@glitchtip-postgres:5432/glitchtip
-      REDIS_URL: redis://glitchtip-redis:6379/0
-      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-change-me-in-prod}
-
 volumes:
   prometheus-data:
   grafana-data:
   loki-data:
-  glitchtip-pg:
