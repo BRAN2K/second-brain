@@ -1,4 +1,8 @@
-import { GEMINI_PROVIDER } from "@/adapters/output/llm/gemini/constants";
+import {
+  GEMINI_BASE_URL,
+  GEMINI_MODEL,
+  GEMINI_PROVIDER,
+} from "@/adapters/output/llm/gemini/constants";
 import type { GeminiGenerateContentRequest } from "@/adapters/output/llm/gemini/dtos/generate-content-request";
 import type { GeminiGenerateContentResponse } from "@/adapters/output/llm/gemini/dtos/generate-content-response";
 import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
@@ -12,11 +16,7 @@ import type {
 import { UpstreamError } from "@/infrastructure/helpers/errors";
 
 export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
-  constructor(
-    private readonly geminiApiKey: string,
-    private readonly geminiModel: string,
-    private readonly geminiUrl: string,
-  ) {}
+  constructor(private readonly geminiApiKey: string) {}
 
   async extract(input: ExtractionInput): Promise<ExtractionResult> {
     const payload = await this.generateContent(toGeminiRequest(input));
@@ -28,7 +28,7 @@ export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
   ): Promise<GeminiGenerateContentResponse> {
     let response: Response;
     try {
-      response = await fetch(`${this.geminiUrl}/models/${this.geminiModel}:generateContent`, {
+      response = await fetch(`${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

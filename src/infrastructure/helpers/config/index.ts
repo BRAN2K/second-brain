@@ -13,20 +13,8 @@ export const ConfigSchema = Type.Object({
     { default: "info" },
   ),
   DATABASE_URL: Type.String({ minLength: 1 }),
-  OPENAI_API_KEY: Type.String(),
   GROQ_API_KEY: Type.String(),
   GEMINI_API_KEY: Type.String(),
-  PROVIDER_ORDER: Type.String({ default: "groq,openai,gemini" }),
-  OPENAI_MODEL: Type.String({ default: "gpt-4o-mini" }),
-  GROQ_MODEL: Type.String({ default: "llama-3.3-70b-versatile" }),
-  GEMINI_MODEL: Type.String({ default: "gemini-2.0-flash" }),
-  GEMINI_URL: Type.String({
-    default: "https://generativelanguage.googleapis.com/v1beta",
-  }),
-  GROQ_WHISPER_MODEL: Type.String({ default: "whisper-large-v3-turbo" }),
-  GROQ_WHISPER_URL: Type.String({
-    default: "https://api.groq.com/openai/v1/audio/transcriptions",
-  }),
 });
 
 export type Config = Static<typeof ConfigSchema>;

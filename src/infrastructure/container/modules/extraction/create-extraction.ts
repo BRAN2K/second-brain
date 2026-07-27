@@ -10,16 +10,8 @@ import type { SharedDeps } from "./index";
 export function createExtractionRoute(config: Config, shared: SharedDeps) {
   const extractionRepository = new PostgresExtractionRepository(shared.db);
   const templateRepository = new PostgresTemplateRepository(shared.db);
-  const extractionLLMProvider = new GeminiExtractionLLMProvider(
-    config.GEMINI_API_KEY,
-    config.GEMINI_MODEL,
-    config.GEMINI_URL,
-  );
-  const transcriberLLMProvider = new GroqWhisperTranscriberLLMProvider(
-    config.GROQ_API_KEY,
-    config.GROQ_WHISPER_MODEL,
-    config.GROQ_WHISPER_URL,
-  );
+  const extractionLLMProvider = new GeminiExtractionLLMProvider(config.GEMINI_API_KEY);
+  const transcriberLLMProvider = new GroqWhisperTranscriberLLMProvider(config.GROQ_API_KEY);
   const createExtractionUseCase = new CreateExtractionUseCase(
     extractionLLMProvider,
     extractionRepository,
