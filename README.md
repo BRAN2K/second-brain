@@ -33,7 +33,7 @@ Bun · ElysiaJS · TypeScript · PostgreSQL 18 · Kysely (+ kysely-ctl) · Biome
 ### Requirements
 
 - **[Bun](https://bun.sh) ≥ 1.3** — `curl -fsSL https://bun.sh/install | bash`
-- **Docker** with Compose v2+ (used for PostgreSQL and integration tests).
+- **Docker** with Compose v2+ (used for PostgreSQL).
   On Windows/WSL, enable Docker Desktop → Settings → Resources → **WSL Integration**.
 
 ### 1. Install dependencies
@@ -70,19 +70,19 @@ required variable is missing or invalid.
 The default `DATABASE_URL` points at the Postgres service in `docker-compose.yml`:
 
 ```bash
-docker compose up -d postgres     # PostgreSQL 18 on localhost:5432
+bun run db:up                     # PostgreSQL 18 on localhost:5432
 ```
 
 ### 4. Run migrations
 
 ```bash
-bun run migrate:latest            # reads DATABASE_URL from .env
+bun run db:migrate                # reads DATABASE_URL from .env
 ```
 
 ### 5. Start the API
 
 ```bash
-bun run dev                       # watch mode
+bun run dev                       # brings up Postgres (bun run db:up), then watch mode
 # then, in another terminal:
 curl localhost:3000/health        # {"status":"ok"}
 curl localhost:3000/ready         # {"status":"ready"}  (checks Postgres)
@@ -98,11 +98,17 @@ docker compose up --build         # app + postgres:18
 
 ## Database & migrations (kysely-ctl)
 
+```bash
+bun run db:up                     # start Postgres (detached, waits until healthy)
+bun run db:down                   # stop Postgres, keep its data
+bun run db:reset                  # wipe Postgres data and start fresh
+```
+
 Migrations live in `migrations/` and run **separately** from code deploys
 (expand/contract); they read `DATABASE_URL` from the environment.
 
 ```bash
-bun run migrate:latest            # apply all pending migrations
+bun run db:migrate                # apply all pending migrations
 ```
 
 To add one, create `migrations/0003_my_change.ts` exporting only `up`, using `sql`
@@ -116,24 +122,14 @@ migration that reverses it.
 ## Testing
 
 ```bash
-bun test                  # everything (unit + integration; integration needs Docker)
 bun run test:unit         # unit only — fast, no Docker
-bun run test:integration  # integration — spins up an ephemeral Postgres automatically
-```
-
-Integration tests start a throwaway Postgres via `docker-compose.test.yml`, run the
-migrations, and tear it down — so they exercise real triggers/defaults/audit, not mocks.
-
-```bash
-bun run db:test:up        # start the ephemeral test DB manually (port 5433)
-bun run db:test:down      # stop and wipe it
 ```
 
 Live LLM calls are **opt-in** (never in CI). Set a provider key and `LLM_LIVE=1` to run a
 real smoke test against the configured provider(s):
 
 ```bash
-LLM_LIVE=1 GROQ_API_KEY=... bun run test:integration
+LLM_LIVE=1 GROQ_API_KEY=... bun test
 ```
 
 ---
