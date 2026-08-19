@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, mock } from "bun:test";
+import { GEMINI_BASE_URL, GEMINI_MODEL } from "@/adapters/output/llm/gemini/constants";
 import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini/gemini-provider";
 import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
 import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
@@ -14,7 +15,7 @@ function mockFetch(handler: (url: string, init?: RequestInit) => Response | Prom
 }
 
 function buildProvider(): GeminiExtractionLLMProvider {
-  return new GeminiExtractionLLMProvider("api-key", "gemini-2.5-flash", "https://gemini.test/v1");
+  return new GeminiExtractionLLMProvider("api-key");
 }
 
 describe("GeminiExtractionLLMProvider", () => {
@@ -36,7 +37,7 @@ describe("GeminiExtractionLLMProvider", () => {
     expect(result).toEqual(toExtractionResult(payload));
 
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://gemini.test/v1/models/gemini-2.5-flash:generateContent");
+    expect(url).toBe(`${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent`);
     expect(JSON.parse(init.body as string)).toEqual(
       JSON.parse(JSON.stringify(toGeminiRequest(input))),
     );

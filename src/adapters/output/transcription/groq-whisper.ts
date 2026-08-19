@@ -6,6 +6,9 @@ import type {
 } from "@/domain/extraction/ports/transcriber-llm-provider";
 import { UpstreamError } from "@/infrastructure/helpers/errors";
 
+const GROQ_WHISPER_URL = "https://api.groq.com/openai/v1/audio/transcriptions";
+const GROQ_WHISPER_MODEL = "whisper-large-v3-turbo";
+
 function transcriptionFailed(cause: unknown): UpstreamError {
   return new UpstreamError({
     resource: EXTRACTION_BRN.resource,
@@ -16,18 +19,14 @@ function transcriptionFailed(cause: unknown): UpstreamError {
 }
 
 export class GroqWhisperTranscriberLLMProvider implements ITranscriberLLMProvider {
-  constructor(
-    private readonly groqApiKey: string,
-    private readonly groqModel: string,
-    private readonly groqUrl: string,
-  ) {}
+  constructor(private readonly groqApiKey: string) {}
 
   async transcribe(req: TranscriptionRequest): Promise<TranscriptionResult> {
     const formData = this.buildFormData(req);
 
     let response: Response;
     try {
-      response = await fetch(this.groqUrl, {
+      response = await fetch(GROQ_WHISPER_URL, {
         method: "POST",
         headers: { authorization: `Bearer ${this.groqApiKey}` },
         body: formData,
@@ -48,7 +47,7 @@ export class GroqWhisperTranscriberLLMProvider implements ITranscriberLLMProvide
 
     return {
       text: json.text,
-      model: this.groqModel,
+      model: GROQ_WHISPER_MODEL,
     };
   }
 
@@ -56,7 +55,7 @@ export class GroqWhisperTranscriberLLMProvider implements ITranscriberLLMProvide
     const form = new FormData();
 
     form.append("file", req.file);
-    form.append("model", this.groqModel);
+    form.append("model", GROQ_WHISPER_MODEL);
     form.append("response_format", "json");
 
     return form;
