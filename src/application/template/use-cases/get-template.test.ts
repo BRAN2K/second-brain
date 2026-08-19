@@ -7,7 +7,7 @@ import type {
   TemplatesPage,
 } from "@/domain/template/repositories/template";
 import { TemplateItem } from "@/domain/template/value-objects/template-item";
-import { NotFoundError } from "@/infrastructure/helpers/errors";
+import { NotFoundError } from "@/libs/errors";
 import { GetTemplateUseCase } from "./get-template";
 
 function buildTemplate(): Template {

@@ -6,7 +6,7 @@ import type {
   ListTemplatesParams,
   TemplatesPage,
 } from "@/domain/template/repositories/template";
-import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
+import { UnprocessableEntityError } from "@/libs/errors";
 import { type CreateTemplateInput, CreateTemplateUseCase } from "./create-template";
 
 class FakeTemplateRepository implements ITemplateRepository {

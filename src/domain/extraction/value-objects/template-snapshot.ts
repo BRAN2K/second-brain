@@ -4,7 +4,7 @@ import { Issues } from "@/domain/shared/issues";
 import { ValueObject } from "@/domain/shared/value-object";
 import type { Template } from "@/domain/template/entities/template";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
-import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
+import { UnprocessableEntityError } from "@/libs/errors";
 
 export interface TemplateSnapshotProps {
   id: string;

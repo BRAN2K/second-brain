@@ -4,7 +4,7 @@ import type {
   TranscriptionRequest,
   TranscriptionResult,
 } from "@/domain/extraction/ports/transcriber-llm-provider";
-import { UpstreamError } from "@/infrastructure/helpers/errors";
+import { UpstreamError } from "@/libs/errors";
 
 const GROQ_WHISPER_URL = "https://api.groq.com/openai/v1/audio/transcriptions";
 const GROQ_WHISPER_MODEL = "whisper-large-v3-turbo";

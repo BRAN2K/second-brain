@@ -1,7 +1,7 @@
 import { TEMPLATE_BRN } from "@/domain/template/brn";
 import type { Template } from "@/domain/template/entities/template";
 import type { ITemplateRepository } from "@/domain/template/repositories/template";
-import { NotFoundError } from "@/infrastructure/helpers/errors";
+import { NotFoundError } from "@/libs/errors";
 
 export class GetTemplateUseCase {
   constructor(private readonly templateRepository: ITemplateRepository) {}

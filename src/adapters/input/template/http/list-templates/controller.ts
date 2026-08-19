@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import type { ListTemplatesUseCase } from "@/application/template/use-cases/list-templates";
-import { httpErrorSchemas } from "@/infrastructure/helpers/errors";
+import { httpErrorSchemas } from "@/libs/errors";
 import { toResponse } from "./mapper";
 import { listTemplatesSchemas } from "./schemas";
 

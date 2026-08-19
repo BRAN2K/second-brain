@@ -8,7 +8,7 @@ import { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-met
 import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
 import type { ITemplateRepository } from "@/domain/template/repositories/template";
-import { NotFoundError, UnprocessableEntityError } from "@/infrastructure/helpers/errors";
+import { NotFoundError, UnprocessableEntityError } from "@/libs/errors";
 import { toExtractionData } from "./mappers/extraction-data-mapper";
 
 export interface CreateExtractionInput {

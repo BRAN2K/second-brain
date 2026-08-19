@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import type { Logger } from "pino";
-import { getRequestId } from "@/infrastructure/helpers/logger";
+import { getRequestId } from "@/libs/logger";
 import { AppError } from "./app-error";
 import { BadRequestError, InternalServerError, RouteNotFoundError } from "./errors";
 import type { ErrorBody } from "./schema";

@@ -2,7 +2,7 @@ import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
 import { ValueObject } from "@/domain/shared/value-object";
-import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
+import { UnprocessableEntityError } from "@/libs/errors";
 
 export interface ExtractionMetaProps {
   inputTokens: number;

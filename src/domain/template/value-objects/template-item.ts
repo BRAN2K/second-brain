@@ -3,7 +3,7 @@ import { Issues } from "@/domain/shared/issues";
 import { ValueObject } from "@/domain/shared/value-object";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
-import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
+import { UnprocessableEntityError } from "@/libs/errors";
 
 interface TemplateItemBase {
   name: string;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
 import { extractedData, geminiPayload } from "@/adapters/output/llm/gemini/test-fixtures";
-import { UpstreamError } from "@/infrastructure/helpers/errors";
+import { UpstreamError } from "@/libs/errors";
 
 describe("toExtractionResult", () => {
   it("maps data, model and token usage (thinking tokens count as output)", () => {

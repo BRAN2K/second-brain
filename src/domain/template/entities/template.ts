@@ -4,7 +4,7 @@ import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
-import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
+import { UnprocessableEntityError } from "@/libs/errors";
 
 interface TemplateProps {
   name: string;
