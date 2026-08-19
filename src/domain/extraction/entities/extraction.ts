@@ -7,7 +7,7 @@ import type { TemplateSnapshot } from "@/domain/extraction/value-objects/templat
 import { AggregateRoot } from "@/domain/shared/aggregate-root";
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
-import { UnprocessableEntityError } from "@/infrastructure/helpers/errors";
+import { UnprocessableEntityError } from "@/libs/errors";
 
 interface ExtractionProps {
   templateId: string;

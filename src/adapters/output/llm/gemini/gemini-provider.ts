@@ -13,7 +13,7 @@ import type {
   ExtractionResult,
   IExtractionLLMProvider,
 } from "@/domain/extraction/ports/extraction-llm-provider";
-import { UpstreamError } from "@/infrastructure/helpers/errors";
+import { UpstreamError } from "@/libs/errors";
 
 export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {
   constructor(private readonly geminiApiKey: string) {}

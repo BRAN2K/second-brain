@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { ListTemplatesUseCase } from "@/application/template/use-cases/list-templates";
 import { Template } from "@/domain/template/entities/template";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import type {
@@ -6,7 +7,6 @@ import type {
   ListTemplatesParams,
   TemplatesPage,
 } from "@/domain/template/repositories/template";
-import { ListTemplatesUseCase } from "@/domain/template/use-cases/list-templates";
 import { TemplateItem } from "@/domain/template/value-objects/template-item";
 
 function buildTemplate(): Template {

@@ -5,7 +5,7 @@ import type {
   ExtractionFieldValue,
   ExtractionResult,
 } from "@/domain/extraction/ports/extraction-llm-provider";
-import { PROBLEM, UpstreamError } from "@/infrastructure/helpers/errors";
+import { PROBLEM, UpstreamError } from "@/libs/errors";
 
 function invalidProviderOutput(issues: string[]): UpstreamError {
   return new UpstreamError({

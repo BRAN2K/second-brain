@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import type {
   CreateExtractionInput,
   CreateExtractionUseCase,
-} from "@/domain/extraction/use-cases/create-extraction";
+} from "@/application/extraction/use-cases/create-extraction";
 
 export class CreateExtractionController {
   constructor(private readonly createExtractionUseCase: CreateExtractionUseCase) {}

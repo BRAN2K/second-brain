@@ -1,5 +1,5 @@
 import { type Logger, pino } from "pino";
-import type { Config } from "@/infrastructure/helpers/config";
+import type { Config } from "@/libs/config";
 
 const REDACT_PATHS = [
   "authorization",

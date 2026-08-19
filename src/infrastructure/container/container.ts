@@ -1,5 +1,5 @@
-import type { Config } from "@/infrastructure/helpers/config";
-import { createDb } from "@/infrastructure/helpers/database/postgres/client";
+import type { Config } from "@/libs/config";
+import { createDb } from "@/libs/database/postgres/client";
 import { createExtractionModule } from "./modules/extraction";
 import { createTemplateModule } from "./modules/template";
 

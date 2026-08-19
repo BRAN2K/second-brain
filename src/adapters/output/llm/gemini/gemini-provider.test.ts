@@ -4,7 +4,7 @@ import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini/gemini
 import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
 import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
 import { buildSnapshot, geminiPayload } from "@/adapters/output/llm/gemini/test-fixtures";
-import { UpstreamError } from "@/infrastructure/helpers/errors";
+import { UpstreamError } from "@/libs/errors";
 
 const originalFetch = globalThis.fetch;
 
