@@ -1,6 +1,6 @@
 import { CreateTemplateController } from "@/adapters/input/template/http/create-template/controller";
 import { PostgresTemplateRepository } from "@/adapters/output/database/postgres/template/template-repository";
-import { CreateTemplateUseCase } from "@/domain/template/use-cases/create-template";
+import { CreateTemplateUseCase } from "@/application/template/use-cases/create-template";
 import type { Config } from "@/infrastructure/helpers/config";
 import type { SharedDeps } from "./index";
 

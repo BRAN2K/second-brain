@@ -1,6 +1,6 @@
 import { ListTemplatesController } from "@/adapters/input/template/http/list-templates/controller";
 import { PostgresTemplateRepository } from "@/adapters/output/database/postgres/template/template-repository";
-import { ListTemplatesUseCase } from "@/domain/template/use-cases/list-templates";
+import { ListTemplatesUseCase } from "@/application/template/use-cases/list-templates";
 import type { Config } from "@/infrastructure/helpers/config";
 import type { SharedDeps } from "./index";
 

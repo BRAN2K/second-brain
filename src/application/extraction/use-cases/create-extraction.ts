@@ -4,12 +4,12 @@ import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-sourc
 import type { IExtractionLLMProvider } from "@/domain/extraction/ports/extraction-llm-provider";
 import type { ITranscriberLLMProvider } from "@/domain/extraction/ports/transcriber-llm-provider";
 import type { IExtractionRepository } from "@/domain/extraction/repositories/extraction";
-import { toExtractionData } from "@/domain/extraction/use-cases/mappers/extraction-data-mapper";
 import { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
 import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
 import type { ITemplateRepository } from "@/domain/template/repositories/template";
 import { NotFoundError, UnprocessableEntityError } from "@/infrastructure/helpers/errors";
+import { toExtractionData } from "./mappers/extraction-data-mapper";
 
 export interface CreateExtractionInput {
   sourceType: ExtractionSourceType;
