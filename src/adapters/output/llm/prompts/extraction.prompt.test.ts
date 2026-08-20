@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { buildSnapshot } from "@/adapters/output/llm/gemini/test-fixtures";
-import { buildExtractionPrompt } from "@/adapters/output/llm/prompts/extraction-prompt";
+import { buildSnapshot } from "@/adapters/output/llm/gemini/test.fixtures";
+import { buildExtractionPrompt } from "@/adapters/output/llm/prompts/extraction.prompt";
 import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot.value-object";
 import { Template } from "@/domain/template/entities/template.aggregate";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";

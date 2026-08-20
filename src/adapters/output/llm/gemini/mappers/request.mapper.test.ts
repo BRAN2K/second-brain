@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
-import { buildSnapshot } from "@/adapters/output/llm/gemini/test-fixtures";
-import { buildExtractionPrompt } from "@/adapters/output/llm/prompts/extraction-prompt";
+import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request.mapper";
+import { buildSnapshot } from "@/adapters/output/llm/gemini/test.fixtures";
+import { buildExtractionPrompt } from "@/adapters/output/llm/prompts/extraction.prompt";
 
 describe("toGeminiRequest", () => {
   it("sends the input text as the user message", () => {

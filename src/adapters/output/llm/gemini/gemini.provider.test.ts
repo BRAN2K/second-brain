@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, mock } from "bun:test";
 import { GEMINI_BASE_URL, GEMINI_MODEL } from "@/adapters/output/llm/gemini/constants";
-import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini/gemini-provider";
-import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
-import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
-import { buildSnapshot, geminiPayload } from "@/adapters/output/llm/gemini/test-fixtures";
+import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini/gemini.provider";
+import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request.mapper";
+import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response.mapper";
+import { buildSnapshot, geminiPayload } from "@/adapters/output/llm/gemini/test.fixtures";
 import { UpstreamError } from "@/libs/errors";
 
 const originalFetch = globalThis.fetch;

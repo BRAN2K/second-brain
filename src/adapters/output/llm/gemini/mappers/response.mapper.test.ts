@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
-import { extractedData, geminiPayload } from "@/adapters/output/llm/gemini/test-fixtures";
+import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response.mapper";
+import { extractedData, geminiPayload } from "@/adapters/output/llm/gemini/test.fixtures";
 import { UpstreamError } from "@/libs/errors";
 
 describe("toExtractionResult", () => {

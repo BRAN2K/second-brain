@@ -6,7 +6,7 @@ import type {
   TemplatesPage,
 } from "@/domain/template/repositories/template.repository";
 import type { Database } from "../types";
-import { toDomain, toPersistence } from "./mappers/template-mapper";
+import { toDomain, toPersistence } from "./mappers/template.mapper";
 
 export class PostgresTemplateRepository implements ITemplateRepository {
   constructor(private readonly db: Kysely<Database>) {}

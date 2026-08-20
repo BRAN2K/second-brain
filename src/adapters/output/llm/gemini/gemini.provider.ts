@@ -10,8 +10,8 @@ import {
   GEMINI_MODEL,
   GEMINI_PROVIDER,
 } from "@/adapters/output/llm/gemini/constants";
-import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
-import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
+import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request.mapper";
+import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response.mapper";
 import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { UpstreamError } from "@/libs/errors";
 

@@ -2,7 +2,7 @@ import type { GeminiGenerateContentRequest } from "@/adapters/output/llm/gemini/
 import type { GeminiSchema } from "@/adapters/output/llm/gemini/dtos/response-schema";
 import type { ExtractionInput } from "@/domain/extraction/ports/extraction-llm-provider.port";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
-import { buildExtractionPrompt } from "@/adapters/output/llm/prompts/extraction-prompt";
+import { buildExtractionPrompt } from "@/adapters/output/llm/prompts/extraction.prompt";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
 
 export function toGeminiRequest(input: ExtractionInput): GeminiGenerateContentRequest {

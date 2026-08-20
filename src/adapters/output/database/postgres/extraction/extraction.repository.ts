@@ -5,7 +5,7 @@ import type {
   ListExtractionsParams,
 } from "@/domain/extraction/repositories/extraction.repository";
 import type { Database } from "../types";
-import { toDomain, toPersistence } from "./mappers/extraction-mapper";
+import { toDomain, toPersistence } from "./mappers/extraction.mapper";
 
 export class PostgresExtractionRepository implements IExtractionRepository {
   constructor(private readonly db: Kysely<Database>) {}
