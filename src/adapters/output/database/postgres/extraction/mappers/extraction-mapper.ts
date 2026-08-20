@@ -1,15 +1,15 @@
 import type { Insertable, Selectable } from "kysely";
-import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import type { ExtractionMetaProps } from "@/domain/extraction/value-objects/extraction-meta";
-import type { ExtractionMissingFieldProps } from "@/domain/extraction/value-objects/extraction-missing-field";
-import type { TemplateSnapshotProps } from "@/domain/extraction/value-objects/template-snapshot";
-import type { TemplateItemProps } from "@/domain/template/value-objects/template-item";
+import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type.enum";
+import type { ExtractionMetaProps } from "@/domain/extraction/value-objects/extraction-meta.value-object";
+import type { ExtractionMissingFieldProps } from "@/domain/extraction/value-objects/extraction-missing-field.value-object";
+import type { TemplateSnapshotProps } from "@/domain/extraction/value-objects/template-snapshot.value-object";
+import type { TemplateItemProps } from "@/domain/template/value-objects/template-item.value-object";
 import type { ExtractionTable } from "../../types";
-import { Extraction } from "@/domain/extraction/entities/extraction";
-import { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
-import { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field";
-import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
-import { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { Extraction } from "@/domain/extraction/entities/extraction.aggregate";
+import { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta.value-object";
+import { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field.value-object";
+import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot.value-object";
+import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 
 // Persisted jsonb shape: items are the VO props, not class instances.
 type TemplateSnapshotRow = Omit<TemplateSnapshotProps, "items"> & {

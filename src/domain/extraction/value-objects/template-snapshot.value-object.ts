@@ -1,5 +1,5 @@
-import type { Template } from "@/domain/template/entities/template";
-import type { TemplateItem } from "@/domain/template/value-objects/template-item";
+import type { Template } from "@/domain/template/entities/template.aggregate";
+import type { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 import { Guard } from "@/domain/core/guard";
 import { Issues } from "@/domain/core/issues";
 import { ValueObject } from "@/domain/core/value-object";

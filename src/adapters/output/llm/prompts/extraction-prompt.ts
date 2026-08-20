@@ -1,4 +1,4 @@
-import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
+import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot.value-object";
 
 // Provider-agnostic system prompt for extraction. It expresses the
 // IExtractionLLMProvider contract: fill every template field, null when the

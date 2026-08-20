@@ -4,7 +4,7 @@ import type {
   ExtractionInput,
   ExtractionResult,
   IExtractionLLMProvider,
-} from "@/domain/extraction/ports/extraction-llm-provider";
+} from "@/domain/extraction/ports/extraction-llm-provider.port";
 import {
   GEMINI_BASE_URL,
   GEMINI_MODEL,

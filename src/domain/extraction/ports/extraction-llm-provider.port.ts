@@ -1,4 +1,4 @@
-import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
+import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot.value-object";
 
 export type ExtractionFieldValue = string | number | boolean | null;
 

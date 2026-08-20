@@ -1,4 +1,4 @@
-import type { TemplatesPage } from "@/domain/template/repositories/template";
+import type { TemplatesPage } from "@/domain/template/repositories/template.repository";
 import type { ListTemplatesResponse } from "./response";
 
 export function toResponse(page: TemplatesPage): ListTemplatesResponse {

@@ -1,4 +1,4 @@
-import type { Template } from "@/domain/template/entities/template";
+import type { Template } from "@/domain/template/entities/template.aggregate";
 
 export interface ListTemplatesParams {
   cursor?: string;

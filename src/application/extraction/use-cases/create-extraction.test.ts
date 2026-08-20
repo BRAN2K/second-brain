@@ -1,29 +1,29 @@
-import type { Extraction } from "@/domain/extraction/entities/extraction";
+import type { Extraction } from "@/domain/extraction/entities/extraction.aggregate";
 import type {
   ExtractionFieldValue,
   ExtractionInput,
   ExtractionResult,
   IExtractionLLMProvider,
-} from "@/domain/extraction/ports/extraction-llm-provider";
+} from "@/domain/extraction/ports/extraction-llm-provider.port";
 import type {
   ITranscriberLLMProvider,
   TranscriptionRequest,
   TranscriptionResult,
-} from "@/domain/extraction/ports/transcriber-llm-provider";
+} from "@/domain/extraction/ports/transcriber-llm-provider.port";
 import type {
   IExtractionRepository,
   ListExtractionsParams,
-} from "@/domain/extraction/repositories/extraction";
+} from "@/domain/extraction/repositories/extraction.repository";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
   TemplatesPage,
-} from "@/domain/template/repositories/template";
+} from "@/domain/template/repositories/template.repository";
 import { describe, expect, it } from "bun:test";
-import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import { Template } from "@/domain/template/entities/template";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
-import { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type.enum";
+import { Template } from "@/domain/template/entities/template.aggregate";
+import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
+import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 import { NotFoundError, UnprocessableEntityError } from "@/libs/errors";
 import { CreateExtractionUseCase } from "./create-extraction";
 

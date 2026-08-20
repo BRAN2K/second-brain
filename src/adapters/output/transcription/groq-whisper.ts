@@ -2,7 +2,7 @@ import type {
   ITranscriberLLMProvider,
   TranscriptionRequest,
   TranscriptionResult,
-} from "@/domain/extraction/ports/transcriber-llm-provider";
+} from "@/domain/extraction/ports/transcriber-llm-provider.port";
 import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { UpstreamError } from "@/libs/errors";
 

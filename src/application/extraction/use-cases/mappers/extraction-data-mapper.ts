@@ -1,6 +1,6 @@
-import type { ExtractionFieldValue } from "@/domain/extraction/ports/extraction-llm-provider";
-import type { TemplateItem } from "@/domain/template/value-objects/template-item";
-import { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field";
+import type { ExtractionFieldValue } from "@/domain/extraction/ports/extraction-llm-provider.port";
+import type { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
+import { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field.value-object";
 
 export interface ExtractionData {
   result: Record<string, ExtractionFieldValue>;

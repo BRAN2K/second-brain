@@ -2,11 +2,11 @@ import type {
   ITemplateRepository,
   ListTemplatesParams,
   TemplatesPage,
-} from "@/domain/template/repositories/template";
+} from "@/domain/template/repositories/template.repository";
 import { describe, expect, it } from "bun:test";
-import { Template } from "@/domain/template/entities/template";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
-import { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { Template } from "@/domain/template/entities/template.aggregate";
+import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
+import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 import { NotFoundError } from "@/libs/errors";
 import { GetTemplateUseCase } from "./get-template";
 

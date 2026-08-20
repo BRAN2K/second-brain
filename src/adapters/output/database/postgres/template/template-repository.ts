@@ -1,10 +1,10 @@
 import type { Kysely } from "kysely";
-import type { Template } from "@/domain/template/entities/template";
+import type { Template } from "@/domain/template/entities/template.aggregate";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
   TemplatesPage,
-} from "@/domain/template/repositories/template";
+} from "@/domain/template/repositories/template.repository";
 import type { Database } from "../types";
 import { toDomain, toPersistence } from "./mappers/template-mapper";
 

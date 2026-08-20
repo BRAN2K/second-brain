@@ -1,8 +1,8 @@
 import type { GeminiGenerateContentResponse } from "@/adapters/output/llm/gemini/dtos/generate-content-response";
-import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
-import { Template } from "@/domain/template/entities/template";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
-import { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot.value-object";
+import { Template } from "@/domain/template/entities/template.aggregate";
+import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
+import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 
 export function buildSnapshot(): TemplateSnapshot {
   return TemplateSnapshot.fromTemplate(

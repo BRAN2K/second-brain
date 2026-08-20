@@ -1,8 +1,8 @@
 import type { Insertable, Selectable } from "kysely";
-import type { TemplateItemProps } from "@/domain/template/value-objects/template-item";
+import type { TemplateItemProps } from "@/domain/template/value-objects/template-item.value-object";
 import type { TemplateTable } from "../../types";
-import { Template } from "@/domain/template/entities/template";
-import { TemplateItem } from "@/domain/template/value-objects/template-item";
+import { Template } from "@/domain/template/entities/template.aggregate";
+import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 
 export function toPersistence(template: Template): Insertable<TemplateTable> {
   return {

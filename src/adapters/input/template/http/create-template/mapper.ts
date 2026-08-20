@@ -1,4 +1,4 @@
-import type { Template } from "@/domain/template/entities/template";
+import type { Template } from "@/domain/template/entities/template.aggregate";
 import type { CreateTemplateResponse } from "./response";
 
 export function toResponse(template: Template): CreateTemplateResponse {

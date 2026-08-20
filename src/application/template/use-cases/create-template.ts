@@ -1,7 +1,7 @@
-import type { ITemplateRepository } from "@/domain/template/repositories/template";
-import type { TemplateItemProps } from "@/domain/template/value-objects/template-item";
-import { Template } from "@/domain/template/entities/template";
-import { TemplateItem } from "@/domain/template/value-objects/template-item";
+import type { ITemplateRepository } from "@/domain/template/repositories/template.repository";
+import type { TemplateItemProps } from "@/domain/template/value-objects/template-item.value-object";
+import { Template } from "@/domain/template/entities/template.aggregate";
+import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 
 export interface CreateTemplateInput {
   name: string;

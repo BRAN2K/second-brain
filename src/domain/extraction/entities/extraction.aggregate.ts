@@ -1,8 +1,8 @@
 import type { EntityProps } from "@/domain/core/entity";
-import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
-import type { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
-import type { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field";
-import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
+import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type.enum";
+import type { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta.value-object";
+import type { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field.value-object";
+import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot.value-object";
 import { uuidv7 } from "uuidv7";
 import { AggregateRoot } from "@/domain/core/aggregate-root";
 import { Guard } from "@/domain/core/guard";

@@ -2,7 +2,7 @@ import type { GeminiGenerateContentResponse } from "@/adapters/output/llm/gemini
 import type {
   ExtractionFieldValue,
   ExtractionResult,
-} from "@/domain/extraction/ports/extraction-llm-provider";
+} from "@/domain/extraction/ports/extraction-llm-provider.port";
 import { GEMINI_PROVIDER } from "@/adapters/output/llm/gemini/constants";
 import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { PROBLEM, UpstreamError } from "@/libs/errors";

@@ -1,4 +1,7 @@
-import type { ITemplateRepository, TemplatesPage } from "@/domain/template/repositories/template";
+import type {
+  ITemplateRepository,
+  TemplatesPage,
+} from "@/domain/template/repositories/template.repository";
 
 export interface ListTemplatesInput {
   cursor?: string;

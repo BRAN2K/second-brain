@@ -1,9 +1,9 @@
 import type { Kysely } from "kysely";
-import type { Extraction } from "@/domain/extraction/entities/extraction";
+import type { Extraction } from "@/domain/extraction/entities/extraction.aggregate";
 import type {
   IExtractionRepository,
   ListExtractionsParams,
-} from "@/domain/extraction/repositories/extraction";
+} from "@/domain/extraction/repositories/extraction.repository";
 import type { Database } from "../types";
 import { toDomain, toPersistence } from "./mappers/extraction-mapper";
 

@@ -1,6 +1,6 @@
 import type { Static } from "elysia";
 import { t } from "elysia";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
+import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
 
 const baseItemProps = {
   name: t.String(),

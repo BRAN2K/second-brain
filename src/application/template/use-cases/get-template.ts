@@ -1,5 +1,5 @@
-import type { Template } from "@/domain/template/entities/template";
-import type { ITemplateRepository } from "@/domain/template/repositories/template";
+import type { Template } from "@/domain/template/entities/template.aggregate";
+import type { ITemplateRepository } from "@/domain/template/repositories/template.repository";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
 import { NotFoundError } from "@/libs/errors";
 

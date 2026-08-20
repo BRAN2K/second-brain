@@ -1,5 +1,5 @@
 import type { EntityProps } from "@/domain/core/entity";
-import type { TemplateItem } from "@/domain/template/value-objects/template-item";
+import type { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 import { uuidv7 } from "uuidv7";
 import { AggregateRoot } from "@/domain/core/aggregate-root";
 import { Guard } from "@/domain/core/guard";
