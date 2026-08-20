@@ -1,8 +1,8 @@
 import { uuidv7 } from "uuidv7";
-import { AggregateRoot } from "@/domain/shared/aggregate-root";
-import type { EntityProps } from "@/domain/shared/entity";
-import { Guard } from "@/domain/shared/guard";
-import { Issues } from "@/domain/shared/issues";
+import { AggregateRoot } from "@/domain/core/aggregate-root";
+import type { EntityProps } from "@/domain/core/entity";
+import { Guard } from "@/domain/core/guard";
+import { Issues } from "@/domain/core/issues";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 import { UnprocessableEntityError } from "@/libs/errors";

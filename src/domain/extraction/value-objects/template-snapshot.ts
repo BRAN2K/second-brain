@@ -1,7 +1,7 @@
+import { Guard } from "@/domain/core/guard";
+import { Issues } from "@/domain/core/issues";
+import { ValueObject } from "@/domain/core/value-object";
 import { EXTRACTION_BRN } from "@/domain/extraction/brn";
-import { Guard } from "@/domain/shared/guard";
-import { Issues } from "@/domain/shared/issues";
-import { ValueObject } from "@/domain/shared/value-object";
 import type { Template } from "@/domain/template/entities/template";
 import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 import { UnprocessableEntityError } from "@/libs/errors";

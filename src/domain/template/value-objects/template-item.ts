@@ -1,6 +1,6 @@
-import { Guard } from "@/domain/shared/guard";
-import { Issues } from "@/domain/shared/issues";
-import { ValueObject } from "@/domain/shared/value-object";
+import { Guard } from "@/domain/core/guard";
+import { Issues } from "@/domain/core/issues";
+import { ValueObject } from "@/domain/core/value-object";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import { UnprocessableEntityError } from "@/libs/errors";

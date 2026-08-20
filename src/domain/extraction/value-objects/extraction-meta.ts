@@ -1,7 +1,7 @@
+import { Guard } from "@/domain/core/guard";
+import { Issues } from "@/domain/core/issues";
+import { ValueObject } from "@/domain/core/value-object";
 import { EXTRACTION_BRN } from "@/domain/extraction/brn";
-import { Guard } from "@/domain/shared/guard";
-import { Issues } from "@/domain/shared/issues";
-import { ValueObject } from "@/domain/shared/value-object";
 import { UnprocessableEntityError } from "@/libs/errors";
 
 export interface ExtractionMetaProps {
