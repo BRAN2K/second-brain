@@ -1,13 +1,14 @@
-import { describe, expect, it } from "bun:test";
 import type { Template } from "@/domain/template/entities/template";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
   TemplatesPage,
 } from "@/domain/template/repositories/template";
+import type { CreateTemplateInput } from "./create-template";
+import { describe, expect, it } from "bun:test";
+import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import { UnprocessableEntityError } from "@/libs/errors";
-import { type CreateTemplateInput, CreateTemplateUseCase } from "./create-template";
+import { CreateTemplateUseCase } from "./create-template";
 
 class FakeTemplateRepository implements ITemplateRepository {
   saved: Template[] = [];

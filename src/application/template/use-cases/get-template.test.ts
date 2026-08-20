@@ -1,11 +1,11 @@
-import { describe, expect, it } from "bun:test";
-import { Template } from "@/domain/template/entities/template";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
   TemplatesPage,
 } from "@/domain/template/repositories/template";
+import { describe, expect, it } from "bun:test";
+import { Template } from "@/domain/template/entities/template";
+import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import { TemplateItem } from "@/domain/template/value-objects/template-item";
 import { NotFoundError } from "@/libs/errors";
 import { GetTemplateUseCase } from "./get-template";

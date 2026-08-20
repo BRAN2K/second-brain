@@ -1,10 +1,10 @@
+import type { EntityProps } from "@/domain/core/entity";
+import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 import { uuidv7 } from "uuidv7";
 import { AggregateRoot } from "@/domain/core/aggregate-root";
-import type { EntityProps } from "@/domain/core/entity";
 import { Guard } from "@/domain/core/guard";
 import { Issues } from "@/domain/core/issues";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
-import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 import { UnprocessableEntityError } from "@/libs/errors";
 
 interface TemplateProps extends EntityProps {

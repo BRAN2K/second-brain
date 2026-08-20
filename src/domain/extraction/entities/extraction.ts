@@ -1,13 +1,13 @@
-import { uuidv7 } from "uuidv7";
-import { AggregateRoot } from "@/domain/core/aggregate-root";
 import type { EntityProps } from "@/domain/core/entity";
-import { Guard } from "@/domain/core/guard";
-import { Issues } from "@/domain/core/issues";
-import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
 import type { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
 import type { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field";
 import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
+import { uuidv7 } from "uuidv7";
+import { AggregateRoot } from "@/domain/core/aggregate-root";
+import { Guard } from "@/domain/core/guard";
+import { Issues } from "@/domain/core/issues";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { UnprocessableEntityError } from "@/libs/errors";
 
 interface ExtractionProps extends EntityProps {

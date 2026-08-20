@@ -1,5 +1,5 @@
-import { Elysia } from "elysia";
 import type { CreateTemplateUseCase } from "@/application/template/use-cases/create-template";
+import { Elysia } from "elysia";
 import { httpErrorSchemas } from "@/libs/errors";
 import { toResponse } from "./mapper";
 import { createTemplateSchemas } from "./schemas";

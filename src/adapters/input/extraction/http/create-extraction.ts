@@ -1,8 +1,8 @@
-import { Elysia } from "elysia";
 import type {
   CreateExtractionInput,
   CreateExtractionUseCase,
 } from "@/application/extraction/use-cases/create-extraction";
+import { Elysia } from "elysia";
 
 export class CreateExtractionController {
   constructor(private readonly createExtractionUseCase: CreateExtractionUseCase) {}

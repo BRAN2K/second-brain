@@ -1,5 +1,5 @@
-import { BRN_BASE } from "./brn";
 import type { ErrorBody } from "./schema";
+import { BRN_BASE } from "./brn";
 
 export interface AppErrorOptions {
   resource: string;

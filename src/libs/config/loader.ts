@@ -1,5 +1,6 @@
+import type { Config } from "./schema";
 import { Value } from "@sinclair/typebox/value";
-import { type Config, ConfigSchema } from "./schema";
+import { ConfigSchema } from "./schema";
 
 export class ConfigError extends Error {
   constructor(public readonly issues: string[]) {

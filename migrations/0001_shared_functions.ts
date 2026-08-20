@@ -1,4 +1,5 @@
-import { type Kysely, sql } from "kysely";
+import type { Kysely } from "kysely";
+import { sql } from "kysely";
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   // Generic trigger fn: bumps updated_at on every UPDATE. Reused by any table

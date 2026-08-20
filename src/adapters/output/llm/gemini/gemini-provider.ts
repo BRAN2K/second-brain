@@ -1,18 +1,18 @@
-import {
-  GEMINI_BASE_URL,
-  GEMINI_MODEL,
-  GEMINI_PROVIDER,
-} from "@/adapters/output/llm/gemini/constants";
 import type { GeminiGenerateContentRequest } from "@/adapters/output/llm/gemini/dtos/generate-content-request";
 import type { GeminiGenerateContentResponse } from "@/adapters/output/llm/gemini/dtos/generate-content-response";
-import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
-import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
-import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import type {
   ExtractionInput,
   ExtractionResult,
   IExtractionLLMProvider,
 } from "@/domain/extraction/ports/extraction-llm-provider";
+import {
+  GEMINI_BASE_URL,
+  GEMINI_MODEL,
+  GEMINI_PROVIDER,
+} from "@/adapters/output/llm/gemini/constants";
+import { toGeminiRequest } from "@/adapters/output/llm/gemini/mappers/request-mapper";
+import { toExtractionResult } from "@/adapters/output/llm/gemini/mappers/response-mapper";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { UpstreamError } from "@/libs/errors";
 
 export class GeminiExtractionLLMProvider implements IExtractionLLMProvider {

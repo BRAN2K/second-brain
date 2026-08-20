@@ -1,9 +1,7 @@
-import { Template } from "@/domain/template/entities/template";
 import type { ITemplateRepository } from "@/domain/template/repositories/template";
-import {
-  TemplateItem,
-  type TemplateItemProps,
-} from "@/domain/template/value-objects/template-item";
+import type { TemplateItemProps } from "@/domain/template/value-objects/template-item";
+import { Template } from "@/domain/template/entities/template";
+import { TemplateItem } from "@/domain/template/value-objects/template-item";
 
 export interface CreateTemplateInput {
   name: string;

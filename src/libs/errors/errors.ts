@@ -1,4 +1,5 @@
-import { AppError, type AppErrorOptions } from "./app-error";
+import type { AppErrorOptions } from "./app-error";
+import { AppError } from "./app-error";
 import { PROBLEM, RESOURCE, SCOPE } from "./brn";
 
 export class UnprocessableEntityError extends AppError {

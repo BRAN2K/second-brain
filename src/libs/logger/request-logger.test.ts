@@ -1,5 +1,5 @@
-import { describe, expect, it } from "bun:test";
 import type { Logger } from "pino";
+import { describe, expect, it } from "bun:test";
 import { createRequestLogger } from "./request-logger";
 
 type LogCall = {

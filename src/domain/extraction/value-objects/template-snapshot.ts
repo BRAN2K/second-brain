@@ -1,9 +1,9 @@
+import type { Template } from "@/domain/template/entities/template";
+import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 import { Guard } from "@/domain/core/guard";
 import { Issues } from "@/domain/core/issues";
 import { ValueObject } from "@/domain/core/value-object";
 import { EXTRACTION_BRN } from "@/domain/extraction/brn";
-import type { Template } from "@/domain/template/entities/template";
-import type { TemplateItem } from "@/domain/template/value-objects/template-item";
 import { UnprocessableEntityError } from "@/libs/errors";
 
 export interface TemplateSnapshotProps {

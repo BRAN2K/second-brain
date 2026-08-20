@@ -1,9 +1,9 @@
-import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import type {
   ITranscriberLLMProvider,
   TranscriptionRequest,
   TranscriptionResult,
 } from "@/domain/extraction/ports/transcriber-llm-provider";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { UpstreamError } from "@/libs/errors";
 
 const GROQ_WHISPER_URL = "https://api.groq.com/openai/v1/audio/transcriptions";

@@ -1,4 +1,5 @@
-import { type Static, t } from "elysia";
+import type { Static } from "elysia";
+import { t } from "elysia";
 import { templateItemSchema } from "./request";
 
 export const createTemplateResponseSchema = t.Object(

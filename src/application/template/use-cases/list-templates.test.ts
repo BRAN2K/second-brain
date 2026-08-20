@@ -1,12 +1,12 @@
-import { describe, expect, it } from "bun:test";
-import { ListTemplatesUseCase } from "@/application/template/use-cases/list-templates";
-import { Template } from "@/domain/template/entities/template";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import type {
   ITemplateRepository,
   ListTemplatesParams,
   TemplatesPage,
 } from "@/domain/template/repositories/template";
+import { describe, expect, it } from "bun:test";
+import { ListTemplatesUseCase } from "@/application/template/use-cases/list-templates";
+import { Template } from "@/domain/template/entities/template";
+import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 import { TemplateItem } from "@/domain/template/value-objects/template-item";
 
 function buildTemplate(): Template {

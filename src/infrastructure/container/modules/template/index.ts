@@ -1,7 +1,8 @@
-import { type AnyElysia, Elysia } from "elysia";
+import type { AnyElysia } from "elysia";
 import type { Kysely } from "kysely";
 import type { Database } from "@/adapters/output/database/postgres/types";
 import type { Config } from "@/libs/config";
+import { Elysia } from "elysia";
 import { createTemplateRoute } from "./create-template";
 import { listTemplatesRoute } from "./list-templates";
 

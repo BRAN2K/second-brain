@@ -1,13 +1,13 @@
-import { EXTRACTION_BRN } from "@/domain/extraction/brn";
-import { Extraction } from "@/domain/extraction/entities/extraction";
-import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
 import type { IExtractionLLMProvider } from "@/domain/extraction/ports/extraction-llm-provider";
 import type { ITranscriberLLMProvider } from "@/domain/extraction/ports/transcriber-llm-provider";
 import type { IExtractionRepository } from "@/domain/extraction/repositories/extraction";
+import type { ITemplateRepository } from "@/domain/template/repositories/template";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
+import { Extraction } from "@/domain/extraction/entities/extraction";
+import { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type";
 import { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta";
 import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
-import type { ITemplateRepository } from "@/domain/template/repositories/template";
 import { NotFoundError, UnprocessableEntityError } from "@/libs/errors";
 import { toExtractionData } from "./mappers/extraction-data-mapper";
 

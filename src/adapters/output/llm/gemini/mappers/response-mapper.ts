@@ -1,10 +1,10 @@
-import { GEMINI_PROVIDER } from "@/adapters/output/llm/gemini/constants";
 import type { GeminiGenerateContentResponse } from "@/adapters/output/llm/gemini/dtos/generate-content-response";
-import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import type {
   ExtractionFieldValue,
   ExtractionResult,
 } from "@/domain/extraction/ports/extraction-llm-provider";
+import { GEMINI_PROVIDER } from "@/adapters/output/llm/gemini/constants";
+import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { PROBLEM, UpstreamError } from "@/libs/errors";
 
 function invalidProviderOutput(issues: string[]): UpstreamError {

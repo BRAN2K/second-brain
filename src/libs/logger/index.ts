@@ -1,5 +1,6 @@
-import { type Logger, pino } from "pino";
+import type { Logger } from "pino";
 import type { Config } from "@/libs/config";
+import { pino } from "pino";
 
 const REDACT_PATHS = [
   "authorization",
@@ -23,5 +24,5 @@ export function createLogger(config: Config): Logger {
   });
 }
 
-export * from "./request-logger";
 export type { Logger };
+export * from "./request-logger";

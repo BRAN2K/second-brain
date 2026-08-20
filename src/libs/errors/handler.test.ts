@@ -1,6 +1,6 @@
+import type { Logger } from "pino";
 import { describe, expect, it } from "bun:test";
 import { Elysia, t } from "elysia";
-import type { Logger } from "pino";
 import { RESOURCE } from "./brn";
 import { NotFoundError } from "./errors";
 import { createHttpErrorHandler } from "./handler";

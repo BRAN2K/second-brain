@@ -1,4 +1,5 @@
-import { type Static, t } from "elysia";
+import type { Static } from "elysia";
+import { t } from "elysia";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind";
 
 const baseItemProps = {

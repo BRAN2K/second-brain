@@ -1,4 +1,5 @@
-import { type Static, Type } from "@sinclair/typebox";
+import type { Static } from "@sinclair/typebox";
+import { Type } from "@sinclair/typebox";
 
 export const ConfigSchema = Type.Object({
   APP_ENV: Type.String({ default: "local" }),
