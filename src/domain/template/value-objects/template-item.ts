@@ -45,9 +45,24 @@ export type TemplateItemProps =
   | DateTemplateItem
   | EnumTemplateItem;
 
-export class TemplateItem extends ValueObject<TemplateItemProps> {
+export class TemplateItem extends ValueObject {
+  readonly name: string;
+  readonly kind: TemplateFieldKind;
+  readonly required: boolean;
+  readonly rules?: string[];
+  readonly description?: string;
+  readonly default?: string | number | boolean;
+  readonly values?: string[];
+
   private constructor(props: TemplateItemProps) {
-    super(props);
+    super();
+    this.name = props.name;
+    this.kind = props.kind;
+    this.required = props.required;
+    this.rules = props.rules;
+    this.description = props.description;
+    this.default = props.default;
+    this.values = props.kind === TemplateFieldKind.Enum ? props.values : undefined;
   }
 
   static create(props: TemplateItemProps): TemplateItem {
@@ -78,30 +93,8 @@ export class TemplateItem extends ValueObject<TemplateItemProps> {
     return new TemplateItem(props);
   }
 
-  get name(): string {
-    return this.props.name;
-  }
-  get kind(): TemplateFieldKind {
-    return this.props.kind;
-  }
-  get default(): TemplateItemProps["default"] {
-    return this.props.default;
-  }
-  get values(): string[] | undefined {
-    return this.props.kind === TemplateFieldKind.Enum ? [...this.props.values] : undefined;
-  }
-  get required(): boolean {
-    return this.props.required;
-  }
-  get rules(): string[] | undefined {
-    return this.props.rules ? [...this.props.rules] : undefined;
-  }
-  get description(): string | undefined {
-    return this.props.description;
-  }
-
   toJSON(): TemplateItemProps {
-    return { ...this.props };
+    return { ...this } as TemplateItemProps;
   }
 
   private static defaultIssue(item: TemplateItemProps): string | null {

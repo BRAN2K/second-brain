@@ -137,7 +137,12 @@ describe("CreateExtractionUseCase", () => {
 
     // quantidade absent -> default applied; preco null -> required missing
     expect(extraction.result).toEqual({ produto: "aspirador", local: "amazon", quantidade: 1 });
-    expect(extraction.missingFields.map((field) => field.toJSON())).toEqual([
+    expect(
+      extraction.missingFields.map((field) => ({
+        field: field.field,
+        usedDefault: field.usedDefault,
+      })),
+    ).toEqual([
       { field: "quantidade", usedDefault: true },
       { field: "preco", usedDefault: false },
     ]);

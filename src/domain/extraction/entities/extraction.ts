@@ -5,11 +5,12 @@ import type { ExtractionMeta } from "@/domain/extraction/value-objects/extractio
 import type { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field";
 import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot";
 import { AggregateRoot } from "@/domain/shared/aggregate-root";
+import type { EntityProps } from "@/domain/shared/entity";
 import { Guard } from "@/domain/shared/guard";
 import { Issues } from "@/domain/shared/issues";
 import { UnprocessableEntityError } from "@/libs/errors";
 
-interface ExtractionProps {
+interface ExtractionProps extends EntityProps {
   templateId: string;
   createdAt: Date;
   sourceType: ExtractionSourceType;
@@ -34,16 +35,30 @@ export interface CreateExtractionProps {
   meta: ExtractionMeta;
 }
 
-export interface ReconstituteExtractionProps extends ExtractionProps {
-  id: string;
-}
+export class Extraction extends AggregateRoot {
+  readonly templateId: string;
+  readonly createdAt: Date;
+  readonly sourceType: ExtractionSourceType;
+  readonly inputText: string;
+  readonly template: TemplateSnapshot;
+  readonly result: unknown | null;
+  readonly missingFields: ExtractionMissingField[];
+  readonly provider: string;
+  readonly model: string;
+  readonly meta: ExtractionMeta;
 
-export class Extraction extends AggregateRoot<string> {
-  private readonly props: ExtractionProps;
-
-  private constructor(id: string, props: ExtractionProps) {
-    super(id);
-    this.props = props;
+  private constructor(props: ExtractionProps) {
+    super(props);
+    this.templateId = props.templateId;
+    this.createdAt = new Date(props.createdAt);
+    this.sourceType = props.sourceType;
+    this.inputText = props.inputText;
+    this.template = props.template;
+    this.result = props.result;
+    this.missingFields = props.missingFields;
+    this.provider = props.provider;
+    this.model = props.model;
+    this.meta = props.meta;
   }
 
   static create(input: CreateExtractionProps): Extraction {
@@ -63,7 +78,8 @@ export class Extraction extends AggregateRoot<string> {
       throw new UnprocessableEntityError(issues.all, { resource: EXTRACTION_BRN.resource });
     }
 
-    return new Extraction(uuidv7(), {
+    return new Extraction({
+      id: uuidv7(),
       templateId: input.templateId,
       createdAt: new Date(),
       sourceType: input.sourceType,
@@ -77,42 +93,11 @@ export class Extraction extends AggregateRoot<string> {
     });
   }
 
-  static reconstitute(input: ReconstituteExtractionProps): Extraction {
-    const { id, ...props } = input;
-    return new Extraction(id, props);
+  static reconstitute(props: ExtractionProps): Extraction {
+    return new Extraction(props);
   }
 
-  get templateId(): string {
-    return this.props.templateId;
-  }
-  get createdAt(): Date {
-    return this.props.createdAt;
-  }
-  get sourceType(): ExtractionSourceType {
-    return this.props.sourceType;
-  }
-  get inputText(): string {
-    return this.props.inputText;
-  }
-  get template(): TemplateSnapshot {
-    return this.props.template;
-  }
-  get result(): unknown | null {
-    return this.props.result;
-  }
-  get missingFields(): ExtractionMissingField[] {
-    return [...this.props.missingFields];
-  }
   get complete(): boolean {
-    return this.props.missingFields.length === 0;
-  }
-  get provider(): string {
-    return this.props.provider;
-  }
-  get model(): string {
-    return this.props.model;
-  }
-  get meta(): ExtractionMeta {
-    return this.props.meta;
+    return this.missingFields.length === 0;
   }
 }

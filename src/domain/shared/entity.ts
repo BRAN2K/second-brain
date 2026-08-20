@@ -1,11 +1,15 @@
-export abstract class Entity<TId> {
-  readonly id: TId;
+export interface EntityProps {
+  id: string;
+}
 
-  protected constructor(id: TId) {
-    this.id = id;
+export abstract class Entity {
+  readonly id: string;
+
+  protected constructor(props: EntityProps) {
+    this.id = props.id;
   }
 
-  equals(other: Entity<TId>): boolean {
+  equals(other: Entity): boolean {
     return this.id === other.id;
   }
 }

@@ -10,9 +10,16 @@ export interface ExtractionMetaProps {
   transcriptionDurationMs: number;
 }
 
-export class ExtractionMeta extends ValueObject<ExtractionMetaProps> {
+export class ExtractionMeta extends ValueObject {
+  readonly inputTokens: number;
+  readonly outputTokens: number;
+  readonly transcriptionDurationMs: number;
+
   private constructor(props: ExtractionMetaProps) {
-    super(props);
+    super();
+    this.inputTokens = props.inputTokens;
+    this.outputTokens = props.outputTokens;
+    this.transcriptionDurationMs = props.transcriptionDurationMs;
   }
 
   static create(props: ExtractionMetaProps): ExtractionMeta {
@@ -36,19 +43,5 @@ export class ExtractionMeta extends ValueObject<ExtractionMetaProps> {
 
   static reconstitute(props: ExtractionMetaProps): ExtractionMeta {
     return new ExtractionMeta(props);
-  }
-
-  get inputTokens(): number {
-    return this.props.inputTokens;
-  }
-  get outputTokens(): number {
-    return this.props.outputTokens;
-  }
-  get transcriptionDurationMs(): number {
-    return this.props.transcriptionDurationMs;
-  }
-
-  toJSON(): ExtractionMetaProps {
-    return { ...this.props };
   }
 }

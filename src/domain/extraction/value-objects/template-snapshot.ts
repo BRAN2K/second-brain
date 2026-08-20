@@ -14,9 +14,20 @@ export interface TemplateSnapshotProps {
   rules: string[];
 }
 
-export class TemplateSnapshot extends ValueObject<TemplateSnapshotProps> {
+export class TemplateSnapshot extends ValueObject {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly items: TemplateItem[];
+  readonly rules: string[];
+
   private constructor(props: TemplateSnapshotProps) {
-    super(props);
+    super();
+    this.id = props.id;
+    this.name = props.name;
+    this.description = props.description;
+    this.items = props.items;
+    this.rules = props.rules;
   }
 
   static create(props: TemplateSnapshotProps): TemplateSnapshot {
@@ -45,28 +56,8 @@ export class TemplateSnapshot extends ValueObject<TemplateSnapshotProps> {
       id: template.id,
       name: template.name,
       description: template.description,
-      items: template.items,
-      rules: template.rules,
+      items: [...template.items],
+      rules: [...template.rules],
     });
-  }
-
-  get id(): string {
-    return this.props.id;
-  }
-  get name(): string {
-    return this.props.name;
-  }
-  get description(): string {
-    return this.props.description;
-  }
-  get items(): TemplateItem[] {
-    return [...this.props.items];
-  }
-  get rules(): string[] {
-    return [...this.props.rules];
-  }
-
-  toJSON(): TemplateSnapshotProps {
-    return { ...this.props };
   }
 }

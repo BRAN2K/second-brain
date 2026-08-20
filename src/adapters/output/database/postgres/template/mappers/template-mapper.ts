@@ -12,7 +12,7 @@ export function toPersistence(template: Template): Insertable<TemplateTable> {
     name: template.name,
     description: template.description,
     items: JSON.stringify(template.items),
-    rules: template.rules,
+    rules: [...template.rules],
     created_at: template.createdAt,
   };
 }

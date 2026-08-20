@@ -8,7 +8,7 @@ export function toResponse(page: TemplatesPage): ListTemplatesResponse {
       name: template.name,
       description: template.description,
       items: template.items.map((item) => item.toJSON()),
-      rules: template.rules,
+      rules: [...template.rules],
       createdAt: template.createdAt.toISOString(),
       updatedAt: template.updatedAt.toISOString(),
     })),

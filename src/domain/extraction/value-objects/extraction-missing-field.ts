@@ -9,9 +9,14 @@ export interface ExtractionMissingFieldProps {
   usedDefault: boolean;
 }
 
-export class ExtractionMissingField extends ValueObject<ExtractionMissingFieldProps> {
+export class ExtractionMissingField extends ValueObject {
+  readonly field: string;
+  readonly usedDefault: boolean;
+
   private constructor(props: ExtractionMissingFieldProps) {
-    super(props);
+    super();
+    this.field = props.field;
+    this.usedDefault = props.usedDefault;
   }
 
   static create(props: ExtractionMissingFieldProps): ExtractionMissingField {
@@ -31,16 +36,5 @@ export class ExtractionMissingField extends ValueObject<ExtractionMissingFieldPr
 
   static reconstitute(props: ExtractionMissingFieldProps): ExtractionMissingField {
     return new ExtractionMissingField(props);
-  }
-
-  get field(): string {
-    return this.props.field;
-  }
-  get usedDefault(): boolean {
-    return this.props.usedDefault;
-  }
-
-  toJSON(): ExtractionMissingFieldProps {
-    return { ...this.props };
   }
 }

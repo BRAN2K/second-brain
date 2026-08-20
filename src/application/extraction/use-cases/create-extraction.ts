@@ -48,7 +48,7 @@ export class CreateExtractionUseCase {
       instructions: input.instructions,
     });
 
-    const { result, missingFields } = toExtractionData(template.items, output.data);
+    const { result, missingFields } = toExtractionData([...template.items], output.data);
 
     const extraction = Extraction.create({
       templateId: template.id,

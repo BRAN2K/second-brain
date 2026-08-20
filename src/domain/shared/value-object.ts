@@ -1,13 +1,5 @@
-import { isDeepStrictEqual } from "node:util";
-
-export abstract class ValueObject<T extends object> {
-  protected readonly props: T;
-
-  constructor(props: T) {
-    this.props = Object.freeze(props);
-  }
-
-  equals(other: ValueObject<T>): boolean {
+export abstract class ValueObject {
+  equals(other: ValueObject): boolean {
     if (other === this) {
       return true;
     }
@@ -16,6 +8,6 @@ export abstract class ValueObject<T extends object> {
       return false;
     }
 
-    return isDeepStrictEqual(this.props, other.props);
+    return Bun.deepEquals(this, other, true);
   }
 }
