@@ -5,7 +5,7 @@ import { PostgresExtractionRepository } from "@/adapters/output/database/postgre
 import { PostgresTemplateRepository } from "@/adapters/output/database/postgres/template/template-repository";
 import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini/gemini-provider";
 import { GroqWhisperTranscriberLLMProvider } from "@/adapters/output/transcription/groq-whisper";
-import { CreateExtractionUseCase } from "@/application/extraction/use-cases/create-extraction";
+import { CreateExtractionUseCase } from "@/application/extraction/use-cases/create-extraction.use-case";
 
 export function createExtractionRoute(config: Config, shared: SharedDeps) {
   const extractionRepository = new PostgresExtractionRepository(shared.db);

@@ -1,4 +1,4 @@
-import type { ListTemplatesUseCase } from "@/application/template/use-cases/list-templates";
+import type { ListTemplatesUseCase } from "@/application/template/use-cases/list-templates.use-case";
 import { Elysia } from "elysia";
 import { httpErrorSchemas } from "@/libs/errors";
 import { toResponse } from "./mapper";

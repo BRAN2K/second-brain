@@ -4,7 +4,7 @@ import type {
   TemplatesPage,
 } from "@/domain/template/repositories/template.repository";
 import { describe, expect, it } from "bun:test";
-import { ListTemplatesUseCase } from "@/application/template/use-cases/list-templates";
+import { ListTemplatesUseCase } from "@/application/template/use-cases/list-templates.use-case";
 import { Template } from "@/domain/template/entities/template.aggregate";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
 import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";

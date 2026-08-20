@@ -25,7 +25,7 @@ import { Template } from "@/domain/template/entities/template.aggregate";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
 import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 import { NotFoundError, UnprocessableEntityError } from "@/libs/errors";
-import { CreateExtractionUseCase } from "./create-extraction";
+import { CreateExtractionUseCase } from "./create-extraction.use-case";
 
 function buildTemplate(): Template {
   return Template.create({

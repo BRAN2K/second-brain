@@ -8,7 +8,7 @@ import { Template } from "@/domain/template/entities/template.aggregate";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
 import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 import { NotFoundError } from "@/libs/errors";
-import { GetTemplateUseCase } from "./get-template";
+import { GetTemplateUseCase } from "./get-template.use-case";
 
 function buildTemplate(): Template {
   return Template.create({

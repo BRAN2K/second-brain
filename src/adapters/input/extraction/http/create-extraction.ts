@@ -1,7 +1,7 @@
 import type {
   CreateExtractionInput,
   CreateExtractionUseCase,
-} from "@/application/extraction/use-cases/create-extraction";
+} from "@/application/extraction/use-cases/create-extraction.use-case";
 import { Elysia } from "elysia";
 
 export class CreateExtractionController {

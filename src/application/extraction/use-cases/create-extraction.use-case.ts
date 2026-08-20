@@ -9,7 +9,7 @@ import { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-met
 import { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot.value-object";
 import { TEMPLATE_BRN } from "@/domain/template/brn";
 import { NotFoundError, UnprocessableEntityError } from "@/libs/errors";
-import { toExtractionData } from "./mappers/extraction-data-mapper";
+import { toExtractionData } from "./mappers/extraction-data.mapper";
 
 export interface CreateExtractionInput {
   sourceType: ExtractionSourceType;

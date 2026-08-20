@@ -4,11 +4,11 @@ import type {
   ListTemplatesParams,
   TemplatesPage,
 } from "@/domain/template/repositories/template.repository";
-import type { CreateTemplateInput } from "./create-template";
+import type { CreateTemplateInput } from "./create-template.use-case";
 import { describe, expect, it } from "bun:test";
 import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
 import { UnprocessableEntityError } from "@/libs/errors";
-import { CreateTemplateUseCase } from "./create-template";
+import { CreateTemplateUseCase } from "./create-template.use-case";
 
 class FakeTemplateRepository implements ITemplateRepository {
   saved: Template[] = [];
