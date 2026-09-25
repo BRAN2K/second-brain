@@ -1,6 +1,6 @@
 import type { Config } from "@/libs/config";
 import type { SharedDeps } from "./index";
-import { CreateExtractionController } from "@/adapters/input/extraction/http/create-extraction";
+import { CreateExtractionController } from "@/adapters/input/extraction/http/create-extraction/controller";
 import { PostgresExtractionRepository } from "@/adapters/output/database/postgres/extraction/extraction.repository";
 import { PostgresTemplateRepository } from "@/adapters/output/database/postgres/template/template.repository";
 import { GeminiExtractionLLMProvider } from "@/adapters/output/llm/gemini/gemini.provider";
