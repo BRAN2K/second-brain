@@ -2,6 +2,7 @@ import type { CreateTemplateUseCase } from "@/application/template/use-cases/cre
 import { Elysia } from "elysia";
 import { httpErrorSchemas } from "@/libs/errors";
 import { toResponse } from "./mapper";
+import { routeConfig } from "./route";
 import { createTemplateSchemas } from "./schemas";
 
 export class CreateTemplateController {
@@ -18,20 +19,7 @@ export class CreateTemplateController {
 
           return status(201, toResponse(template));
         },
-        {
-          body: "template.create.request",
-          response: {
-            201: "template.create.response",
-            400: "error",
-            422: "error",
-            500: "error",
-          },
-          detail: {
-            summary: "Create a template",
-            description: "Creates an extraction template with its field definitions.",
-            tags: ["Templates"],
-          },
-        },
+        routeConfig,
       );
   }
 }

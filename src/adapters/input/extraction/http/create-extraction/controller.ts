@@ -2,6 +2,7 @@ import type { CreateExtractionUseCase } from "@/application/extraction/use-cases
 import { Elysia } from "elysia";
 import { httpErrorSchemas } from "@/libs/errors";
 import { toResponse } from "./mapper";
+import { routeConfig } from "./route";
 import { createExtractionSchemas } from "./schemas";
 
 export class CreateExtractionController {
@@ -18,21 +19,7 @@ export class CreateExtractionController {
 
           return status(201, toResponse(extraction));
         },
-        {
-          body: "extraction.create.request",
-          response: {
-            201: "extraction.create.response",
-            400: "error",
-            404: "error",
-            422: "error",
-            500: "error",
-          },
-          detail: {
-            summary: "Create an extraction",
-            description: "Extracts structured data from text or an audio file using a template.",
-            tags: ["Extractions"],
-          },
-        },
+        routeConfig,
       );
   }
 }

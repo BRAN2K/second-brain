@@ -2,6 +2,7 @@ import type { ListTemplatesUseCase } from "@/application/template/use-cases/list
 import { Elysia } from "elysia";
 import { httpErrorSchemas } from "@/libs/errors";
 import { toResponse } from "./mapper";
+import { routeConfig } from "./route";
 import { listTemplatesSchemas } from "./schemas";
 
 export class ListTemplatesController {
@@ -21,19 +22,7 @@ export class ListTemplatesController {
 
           return toResponse(page);
         },
-        {
-          query: "template.list.request",
-          response: {
-            200: "template.list.response",
-            400: "error",
-            500: "error",
-          },
-          detail: {
-            summary: "List templates",
-            description: "Lists extraction templates with cursor-based pagination.",
-            tags: ["Templates"],
-          },
-        },
+        routeConfig,
       );
   }
 }
