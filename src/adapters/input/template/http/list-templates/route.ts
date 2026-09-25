@@ -1,9 +1,13 @@
+import { errorSchema } from "@/libs/errors";
+import { listTemplatesRequestSchema } from "./request";
+import { listTemplatesResponseSchema } from "./response";
+
 export const routeConfig = {
-  query: "template.list.request",
+  query: listTemplatesRequestSchema,
   response: {
-    200: "template.list.response",
-    400: "error",
-    500: "error",
+    200: listTemplatesResponseSchema,
+    400: errorSchema,
+    500: errorSchema,
   },
   detail: {
     summary: "List templates",

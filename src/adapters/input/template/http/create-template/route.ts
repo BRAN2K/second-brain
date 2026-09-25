@@ -1,10 +1,14 @@
+import { errorSchema } from "@/libs/errors";
+import { createTemplateRequestSchema } from "./request";
+import { createTemplateResponseSchema } from "./response";
+
 export const routeConfig = {
-  body: "template.create.request",
+  body: createTemplateRequestSchema,
   response: {
-    201: "template.create.response",
-    400: "error",
-    422: "error",
-    500: "error",
+    201: createTemplateResponseSchema,
+    400: errorSchema,
+    422: errorSchema,
+    500: errorSchema,
   },
   detail: {
     summary: "Create a template",

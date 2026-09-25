@@ -1,11 +1,15 @@
+import { errorSchema } from "@/libs/errors";
+import { createExtractionRequestSchema } from "./request";
+import { createExtractionResponseSchema } from "./response";
+
 export const routeConfig = {
-  body: "extraction.create.request",
+  body: createExtractionRequestSchema,
   response: {
-    201: "extraction.create.response",
-    400: "error",
-    404: "error",
-    422: "error",
-    500: "error",
+    201: createExtractionResponseSchema,
+    400: errorSchema,
+    404: errorSchema,
+    422: errorSchema,
+    500: errorSchema,
   },
   detail: {
     summary: "Create an extraction",
