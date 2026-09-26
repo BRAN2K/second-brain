@@ -1,5 +1,4 @@
 import type { Logger } from "pino";
-import type { Config } from "@/libs/config";
 import { pino } from "pino";
 
 const REDACT_PATHS = [
@@ -15,12 +14,17 @@ const REDACT_PATHS = [
   "GEMINI_API_KEY",
 ];
 
-export function createLogger(config: Config): Logger {
+interface LoggerConfig {
+  level: string;
+  env: string;
+}
+
+export function createLogger(config: LoggerConfig): Logger {
   return pino({
-    level: config.LOG_LEVEL,
+    level: config.level,
     redact: { paths: REDACT_PATHS, censor: "[redacted]" },
-    base: { env: config.APP_ENV },
-    transport: config.APP_ENV === "local" ? { target: "pino-pretty" } : undefined,
+    base: { env: config.env },
+    transport: config.env === "local" ? { target: "pino-pretty" } : undefined,
   });
 }
 

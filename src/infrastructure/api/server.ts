@@ -1,14 +1,16 @@
 import { openapi } from "@elysiajs/openapi";
 import { Elysia } from "elysia";
-import { loadConfig } from "@/libs/config";
+import { env } from "@/infrastructure/env";
 import { createHttpErrorHandler } from "@/libs/errors";
 import { createLogger, createRequestLogger } from "@/libs/logger";
-import { createContainer } from "./container";
+import { extractionRoutes } from "./extraction";
+import { templateRoutes } from "./template";
 
 export function startServer() {
-  const config = loadConfig();
-  const container = createContainer(config);
-  const logger = createLogger(config);
+  const logger = createLogger({
+    level: env.LOG_LEVEL,
+    env: env.ENV,
+  });
 
   const app = new Elysia();
 
@@ -28,10 +30,10 @@ export function startServer() {
 
   app.use(createHttpErrorHandler(logger));
 
-  app.use(container.extraction);
-  app.use(container.template);
+  app.use(extractionRoutes());
+  app.use(templateRoutes());
 
-  app.listen(config.PORT);
+  app.listen(env.PORT);
 
   return app;
 }

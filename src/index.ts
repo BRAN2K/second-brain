@@ -1,3 +1,3 @@
-import { startServer } from "@/infrastructure/container/server";
+import { startServer } from "@/infrastructure/api/server";
 
 startServer();
