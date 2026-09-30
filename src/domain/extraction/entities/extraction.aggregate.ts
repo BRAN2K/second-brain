@@ -1,14 +1,14 @@
-import type { EntityProps } from "@/domain/core/entity";
-import type { ExtractionSourceType } from "@/domain/extraction/enums/extraction-source-type.enum";
-import type { ExtractionMeta } from "@/domain/extraction/value-objects/extraction-meta.value-object";
-import type { ExtractionMissingField } from "@/domain/extraction/value-objects/extraction-missing-field.value-object";
-import type { TemplateSnapshot } from "@/domain/extraction/value-objects/template-snapshot.value-object";
+import type { EntityProps } from "../../_core/entity";
+import type { ExtractionSourceType } from "../enums/extraction-source-type.enum";
+import type { ExtractionMeta } from "../value-objects/extraction-meta.value-object";
+import type { ExtractionMissingField } from "../value-objects/extraction-missing-field.value-object";
+import type { TemplateSnapshot } from "../value-objects/template-snapshot.value-object";
 import { uuidv7 } from "uuidv7";
-import { AggregateRoot } from "@/domain/core/aggregate-root";
-import { Guard } from "@/domain/core/guard";
-import { Issues } from "@/domain/core/issues";
-import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { UnprocessableEntityError } from "@/libs/errors";
+import { AggregateRoot } from "../../_core/aggregate-root";
+import { Guard } from "../../_core/guard";
+import { Issues } from "../../_core/issues";
+import { EXTRACTION_BRN } from "../brn";
 
 interface ExtractionProps extends EntityProps {
   templateId: string;

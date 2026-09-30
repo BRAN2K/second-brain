@@ -7,7 +7,8 @@ export class EnvLoader<S extends EnvSchema> {
   private readonly _env: EnvValues<S>;
 
   private constructor(schema: S) {
-    const errors = [...Value.Errors(schema, process.env)];
+    const raw = Value.Convert(schema, { ...process.env });
+    const errors = [...Value.Errors(schema, raw)];
 
     if (errors.length > 0) {
       const issues = errors.map((error) => `${error.path}: ${error.message}`).join("\n");
@@ -15,7 +16,7 @@ export class EnvLoader<S extends EnvSchema> {
       throw new Error(`Invalid environment variables:\n${issues}`);
     }
 
-    this._env = Object.freeze(Value.Parse(schema, process.env));
+    this._env = Object.freeze(Value.Parse(schema, raw));
   }
 
   private static getInstance<S extends EnvSchema>(schema: S): EnvLoader<S> {

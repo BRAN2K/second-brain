@@ -4,12 +4,22 @@ import { uuidv7 } from "uuidv7";
 
 type TrackedRequest = Request & { requestId?: string; startTime?: number };
 
+const QUIET_PATH_PREFIXES = ["/health", "/openapi"];
+
+function isQuietPath(path: string): boolean {
+  return QUIET_PATH_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+}
+
 export function createRequestLogger(logger: Logger) {
   return new Elysia({ name: "request-logger" })
     .onRequest(({ request }) => {
       const trackedRequest = request as TrackedRequest;
       trackedRequest.requestId = uuidv7();
       trackedRequest.startTime = performance.now();
+
+      if (isQuietPath(new URL(request.url).pathname)) {
+        return;
+      }
 
       logger.info(
         {
@@ -27,6 +37,11 @@ export function createRequestLogger(logger: Logger) {
           ? undefined
           : performance.now() - trackedRequest.startTime;
       const status = typeof set.status === "number" ? set.status : 200;
+
+      if (isQuietPath(path)) {
+        return;
+      }
+
       const fields = {
         requestId: trackedRequest.requestId,
         method: request.method,

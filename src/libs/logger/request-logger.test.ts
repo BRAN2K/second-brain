@@ -75,4 +75,17 @@ describe("createRequestLogger", () => {
     expect(calls[1].fields.status).toBe(404);
     expect(typeof calls[1].fields.durationMs).toBe("number");
   });
+
+  it("does not log health or docs paths", async () => {
+    const { logger, calls } = createFakeLogger();
+    const app = createRequestLogger(logger)
+      .get("/health/liveness", () => "ok")
+      .get("/openapi", () => "docs");
+
+    await app.handle(new Request("http://localhost/health/liveness"));
+    await app.handle(new Request("http://localhost/openapi"));
+    await Bun.sleep(0);
+
+    expect(calls).toHaveLength(0);
+  });
 });

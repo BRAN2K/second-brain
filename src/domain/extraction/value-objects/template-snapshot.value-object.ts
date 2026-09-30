@@ -1,10 +1,10 @@
-import type { Template } from "@/domain/template/entities/template.aggregate";
-import type { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
-import { Guard } from "@/domain/core/guard";
-import { Issues } from "@/domain/core/issues";
-import { ValueObject } from "@/domain/core/value-object";
-import { EXTRACTION_BRN } from "@/domain/extraction/brn";
+import type { Template } from "../../template/entities/template.aggregate";
+import type { TemplateItem } from "../../template/value-objects/template-item.value-object";
 import { UnprocessableEntityError } from "@/libs/errors";
+import { Guard } from "../../_core/guard";
+import { Issues } from "../../_core/issues";
+import { ValueObject } from "../../_core/value-object";
+import { EXTRACTION_BRN } from "../brn";
 
 export interface TemplateSnapshotProps {
   id: string;

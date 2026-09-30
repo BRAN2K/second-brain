@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { Template } from "@/domain/template/entities/template.aggregate";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
-import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 import { UnprocessableEntityError } from "@/libs/errors";
+import { TemplateFieldKind } from "../enums/template-field-kind.enum";
+import { TemplateItem } from "../value-objects/template-item.value-object";
+import { Template } from "./template.aggregate";
 
 function baseTemplate(): Template {
   return Template.create({

@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "module": "src/index.ts",
+  "module": "src/entrypoints/api/server.ts",
   "scripts": {
-    "dev": "bun run db:up && bun --watch src/index.ts",
-    "start": "bun src/index.ts",
+    "dev": "bun run db:up && bun --watch src/entrypoints/api/server.ts",
+    "start": "bun src/entrypoints/api/server.ts",
     "test:unit": "bun test",
     "typecheck": "tsc --noEmit",
     "fullcheck": "bun run lint && bun run typecheck && bun run test:unit",
