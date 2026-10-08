@@ -12,7 +12,10 @@ export function createHttpErrorHandler(logger: Logger) {
       const requestId = getRequestId(request);
 
       if (error instanceof AppError) {
-        logger.warn({ requestId, brn: error.brn, message: error.message }, "request failed");
+        logger.warn(
+          { requestId, brn: error.brn, message: error.message, err: error.cause },
+          "request failed",
+        );
 
         return status(error.status, error.toBody() satisfies ErrorBody);
       }

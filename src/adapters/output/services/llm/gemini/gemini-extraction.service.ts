@@ -26,33 +26,61 @@ export class GeminiExtractionService implements ExtractionLLMProviderService {
   private async generateContent(
     request: GeminiGenerateContentRequest,
   ): Promise<GeminiGenerateContentResponse> {
-    let response: Response;
-    try {
-      response = await fetch(`${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent`, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-goog-api-key": this.geminiApiKey,
-        },
-        body: JSON.stringify(request),
-      });
-    } catch (cause) {
-      throw providerFailed(cause);
+    const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent`;
+    let lastFailure: UpstreamError | undefined;
+
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-goog-api-key": this.geminiApiKey,
+          },
+          body: JSON.stringify(request),
+        });
+      } catch (cause) {
+        throw providerFailed(cause);
+      }
+
+      if (!response.ok) {
+        const failure = await httpFailure(response);
+        if (!isRetryable(response.status) || attempt === MAX_RETRIES) {
+          throw failure;
+        }
+        lastFailure = failure;
+        await sleep(backoffDelay(attempt));
+        continue;
+      }
+
+      return (await response.json()) as GeminiGenerateContentResponse;
     }
 
-    if (!response.ok) {
-      throw await httpFailure(response);
-    }
-
-    return (await response.json()) as GeminiGenerateContentResponse;
+    throw lastFailure;
   }
+}
+
+const MAX_RETRIES = 3;
+const RETRYABLE_STATUS = [429, 500, 503];
+
+function isRetryable(status: number): boolean {
+  return RETRYABLE_STATUS.includes(status);
+}
+
+function backoffDelay(attempt: number): number {
+  return 2 ** attempt * 500;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function providerFailed(cause: unknown): UpstreamError {
   return new UpstreamError({
     resource: EXTRACTION_BRN.resource,
     scope: EXTRACTION_BRN.scope.provider,
-    message: `Provider "${GEMINI_PROVIDER}" failed`,
+    message: `Provider failed: "${GEMINI_PROVIDER}"`,
     cause,
   });
 }
