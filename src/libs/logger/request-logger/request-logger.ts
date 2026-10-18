@@ -1,16 +1,19 @@
-import type { Logger } from "pino";
 import { Elysia } from "elysia";
 import { uuidv7 } from "uuidv7";
+import { Logger } from "../logger/logger";
 
 type TrackedRequest = Request & { requestId?: string; startTime?: number };
 
-const QUIET_PATH_PREFIXES = ["/health", "/openapi"];
-
-function isQuietPath(path: string): boolean {
-  return QUIET_PATH_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+export interface RequestLoggerOptions {
+  logger?: Logger;
+  quietPathPrefixes: string[];
 }
 
-export function createRequestLogger(logger: Logger) {
+export function createRequestLogger(options: RequestLoggerOptions) {
+  const { quietPathPrefixes, logger = Logger.getInstance() } = options;
+  const isQuietPath = (path: string) =>
+    quietPathPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+
   return new Elysia({ name: "request-logger" })
     .onRequest(({ request }) => {
       const trackedRequest = request as TrackedRequest;

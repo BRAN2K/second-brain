@@ -1,4 +1,4 @@
-import type { Logger } from "pino";
+import type { Logger } from "../logger/logger";
 import { describe, expect, it } from "bun:test";
 import { createRequestLogger } from "./request-logger";
 
@@ -27,7 +27,7 @@ function createFakeLogger(): { logger: Logger; calls: LogCall[] } {
 describe("createRequestLogger", () => {
   it("logs request start and finish sharing the same requestId", async () => {
     const { logger, calls } = createFakeLogger();
-    const app = createRequestLogger(logger).get("/ping", () => "pong");
+    const app = createRequestLogger({ logger, quietPathPrefixes: [] }).get("/ping", () => "pong");
 
     const response = await app.handle(new Request("http://localhost/ping"));
     await Bun.sleep(0);
@@ -43,7 +43,7 @@ describe("createRequestLogger", () => {
 
   it("logs the finish event at warn for 4xx and error for 5xx", async () => {
     const { logger, calls } = createFakeLogger();
-    const app = createRequestLogger(logger)
+    const app = createRequestLogger({ logger, quietPathPrefixes: [] })
       .get("/client-error", ({ set }) => {
         set.status = 404;
         return "nope";
@@ -64,7 +64,7 @@ describe("createRequestLogger", () => {
 
   it("still correlates start and finish for routes that don't match anything", async () => {
     const { logger, calls } = createFakeLogger();
-    const app = createRequestLogger(logger);
+    const app = createRequestLogger({ logger, quietPathPrefixes: [] });
 
     await app.handle(new Request("http://localhost/does-not-exist"));
     await Bun.sleep(0);
@@ -78,7 +78,7 @@ describe("createRequestLogger", () => {
 
   it("does not log health or docs paths", async () => {
     const { logger, calls } = createFakeLogger();
-    const app = createRequestLogger(logger)
+    const app = createRequestLogger({ logger, quietPathPrefixes: ["/health", "/openapi"] })
       .get("/health/liveness", () => "ok")
       .get("/openapi", () => "docs");
 

@@ -4,19 +4,17 @@ import { registerGracefulShutdown } from "@/entrypoints/graceful-shutdown";
 import { env } from "@/infrastructure/env";
 import { createPostgresClient } from "@/libs/database/postgres/client";
 import { createHttpErrorHandler } from "@/libs/errors";
-import { createLogger, createRequestLogger } from "@/libs/logger";
+import { createRequestLogger, logger } from "@/libs/logger";
 import { docsRoutes } from "./docs/docs.route";
 import { extractionRoutes } from "./extraction/extraction.routes";
 import { healthRoutes } from "./health/health.routes";
 import { templateRoutes } from "./template/template.routes";
 
 export function startServer() {
-  const logger = createLogger({
-    level: env.LOG_LEVEL,
-    env: env.APP_ENV,
+  const requestLogger = createRequestLogger({
+    quietPathPrefixes: ["/health", "/openapi", "/docs"],
   });
-  const requestLogger = createRequestLogger(logger);
-  const errorHandler = createHttpErrorHandler(logger);
+  const errorHandler = createHttpErrorHandler();
   const db = createPostgresClient<Database>(env.DATABASE_URL);
 
   const app = new Elysia();
@@ -30,6 +28,8 @@ export function startServer() {
   app.use(templateRoutes(db));
 
   app.listen(env.PORT);
+
+  logger.info({ port: env.PORT, env: env.APP_ENV }, "application started");
 
   registerGracefulShutdown(async () => {
     await app.stop();

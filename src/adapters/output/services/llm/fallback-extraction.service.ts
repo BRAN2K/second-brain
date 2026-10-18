@@ -3,6 +3,7 @@ import type {
   ExtractionLLMProviderService,
   ExtractionResult,
 } from "@/domain/extraction/services/extraction-llm-provider.service";
+import { logger } from "@/libs/logger";
 
 export class FallbackExtractionService implements ExtractionLLMProviderService {
   constructor(private readonly providers: ExtractionLLMProviderService[]) {}
@@ -15,6 +16,7 @@ export class FallbackExtractionService implements ExtractionLLMProviderService {
         return await provider.extract(input);
       } catch (cause) {
         lastError = cause;
+        logger.warn({ err: cause }, "extraction provider failed, trying the next one");
       }
     }
 
