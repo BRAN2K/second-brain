@@ -1,9 +1,8 @@
-import type { Database } from "@/adapters/output/database/postgres/types";
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 
-export function createDb(connectionString: string): Kysely<Database> {
-  return new Kysely<Database>({
+export function createPostgresClient<T>(connectionString: string): Kysely<T> {
+  return new Kysely<T>({
     dialect: new PostgresDialect({
       pool: new Pool({ connectionString }),
     }),

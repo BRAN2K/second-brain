@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
-import { TemplateItem } from "@/domain/template/value-objects/template-item.value-object";
 import { UnprocessableEntityError } from "@/libs/errors";
+import { TemplateFieldKind } from "../enums/template-field-kind.enum";
+import { TemplateItem } from "./template-item.value-object";
 
 describe("TemplateItem", () => {
   it("creates a valid item without a default", () => {

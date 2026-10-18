@@ -1,9 +1,9 @@
-import { Guard } from "@/domain/core/guard";
-import { Issues } from "@/domain/core/issues";
-import { ValueObject } from "@/domain/core/value-object";
-import { TEMPLATE_BRN } from "@/domain/template/brn";
-import { TemplateFieldKind } from "@/domain/template/enums/template-field-kind.enum";
 import { UnprocessableEntityError } from "@/libs/errors";
+import { Guard } from "../../_core/guard";
+import { Issues } from "../../_core/issues";
+import { ValueObject } from "../../_core/value-object";
+import { TEMPLATE_BRN } from "../brn";
+import { TemplateFieldKind } from "../enums/template-field-kind.enum";
 
 interface TemplateItemBase {
   name: string;

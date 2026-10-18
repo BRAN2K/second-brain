@@ -1,4 +1,4 @@
-import type { Logger } from "pino";
+import type { Logger } from "@/libs/logger";
 import { describe, expect, it } from "bun:test";
 import { Elysia, t } from "elysia";
 import { RESOURCE } from "./brn";

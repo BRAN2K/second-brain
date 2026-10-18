@@ -1,8 +1,8 @@
-import { Guard } from "@/domain/core/guard";
-import { Issues } from "@/domain/core/issues";
-import { ValueObject } from "@/domain/core/value-object";
-import { EXTRACTION_BRN } from "@/domain/extraction/brn";
 import { UnprocessableEntityError } from "@/libs/errors";
+import { Guard } from "../../_core/guard";
+import { Issues } from "../../_core/issues";
+import { ValueObject } from "../../_core/value-object";
+import { EXTRACTION_BRN } from "../brn";
 
 export interface ExtractionMissingFieldProps {
   field: string;

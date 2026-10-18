@@ -84,8 +84,8 @@ bun run db:migrate                # reads DATABASE_URL from .env
 ```bash
 bun run dev                       # brings up Postgres (bun run db:up), then watch mode
 # then, in another terminal:
-curl localhost:3000/health        # {"status":"ok"}
-curl localhost:3000/ready         # {"status":"ready"}  (checks Postgres)
+curl localhost:3000/health/liveness   # {"status":"ok"}
+curl localhost:3000/health/readiness  # {"status":"ready"}  (checks Postgres)
 ```
 
 ### Alternative: everything in Docker

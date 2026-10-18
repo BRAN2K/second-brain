@@ -25,5 +25,5 @@ COPY --from=build /app/package.json /app/tsconfig.json ./
 USER bun
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD bun -e "fetch('http://localhost:'+(Bun.env.PORT||3000)+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["bun", "src/index.ts"]
+  CMD bun -e "fetch('http://localhost:'+(Bun.env.PORT||3000)+'/health/readiness').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["bun", "src/entrypoints/api/server.ts"]

@@ -1,18 +1,20 @@
-import type { Logger } from "pino";
 import type { ErrorBody } from "./schema";
 import { Elysia } from "elysia";
-import { getRequestId } from "@/libs/logger";
+import { getRequestId, Logger } from "@/libs/logger";
 import { AppError } from "./app-error";
 import { BadRequestError, InternalServerError, RouteNotFoundError } from "./errors";
 
-export function createHttpErrorHandler(logger: Logger) {
+export function createHttpErrorHandler(logger: Logger = Logger.getInstance()) {
   return new Elysia({ name: "http-error-handler" }).onError(
     { as: "global" },
     ({ code, error, status, request }) => {
       const requestId = getRequestId(request);
 
       if (error instanceof AppError) {
-        logger.warn({ requestId, brn: error.brn, message: error.message }, "request failed");
+        logger.warn(
+          { requestId, brn: error.brn, message: error.message, err: error.cause },
+          "request failed",
+        );
 
         return status(error.status, error.toBody() satisfies ErrorBody);
       }

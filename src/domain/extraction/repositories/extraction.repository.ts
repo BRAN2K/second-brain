@@ -1,4 +1,4 @@
-import type { Extraction } from "@/domain/extraction/entities/extraction.aggregate";
+import type { Extraction } from "../entities/extraction.aggregate";
 
 export interface ListExtractionsParams {
   cursor?: string;
